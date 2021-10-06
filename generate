@@ -25,6 +25,7 @@ rm -f Qt6Moc/moc/*.{h,cpp,orig}
 rm -rf Qt6Moc/moc/QtCore/
 rm -f Qt6Moc/moc/mkspecs
 rm -rf Qt6Moc/moc/3rdparty
+rm -rf Qt6Moc/moc/shared
 
 # Create output directories.
 #
@@ -44,6 +45,8 @@ ln -s ../../upstream/qtbase/mkspecs Qt6Moc/moc/
 #
 ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
       Qt6Moc/moc/3rdparty/
+
+ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
 
 # Symlink all QtCore sources into Qt6Moc/moc/QtCore/.
 #
@@ -144,6 +147,16 @@ for d in upstream/qtbase/src/corelib/*/; do
     rmdir "$sdd"
   fi
 done
+
+# Create camelcase headers required by
+# upstream/qtbase/src/tools/shared/depfile_shared.h.
+#
+# @@ The QtCore build will require camelcase versions for all headers but for
+#    now do only the few required by the moc build.
+#
+echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
+echo '#include "qfile.h"'      > Qt6Moc/moc/QtCore/QFile
+echo '#include "qstring.h"'    > Qt6Moc/moc/QtCore/QString
 
 # Symlink all of the moc application's headers and source files into
 # Qt6Moc/moc/.
