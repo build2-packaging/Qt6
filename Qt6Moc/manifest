@@ -1,0 +1,19 @@
+: 1
+name: Qt6Moc
+version: 6.2.0-a.0.z
+project: Qt6
+summary: Qt meta object compiler
+license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
+license: other: available source
+description-file: README.md
+url: https://www.qt.io/
+src-url: git://code.qt.io/qt/qtbase.git
+package-url: https://github.com/build2-packaging/Qt6
+email: interest@qt-project.org      ; Mailing list for developers using Qt.
+package-email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: host : &default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.14.0-
+depends: * bpkg >= 0.14.0-
+depends: libtinycbor ^0.6.0-

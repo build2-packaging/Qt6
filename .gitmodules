@@ -1,0 +1,4 @@
+[submodule "upstream/qtbase"]
+	path = upstream/qtbase
+	url = git://code.qt.io/qt/qtbase.git
+	branch = 6.2.0
