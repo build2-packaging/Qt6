@@ -32,10 +32,7 @@
 #include <memory>
 #include <stdio.h>
 
-#define CBOR_API            inline
-#define CBOR_PRIVATE_API    inline
-#define CBOR_NO_PARSER_API  1
-#include <cbor.h>
+#include <libtinycbor/cbor.h>
 
 class CborDevice
 {

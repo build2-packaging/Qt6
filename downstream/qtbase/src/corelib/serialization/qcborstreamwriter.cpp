@@ -39,7 +39,6 @@
 
 #include "qcborstreamwriter.h"
 
-#define CBOR_NO_PARSER_API
 #include <private/qcborcommon_p.h>
 
 #include <private/qnumeric_p.h>
@@ -50,30 +49,6 @@
 QT_BEGIN_NAMESPACE
 
 static CborError qt_cbor_encoder_write_callback(void *token, const void *data, size_t len, CborEncoderAppendType);
-#define CBOR_ENCODER_WRITER_CONTROL     1
-#define CBOR_ENCODER_WRITE_FUNCTION     qt_cbor_encoder_write_callback
-#define CBOR_ENCODER_NO_CHECK_USER
-
-QT_WARNING_PUSH
-QT_WARNING_DISABLE_MSVC(4334) // '<<': result of 32-bit shift implicitly converted to 64 bits (was 64-bit shift intended?)
-
-#include <cborencoder.c>
-
-QT_WARNING_POP
-
-// silence compilers that complain about this being a static function declared
-// but never defined
-[[maybe_unused]] static CborError cbor_encoder_close_container_checked(CborEncoder*, const CborEncoder*)
-{
-    Q_UNREACHABLE();
-    return CborErrorInternalError;
-}
-
-[[maybe_unused]] static CborError cbor_encode_float_as_half_float(CborEncoder *, float)
-{
-    Q_UNREACHABLE();
-    return CborErrorInternalError;
-}
 
 Q_DECLARE_TYPEINFO(CborEncoder, Q_PRIMITIVE_TYPE);
 

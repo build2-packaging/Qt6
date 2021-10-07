@@ -44,9 +44,9 @@
 
 #include <QtCore/qdatastream.h>
 
-QT_BEGIN_NAMESPACE
+#include <libtinycbor/cbor.h>
 
-#include <cborerrorstrings.c>
+QT_BEGIN_NAMESPACE
 
 /*!
    \headerfile <QtCborCommon>

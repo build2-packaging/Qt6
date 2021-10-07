@@ -1633,5 +1633,3 @@ QT_WARNING_DISABLE_MSVC(4334) // '<<': result of 32-bit shift implicitly convert
 #define CBOR_ENCODER_WRITE_FUNCTION     CborDevice::callback
 
 QT_END_NAMESPACE
-
-#include "cborencoder.c"
