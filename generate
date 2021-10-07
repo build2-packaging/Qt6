@@ -1,0 +1,163 @@
+#!/usr/bin/env bash
+
+# file      : generate
+# license   : MIT
+
+# Create the infrastructure required by our Qt packages:
+#
+# - Create a source layout more suitable to our purposes which is still
+#   compatible the Qt upstream (the way they include stuff, etc).
+#
+
+owd="$(pwd)"
+trap "{ cd '$owd'; exit 1; }" ERR
+set -o errtrace     # Trap in functions and subshells.
+set -o pipefail     # Fail if any pipeline command fails.
+shopt -s lastpipe   # Execute last pipeline command in the current shell.
+shopt -s nullglob   # Expand no-match globs to nothing rather than themselves.
+
+function info () { echo "$*" 1>&2; }
+function error () { info "$*"; exit 1; }
+
+# Remove previously-generated files and directories.
+#
+rm -f Qt6Moc/moc/*.{h,cpp,orig}
+rm -rf Qt6Moc/moc/QtCore/
+rm -f Qt6Moc/moc/mkspecs
+rm -rf Qt6Moc/moc/3rdparty
+
+# Create output directories.
+#
+mkdir Qt6Moc/moc/QtCore
+mkdir Qt6Moc/moc/QtCore/private
+
+# This directory has to be a sibling to QtCore/ because the QtCore source
+# files use include paths such as "../../3rdparty/freebsd/strtoll.c".
+#
+mkdir Qt6Moc/moc/3rdparty
+
+# Symlink the upstream platform-specific include directories.
+#
+ln -s ../../upstream/qtbase/mkspecs Qt6Moc/moc/
+
+# Symlink the upstream third-party directories required to build moc.
+#
+ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+      Qt6Moc/moc/3rdparty/
+
+# Symlink all QtCore sources into Qt6Moc/moc/QtCore/.
+#
+# Note that we have to rearrange the upstream sources because they cannot be
+# built the way they're laid out in upstream/qtbase/src/corelib/ (the upstream
+# build also rearranges them).
+#
+# From the upstream directory layout,
+#
+#   upstream/qtbase/src/corelib
+#   ├── foo
+#   │   ├── foo.cpp
+#   │   ├── foo.h
+#   │   ├── foo_p.h
+#   │   ...
+#   ├── bar
+#   │   ├── bar.cpp
+#   │   ├── bar.h
+#   │   ├── bar_p.h
+#   │   ...
+#   ...
+#
+# create the following layout:
+#
+#   Qt6Moc
+#   └── moc
+#       └── QtCore
+#           ├── foo
+#           │   ├── foo.cpp
+#           │   ...
+#           ├── bar
+#           │   ├── bar.cpp
+#           │   ...
+#           ├── private
+#           │   ├── foo_p.h
+#           │   ├── bar_p.h
+#           │   ...
+#           ├── foo.h
+#           ├── bar.h
+#           ...
+#
+for d in upstream/qtbase/src/corelib/*/; do
+  d="${d%/}" # Strip trailing /.
+
+  sdd="Qt6Moc/moc/QtCore/$(basename $d)" # Source file destination directory.
+  mkdir "$sdd"
+
+  # All of the source files of interest are directly under one of
+  # src/corelib/'s subdirectories (that is, nested no deeper).
+  #
+  for f in "$d"/*; do
+    f="${f#upstream/}" # Strip "upstream/" prefix.
+
+    tpp= # Symlink target path prefix.
+    spp= # Symlink path prefix.
+    case "$f" in
+      # Private header.
+      #
+      *_p.h)
+        tpp="../../../.."
+        spp="Qt6Moc/moc/QtCore/private"
+        ;;
+      # Public header.
+      #
+      *.h)
+        tpp="../../.."
+        spp="Qt6Moc/moc/QtCore"
+        ;;
+      # C++ source file.
+      # Objective-C++ source file.
+      #
+      *.cpp | *.mm)
+        tpp="../../../.."
+        spp="$sdd"
+        ;;
+      # Not a source file.
+      #
+      *) continue ;;
+    esac
+
+    # If there is a downstream version of this file, its symlink gets the
+    # upstream filename while the upstream original's symlink gets the
+    # upstream filename with a ".orig" extension.
+    #
+    fn="$(basename "$f")" # File name.
+    if [[ -f "downstream/$f" ]]; then
+      ln -s "$tpp/upstream/$f"   "$spp/$fn.orig"
+      ln -s "$tpp/downstream/$f" "$spp/$fn"
+    else
+      ln -s "$tpp/upstream/$f"   "$spp/$fn"
+    fi
+  done
+
+  # Remove the source file destination directory if it is empty (which would
+  # be the case if the upstream directory contained no source files).
+  #
+  if [[ -z "$(ls "$sdd")" ]]; then
+    rmdir "$sdd"
+  fi
+done
+
+# Symlink all of the moc application's headers and source files into
+# Qt6Moc/moc/.
+#
+for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
+  f="${f#upstream/}"    # Strip "upstream/" prefix.
+  fn="$(basename "$f")" # File name.
+
+  # See the symlinking of the QtCore sources above.
+  #
+  if [[ -f "downstream/$f" ]]; then
+    ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn.orig"
+    ln -s "../../downstream/$f" "Qt6Moc/moc/$fn"
+  else
+    ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn"
+  fi
+done

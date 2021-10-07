@@ -1,0 +1,28 @@
+: basics
+: Check that the MOC binary runs.
+:
+$* <<EOI >>~%EOO%
+class MyClass : public QObject
+{
+    Q_OBJECT
+
+public:
+    MyClass(QObject *parent = 0);
+    ~MyClass();
+
+signals:
+    void mySignal();
+
+public slots:
+    void mySlot();
+};
+EOI
+/****************************************************************************
+** Meta object code from reading C++ file ''
+**
+%\*\* Created by: The Qt Meta Object Compiler version .+%
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+%.+
+EOO
