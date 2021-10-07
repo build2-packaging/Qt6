@@ -1,4 +1,5 @@
-import libs = libtinycbor%lib{tinycbor}
+import libs  = libpcre2%lib{pcre2-16}
+import libs += libtinycbor%lib{tinycbor}
 
 windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
@@ -26,13 +27,9 @@ moc_src = collectjson  \
 # The QtCore source files required to build the moc executable. (These all go
 # into the bootstrap library in the upstream build.)
 #
-core_src = QtCore/codecs/qlatincodec              \
-           QtCore/codecs/qtextcodec               \
-           QtCore/codecs/qutfcodec                \
-           QtCore/global/qendian                  \
+core_src = QtCore/global/qendian                  \
            QtCore/global/qglobal                  \
            QtCore/global/qlogging                 \
-           QtCore/global/qmalloc                  \
            QtCore/global/qnumeric                 \
            QtCore/global/qoperatingsystemversion  \
            QtCore/global/qrandom                  \
@@ -47,6 +44,8 @@ core_src = QtCore/codecs/qlatincodec              \
            QtCore/io/qfilesystemengine            \
            QtCore/io/qfsfileengine                \
            QtCore/io/qfsfileengine_iterator       \
+           QtCore/io/qloggingcategory             \
+           QtCore/io/qloggingregistry             \
            QtCore/io/qiodevice                    \
            QtCore/io/qipaddress                   \
            QtCore/io/qfiledevice                  \
@@ -80,8 +79,9 @@ core_src = QtCore/codecs/qlatincodec              \
            QtCore/text/qbytearraymatcher          \
            QtCore/text/qlocale                    \
            QtCore/text/qlocale_tools              \
-           QtCore/text/qregexp                    \
+           QtCore/text/qregularexpression         \
            QtCore/text/qstring                    \
+           QtCore/text/qstringconverter           \
            QtCore/text/qstringlist                \
            QtCore/text/qvsnprintf                 \
            QtCore/time/qcalendar                  \
@@ -94,9 +94,13 @@ core_src = QtCore/codecs/qlatincodec              \
            QtCore/tools/qcommandlineoption        \
            QtCore/tools/qcryptographichash        \
            QtCore/tools/qhash                     \
-           QtCore/tools/qlist                     \
-           QtCore/tools/qmap                      \
            QtCore/tools/qringbuffer
+
+# The QtCore camelcase headers.
+#
+core_hdr = QtCore/QByteArray \
+           QtCore/QFile      \
+           QtCore/QString
 
 # The UNIX-specific QtCore source files required to build moc. Note that
 # this includes Mac OS.
@@ -136,6 +140,10 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin \
                     QtCore/kernel/qcore_mac
 
 exe{qt6moc}: hxx{**} cxx{$core_src $moc_src} $libs testscript
+
+# The QtCore camelcase headers (with a dot appended to each name).
+#
+exe{qt6moc}: hxx{$regex.apply($core_hdr, '(.)$', '\1.')}
 
 exe{qt6moc}: cxx{$unix_core_src}:                include = $unix
 exe{qt6moc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
@@ -184,23 +192,24 @@ obje{~'/(.*)/'}: mm{~'/\1/'}
 #
 # Add moc/QtCore/private/ for include paths such as <qglobal_p.h>.
 #
+# Add moc/shared for a single include of <depfile_shared.h>.
+#
 cxx.poptions =+ "-I$src_root/moc"                \
                 "-I$src_root/moc/QtCore"         \
-                "-I$src_root/moc/QtCore/private"
+                "-I$src_root/moc/QtCore/private" \
+                "-I$src_root/moc/shared"
 
-# Define macros from the upstream build.
+# Define macros from the upstream build (a union of the bootstrap library and
+# moc builds as far as possible).
 #
 cxx.poptions +=                                                       \
   -D_LARGEFILE64_SOURCE                                               \
   -D_LARGEFILE_SOURCE                                                 \
-  -DQT_BUILDING_QT                                                    \
   -DQT_BOOTSTRAPPED                                                   \
-  -DQT_MOC                                                            \
   -DQT_NO_CAST_TO_ASCII                                               \
   -DQT_NO_CAST_FROM_ASCII                                             \
   -DQT_NO_COMPRESS                                                    \
   -DQT_NO_FOREACH                                                     \
-  -DQT_NO_JAVA_STYLE_ITERATORS                                        \
   -DQT_USE_QSTRINGBUILDER                                             \
   -DQT_NO_DEBUG                                                       \
   -DQT_DEPRECATED_WARNINGS_SINCE=0x060000                             \
@@ -237,10 +246,11 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   case 'macos', 'clang-apple'
   {
     cxx.poptions += "-I$src_root/moc/mkspecs/macx-clang"
-    cxx.libs     += -framework AppKit          \
-                    -framework CoreServices    \
-                    -framework Foundation      \
-                    -framework IOKit
+    cxx.libs     += -framework AppKit       \
+                    -framework CoreServices \
+                    -framework Foundation   \
+                    -framework IOKit        \
+                    -framework Security
   }
   case 'bsd', 'clang', 'freebsd'
     cxx.poptions += "-I$src_root/moc/mkspecs/freebsd-clang"
@@ -272,6 +282,8 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-# This macro disables implicit conversions of QByteArray to char* and void*.
+# QT_NO_CAST_FROM_BYTEARRAY disables implicit conversions of QByteArray to
+# char* and void*.
 #
-obj{$moc_src}: cxx.poptions += -DQT_NO_CAST_FROM_BYTEARRAY
+obj{$moc_src}: cxx.poptions += -DQT_MOC \
+                               -DQT_NO_CAST_FROM_BYTEARRAY
