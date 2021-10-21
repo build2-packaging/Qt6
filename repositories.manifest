@@ -3,4 +3,8 @@ summary: Qt6 project repository
 
 :
 role: prerequisite
+location: https://github.com/build2-packaging/pcre2.git##HEAD
+
+:
+role: prerequisite
 location: https://github.com/build2-packaging/tinycbor.git##HEAD
