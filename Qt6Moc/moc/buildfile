@@ -1,6 +1,17 @@
 import libs  = libpcre2%lib{pcre2-16}
 import libs += libtinycbor%lib{tinycbor}
 
+# Target metadata, see also --build2-metadata in main.cpp.
+#
+exe{qt6moc}:
+{
+  export.metadata = 1 qt6moc
+  qt6moc.name = [string] moc
+  qt6moc.version  = [string] $version
+  qt6moc.checksum = [string] $version
+  qt6moc.environment = [strings] CPATH CPLUS_INCLUDE_PATH INCLUDE
+}
+
 windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
 macos   = ($cxx.target.class == 'macos')

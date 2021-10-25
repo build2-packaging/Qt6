@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <string.h> // strncmp()
 
 #include <qcoreapplication.h>
 #include <qcommandlineoption.h>
@@ -653,5 +654,18 @@ QT_END_NAMESPACE
 
 int main(int _argc, char **_argv)
 {
+    // Handle --build2-metadata (see also buildfile).
+    if (_argc == 2 && strncmp (_argv[1], "--build2-metadata=", 18) == 0)
+    {
+      printf ("# build2 buildfile qt6moc\n");
+      printf ("export.metadata = 1 qt6moc\n");
+      printf ("qt6moc.name = [string] moc\n");
+      printf ("qt6moc.version = [string] '%s'\n", QT_VERSION_STR);
+      printf ("qt6moc.checksum = [string] '%s'\n", QT_VERSION_STR);
+      printf ("qt6moc.environment = "
+              "[strings] CPATH CPLUS_INCLUDE_PATH INCLUDE\n");
+      return 0;
+    }
+
     return QT_PREPEND_NAMESPACE(runMoc)(_argc, _argv);
 }
