@@ -1,1 +1,1 @@
-../../upstream/qtbase/src/tools/moc/main.cpp
+../../downstream/qtbase/src/tools/moc/main.cpp
