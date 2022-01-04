@@ -18,6 +18,7 @@ builds: -( +macos &gcc ) ; See README-DEV.
 depends: * build2 >= 0.15.0-
 depends: * bpkg >= 0.15.0-
 depends: * Qt6Moc == $
+depends: * xxd >= 8.2.0
 depends: libdouble-conversion ^3.2.0
 depends: libb2 >= 0.98.1-
 depends: libicuuc >= 65.1.0

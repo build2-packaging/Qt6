@@ -1,0 +1,210 @@
+// "basic cpp/winrt language projection support"
+//
+// @@ TODO Remove downstream/qtbase/src/corelib/io/qfilesystemengine_win.cpp
+//    (where this feature is used) once
+//    https://code.qt.io/cgit/qt/qtbase.git/commit/?id=24301726390eb97f9bd00ab5cb40b70d70e119fc
+//    has been picked into the release branch we're on.
+//
+#define QT_FEATURE_cpp_winrt -1
+
+// "Provides support for parsing date-time texts."
+//
+#define QT_FEATURE_datetimeparser 1
+
+// Basis for Islamic calendar (shared locale data).
+//
+#define QT_FEATURE_hijricalendar 1
+
+// "Built-in copy of the MIME database"
+//
+// If enabled, mime/qmimeprovider.cpp includes qmimeprovider_database.cpp
+// which we copy into the source tree from the upstream build (where it is
+// generated).
+//
+#define QT_FEATURE_mimetype_database 1
+
+#undef qtcore_config_p_HAVE_CLOCK_GETTIME
+#ifdef qtcore_config_p_HAVE_CLOCK_GETTIME
+#  define QT_FEATURE_clock_gettime 1
+#else
+#  define QT_FEATURE_clock_gettime -1
+#endif
+
+// futimens() supercedes futimes() upstream.
+ //
+#undef qtcore_config_p_HAVE_FUTIMENS
+#ifdef qtcore_config_p_HAVE_FUTIMENS
+#  define QT_FEATURE_futimens 1
+#  define QT_FEATURE_futimes -1
+#else
+#  define QT_FEATURE_futimens -1
+#  undef qtcore_config_p_HAVE_FUTIMES
+#  ifdef qtcore_config_p_HAVE_FUTIMES
+#    define QT_FEATURE_futimes 1
+#  else
+#    define QT_FEATURE_futimes -1
+#  endif
+#endif
+
+#undef qtcore_config_p_HAVE_GETAUXVAL
+#ifdef qtcore_config_p_HAVE_GETAUXVAL
+#  define QT_FEATURE_getauxval 1
+#else
+#  define QT_FEATURE_getauxval -1
+#endif
+
+#undef qtcore_config_p_HAVE_GETENTROPY
+// Although Mac OS has getentropy() it does not seem to work with Qt. It's in
+// sys/random.h on Mac OS but the Qt test in qtcore/configure.json includes
+// unistd.h. So we disable it.
+//
+#if defined(qtcore_config_p_HAVE_GETENTROPY) && !defined __APPLE__
+#  define QT_FEATURE_getentropy 1
+#else
+#  define QT_FEATURE_getentropy -1
+#endif
+
+#ifdef __GLIBC__
+#  define QT_FEATURE_glibc 1
+#else
+#  define QT_FEATURE_glibc -1
+#endif
+
+#undef qtcore_config_p_HAVE_INOTIFY
+#ifdef qtcore_config_p_HAVE_INOTIFY
+#  define QT_FEATURE_inotify 1
+#else
+#  define QT_FEATURE_inotify -1
+#endif
+
+// Supported on multiple platforms but currently only used by upstream if on
+// Linux (see corelib/configure.json and
+// https://wiki.qt.io/Qt5_Build_System#configure.json_2).
+//
+#undef qtcore_config_p_HAVE_LINKAT
+#if defined(qtcore_config_p_HAVE_LINKAT) && defined(__linux__)
+#  define QT_FEATURE_linkat 1
+#else
+#  define QT_FEATURE_linkat -1
+#endif
+
+// These are available as build2 packages.
+//
+#define QT_FEATURE_icu 1
+// #define QT_FEATURE_system_pcre2 1
+
+// This library provides routines to convert IEEE single and double floats to
+// and from string representations. Qt bundles their own copy under 3rdparty/
+// but we use the build2 package.
+//
+// #define QT_FEATURE_doubleconversion 1
+// #define QT_FEATURE_system_doubleconversion 1
+
+// BLAKE2 hashing algorithms.
+//
+// Define to 1 to use the build2-packaged libb2 otherwise 3rdparty/blake2/ is
+// used.
+//
+#define QT_FEATURE_system_libb2 1
+
+// Disabled upstream if ICU is used.
+//
+// NOTE: Remember QT_NO_ICONV in qtcore-config.h.in.
+//
+#define QT_FEATURE_iconv -1
+#define QT_FEATURE_posix_libiconv -1
+// #define QT_FEATURE_gnu_libiconv -1
+
+// Detect polling functions, in order of precedence: ppoll, pollts, poll,
+// select.
+//
+#undef qtcore_config_p_HAVE_PPOLL
+#ifdef qtcore_config_p_HAVE_PPOLL
+#  define QT_FEATURE_poll_ppoll 1
+#  define QT_FEATURE_poll_pollts -1
+#  define QT_FEATURE_poll_poll -1
+#  define QT_FEATURE_poll_select -1
+#else
+#  define QT_FEATURE_poll_ppoll -1
+
+#  undef qtcore_config_p_HAVE_POLLTS
+#  ifdef qtcore_config_p_HAVE_POLLTS
+#    define QT_FEATURE_poll_pollts 1
+#    define QT_FEATURE_poll_poll -1
+#    define QT_FEATURE_poll_select -1
+#  else
+#    define QT_FEATURE_poll_pollts -1
+
+#    undef qtcore_config_p_HAVE_POLL
+#    ifdef qtcore_config_p_HAVE_POLL
+#      define QT_FEATURE_poll_poll 1
+#      define QT_FEATURE_poll_select -1
+#    else
+#      define QT_FEATURE_poll_poll -1
+
+#      if !defined(_WIN32)
+#        define QT_FEATURE_poll_select 1
+#        define QT_NO_NATIVE_POLL
+#      else
+#        define QT_FEATURE_poll_select -1
+#      endif
+#    endif
+#  endif
+ #endif
+
+// "CLONE_PIDFD support in forkfd"
+//
+// See corelib/configure.json, io/qprocess_unix.cpp.
+//
+#ifdef __linux__
+#  define QT_FEATURE_forkfd_pidfd 1
+#else
+#  define QT_FEATURE_forkfd_pidfd -1
+#endif
+
+#undef qtcore_config_p_HAVE_RENAMEAT2
+#ifdef qtcore_config_p_HAVE_RENAMEAT2
+#  define QT_FEATURE_renameat2 1
+#else
+#  define QT_FEATURE_renameat2 -1
+#endif
+
+// Optimizes SHA3 for speed instead of size. Not conditional in the upstream
+// build so always enable.
+//
+#define QT_FEATURE_sha3_fast 1
+
+// Logging library for QNX only so always disable.
+//
+#define QT_FEATURE_slog2 -1
+
+// Upstream build disables autodetection (doesn't run its test) and so this
+// feature was left disabled. However, looking at the upstream code it should
+// work as expected if we enable this on non-Windows platforms. Maybe we can
+// provide configuration option to enable it.
+//
+#ifndef _WIN32
+#  define QT_FEATURE_syslog -1
+#else
+#  define QT_FEATURE_syslog -1
+#endif
+
+// Need to have systemd development headers installed. Can't assume it's
+// present on all Linuxes and only way to detect is to compile a program (see
+// upstream build) so always disable. Maybe we can provide configuration
+// option to enable it. Note that Debian doesn't link to this library.
+//
+#define QT_FEATURE_journald -1
+
+#undef qtcore_config_p_HAVE_STATX
+#ifdef qtcore_config_p_HAVE_STATX
+#  define QT_FEATURE_statx 1
+#else
+#  define QT_FEATURE_statx -1
+#endif
+
+// Features we have decided not to enable.
+//
+#define QT_FEATURE_glib -1  // NOTE: Remember QT_NO_GLIB in qconfig.h.in.
+#define QT_FEATURE_etw -1   // Event tracing (Windows).
+#define QT_FEATURE_lttng -1 // Event tracing (Linux).

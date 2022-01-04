@@ -1,0 +1,63 @@
+// See the buildfile for more information.
+//
+
+// Used 1) by QLibraryInfo::location() to make absolute the paths in
+// qt_configure_strs, but only in the shared build if no equivalent of
+// dladdr(3) is available, so rarely; and 2) on Linux and GNU Hurd, printed as
+// part of the "version/copyright/contact" preamble at program startup.
+//
+extern const char qt_configure_prefix_path_str[12 + 256] =
+    "qt_prfxpath=$prefix$";
+
+// The offsets of the beginning of each substring in qt_configure_strs. This
+// array is indexed by the enumerators in the QLibraryInfo::LibraryLocation
+// enum (see https://doc.qt.io/qt-5/qlibraryinfo.html).
+//
+extern const short qt_configure_str_offsets[13] = {$o_doc$,
+                                                   $o_incl$,
+                                                   $o_lib$,
+                                                   $o_libexec$,
+                                                   $o_bin$,
+                                                   $o_plugins$,
+                                                   $o_imports$,
+                                                   $o_qml$,
+                                                   $o_arch_data$,
+                                                   $o_data$,
+                                                   $o_translations$,
+                                                   $o_examples$,
+                                                   $o_tests$};
+
+// Installation paths corresponding to the enumerators in enum
+// QLibraryInfo::LibraryLocation.
+//
+const char* qt_configure_strs = "$doc$\0"
+                                "$incl$\0"
+                                "$lib$\0"
+                                "$libexec$\0"
+                                "$bin$\0"
+                                "$plugins$\0"
+                                "$imports$\0"
+                                "$qml$\0"
+                                "$arch_data$\0"
+                                "$data$\0"
+                                "$translations$\0"
+                                "$examples$\0"
+                                "$tests$\0";
+
+// The directory path containing user application settings.
+//
+const char* QT_CONFIGURE_SETTINGS_PATH = "$settingspath$";
+
+// A relative path used to get the installation prefix path starting from the
+// absolute path of the directory containing the QtCore library (looked up
+// using whatever the platform equivalent of dladdr(3) is), the ultimate goal
+// being to turn the (usually) relative installation paths into absolute
+// paths.
+//
+const char* QT_CONFIGURE_LIBLOCATION_TO_PREFIX_PATH = "$lib_to_prefix$/";
+
+// The use of these two paths is wrapped inside #if defined(QT_BUILD_QMAKE)
+// (i.e., building qmake itself) in global/qlibraryinfo.cpp.
+//
+// const char* QT_CONFIGURE_HOSTBINDIR_TO_EXTPREFIX_PATH = "../";
+// const char* QT_CONFIGURE_HOSTBINDIR_TO_HOSTPREFIX_PATH = "../";

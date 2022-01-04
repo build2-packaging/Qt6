@@ -16,3 +16,7 @@ hxx{*}: cxx.importable = true
 # The test target for cross-testing (running tests under Wine, etc).
 #
 test.target = $cxx.target
+
+# If true, build without -DQT_NO_DEBUG.
+#
+config [bool] config.libQt6Core.debug ?= false

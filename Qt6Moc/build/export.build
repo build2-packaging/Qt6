@@ -1,0 +1,6 @@
+$out_root/
+{
+  include moc/
+}
+
+export $out_root/moc/$import.target

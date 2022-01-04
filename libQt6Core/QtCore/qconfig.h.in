@@ -1,0 +1,255 @@
+// NOTE regarding commented-out QT_FEATURE_* lines: if the build succeeds then
+// these features are not referenced in the code (see QT_CONFIG() in
+// qglobal.h) so leave as many as possible commented-out until we've packaged
+// all Qt libraries, at which point the remaining commented-out lines can be
+// deleted.
+
+// @@ TODO Update all Qt5 comments for Qt6.
+
+#define QT_VERSION_STR "$QT_VERSION_STR$"
+#define QT_VERSION_MAJOR $QT_VERSION_MAJOR$
+#define QT_VERSION_MINOR $QT_VERSION_MINOR$
+#define QT_VERSION_PATCH $QT_VERSION_PATCH$
+
+// NOTE: Remember QT_FEATURE_dbus and QT_FEATURE_dbus_linked in qconfig_p.h.in.
+//
+#define QT_NO_DBUS
+
+// NOTE: Remember QT_FEATURE_glib in qtcore-config_p.h.in.
+//
+#define QT_NO_GLIB
+
+// Upstream always defines this to 64 on all of our supported platforms.
+//
+// Note that this macro is not directly related to the _LARGEFILE_SOURCE or
+// _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
+// to all platforms.
+//
+#define QT_LARGEFILE_SUPPORT 64
+
+// If true and on a non-Windows platform, sets the values of the
+// Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to "default",
+// "default", and "hidden", respectively (values of the GCC `visibility`
+// attribute), otherwise they are left undefined. On Windows this macro is
+// ignored.
+//
+#define QT_VISIBILITY_AVAILABLE true
+
+// Whether or not we're building the shared libraries.
+//
+// Enabled by default on most platforms. If enabled, QT_FEATURE_static is
+// disabled. So upstream never builds both shared and static libraries.
+//
+// Note: not currently used (in QtCore, anyway) and the actual code checks the
+// QT_SHARED and QT_STATIC macros which we set in the buildfile.
+//
+// #define QT_FEATURE_shared 1
+
+// Whether or not we're building the static libraries.
+//
+// Disabled if QT_FEATURE_shared is enabled.
+//
+// #define QT_FEATURE_static -1
+
+// Mac OS frameworks. Depends on QT_FEATURE_shared.
+//
+#if defined(__APPLE__) && defined(QT_SHARED)
+#  define QT_FEATURE_framework 1
+#else
+#  define QT_FEATURE_framework -1
+#endif
+
+// Note: some (most) of these are not referenced in the code.
+//
+// #define QT_FEATURE_simulator_and_device -1
+#define QT_FEATURE_debug_and_release -1
+// #define QT_FEATURE_force_asserts -1
+// #define QT_FEATURE_build_all -1
+// #define QT_FEATURE_separate_debug_info -1
+// #define QT_FEATURE_cross_compile -1
+// #define QT_FEATURE_rpath 1
+// #define QT_FEATURE_pkg_config -1
+
+#undef qconfig_HAVE_SIGNALING_NAN
+#ifdef qconfig_HAVE_SIGNALING_NAN
+#define QT_FEATURE_signaling_nan 1
+#else
+#  define QT_FEATURE_signaling_nan -1
+#endif
+
+// The QT_COMPILER_SUPPORTS_* macros cover support for various instruction
+// with the following convoluted semantics.
+//
+// Distinct places where SIMD decisions are made:
+//
+// 1. Call site: calling SIMD or non-SIMD version based on runtime check.
+//
+//    #if QT_COMPILER_SUPPORTS(XXX)
+//    if (qCpuHasFeature(XXX))
+//       operation_XXX();
+//    else
+//       operation_unoptimized();
+//    #else
+//    operation_unoptimized();
+//    #endif
+//
+// 2. Impl: within "orginary TU" where SIMD code is enabled with an attribute.
+//
+//    #if QT_COMPILER_SUPPORTS_HERE(XXX)
+//    QT_FUNCTION_TARGET(XXX)
+//    static uint crc32()
+//    {
+//      ...
+//    }
+//    #endif
+//
+// 3. Impl: within "SIMD TU" -- TU that is expected to be compiled with SIMD
+//    already enabled, if possible (if not possible, the TU will be empty).
+//
+//    #if QT_COMPILER_SUPPORTS(XXX)
+//    ...
+//    #endif
+//
+// For every "SIMD" instruction set XXX (SSEn, AVXn, AES, F16C, and RDRND*),
+// there are two configuration macros involved:
+//
+// QT_COMPILER_SUPPORTS_XXX
+// QT_COMPILER_SUPPORTS_SIMD_ALWAYS
+//
+// They are used as follows in the above test macros:
+//
+// QT_COMPILER_SUPPORTS(XXX) QT_COMPILER_SUPPORTS_XXX
+//
+// #if QT_COMPILER_SUPPORTS_SIMD_ALWAYS
+//   QT_COMPILER_SUPPORTS_HERE(XXX)  __XXX__ || QT_COMPILER_SUPPORTS_XXX
+// #else
+//   QT_COMPILER_SUPPORTS_HERE(XXX) __XXX__
+// #endif
+//
+// ("SIMD_ALWAYS" means that SIMD is always compiled-in, regardless of what is
+//  enabled with compiler options.)
+//
+// Our plan is as follows: we will always disable
+// QT_COMPILER_SUPPORTS_SIMD_ALWAYS effectively forcing Qt to only use SIMD
+// instructions that are enabled with compiler options. And we will set each
+// QT_COMPILER_SUPPORTS_XXX according to our autoconf macros.
+//
+
+#undef qconfig_HAVE_SSE2
+#ifdef qconfig_HAVE_SSE2
+#  define QT_COMPILER_SUPPORTS_SSE2 1
+#endif
+
+#undef qconfig_HAVE_SSE3
+#ifdef qconfig_HAVE_SSE3
+#  define QT_COMPILER_SUPPORTS_SSE3 1
+#endif
+
+#undef qconfig_HAVE_SSSE3
+#ifdef qconfig_HAVE_SSSE3
+#  define QT_COMPILER_SUPPORTS_SSSE3 1
+#endif
+
+#undef qconfig_HAVE_SSE4_1
+#ifdef qconfig_HAVE_SSE4_1
+#  define QT_COMPILER_SUPPORTS_SSE4_1 1
+#endif
+
+#undef qconfig_HAVE_SSE4_2
+#ifdef qconfig_HAVE_SSE4_2
+#  define QT_COMPILER_SUPPORTS_SSE4_2 1
+#endif
+
+// Note that the upstream source code never checks any of the
+// QT_COMPILER_SUPPORTS_AVX5* macros so we do not define them.
+//
+#undef qconfig_HAVE_AVX
+#ifdef qconfig_HAVE_AVX
+#  define QT_COMPILER_SUPPORTS_AVX 1
+#endif
+
+#undef qconfig_HAVE_AVX2
+#ifdef qconfig_HAVE_AVX2
+#  define QT_COMPILER_SUPPORTS_AVX2 1
+#endif
+
+// #define QT_COMPILER_SUPPORTS_AVX512F 1
+// #define QT_COMPILER_SUPPORTS_AVX512BW 1
+// #define QT_COMPILER_SUPPORTS_AVX512CD 1
+// #define QT_COMPILER_SUPPORTS_AVX512DQ 1
+// #define QT_COMPILER_SUPPORTS_AVX512ER 1
+// #define QT_COMPILER_SUPPORTS_AVX512IFMA 1
+// #define QT_COMPILER_SUPPORTS_AVX512PF 1
+// #define QT_COMPILER_SUPPORTS_AVX512VBMI 1
+// #define QT_COMPILER_SUPPORTS_AVX512VL 1
+
+// Floating-point instructions (conversion between half- and single-precision
+// formats).
+//
+// Define QFLOAT16_INCLUDE_FAST to make qfloat16.cpp include qfloat16_f16c.c,
+// but only if both F16C and AVX are enabled (the latter check being necessary
+// due to unconventional macro use in qfloat16_f16c.c; Qt6 fixes this).
+//
+// Note that, although the upstream build compiles qfloat16_f16c.c separately
+// in some cases, we include it because inclusion always works for us and this
+// is what is preferred by the upstream build.
+//
+#undef qconfig_HAVE_F16C
+#ifdef qconfig_HAVE_F16C
+#  define QT_COMPILER_SUPPORTS_F16C 1
+#  ifdef qconfig_HAVE_AVX
+#    define QFLOAT16_INCLUDE_FAST
+#  endif
+#endif
+
+// AES intrinsics (AES-NI).
+//
+#undef qconfig_HAVE_AES
+#ifdef qconfig_HAVE_AES
+#  define QT_COMPILER_SUPPORTS_AES 1
+#endif
+
+#undef qconfig_HAVE_RDRND
+#ifdef qconfig_HAVE_RDRND
+#  define QT_COMPILER_SUPPORTS_RDRND 1
+#endif
+
+#undef qconfig_HAVE_RDSEED
+#ifdef qconfig_HAVE_RDSEED
+#  define QT_COMPILER_SUPPORTS_RDSEED 1
+#endif
+
+// SHA intrinsics.
+//
+// Not referenced anywhere but qtbase/configure.json. (Note that upstream also
+// apparently uses `SHANI` to refer to the same thing.)
+//
+// NOTE: First added to GCC 4.9.0 (2014). Only supported by a few of Intel's
+// mobile and Xeon processors and only Zen in the case of AMD.
+//
+// #define QT_COMPILER_SUPPORTS_SHA 1
+
+// #define QT_FEATURE_c__11 1
+// #define QT_FEATURE_c__14 1
+// #define QT_FEATURE_c__17 1
+// #define QT_FEATURE_c__1z 1
+// #define QT_FEATURE_c__2a -1
+// #define QT_FEATURE_c99 1
+// #define QT_FEATURE_c11 1
+
+// These are supported on all platforms other than WASM.
+//
+#define QT_FEATURE_thread 1
+#define QT_FEATURE_future 1
+#define QT_FEATURE_concurrent 1
+
+// "Disables code that is not allowed in platform app stores"
+//
+#define QT_FEATURE_appstore_compliant -1
+
+// NOTE: If this macro is enabled, remember QT_FEATURE_reduce_relocations in
+// qconfig_p.h.in. (However, given that all that feature does is cause
+// -Bsymbolic-functions to be passed to the linker we probably won't ever want
+// to enable it.)
+//
+// #define QT_REDUCE_RELOCATIONS true

@@ -1,0 +1,1066 @@
+intf_libs = # Interface dependencies.
+import impl_libs  = libb2%lib{b2}
+import impl_libs += libdouble-conversion%lib{double-conversion}
+import impl_libs += libicui18n%lib{icui18n}
+import impl_libs += libicuuc%lib{icuuc}
+import impl_libs += libpcre2%lib{pcre2-16}
+import impl_libs += libtinycbor%lib{tinycbor}
+import impl_libs += libz%lib{z}
+
+import! [metadata] moc = Qt6Moc%exe{qt6moc}
+import! [metadata] xxd = xxd%exe{xxd}
+
+windows = ($cxx.target.class  == 'windows')
+unix    = ($cxx.target.class  != 'windows')
+linux   = ($cxx.target.class  == 'linux')
+bsd     = ($cxx.target.class  == 'bsd')
+macos   = ($cxx.target.class  == 'macos')
+
+# Source files.
+#
+src = animation/qabstractanimation              \
+      animation/qanimationgroup                 \
+      animation/qparallelanimationgroup         \
+      animation/qpauseanimation                 \
+      animation/qpropertyanimation              \
+      animation/qsequentialanimationgroup       \
+      animation/qvariantanimation               \
+      global/archdetect                         \
+      global/qendian                            \
+      global/qfloat16                           \
+      global/qglobal                            \
+      global/qhooks                             \
+      global/qlibraryinfo                       \
+      global/qlogging                           \
+      global/qmalloc                            \
+      global/qnumeric                           \
+      global/qoperatingsystemversion            \
+      global/qrandom                            \
+      global/qsimd                              \
+      io/qabstractfileengine                    \
+      io/qbuffer                                \
+      io/qdataurl                               \
+      io/qdebug                                 \
+      io/qdir                                   \
+      io/qdiriterator                           \
+      io/qfile                                  \
+      io/qfiledevice                            \
+      io/qfileinfo                              \
+      io/qfileselector                          \
+      io/qfilesystemengine                      \
+      io/qfilesystementry                       \
+      io/qfilesystemwatcher                     \
+      io/qfilesystemwatcher_polling             \
+      io/qfsfileengine                          \
+      io/qfsfileengine_iterator                 \
+      io/qiodevice                              \
+      io/qipaddress                             \
+      io/qlockfile                              \
+      io/qloggingcategory                       \
+      io/qloggingregistry                       \
+      io/qnoncontiguousbytedevice               \
+      io/qprocess                               \
+      io/qresource                              \
+      io/qresource_iterator                     \
+      io/qsavefile                              \
+      io/qsettings                              \
+      io/qstandardpaths                         \
+      io/qstorageinfo                           \
+      io/qtemporarydir                          \
+      io/qtemporaryfile                         \
+      io/qurl                                   \
+      io/qurlidna                               \
+      io/qurlquery                              \
+      io/qurlrecode                             \
+      itemmodels/qabstractitemmodel             \
+      itemmodels/qabstractproxymodel            \
+      itemmodels/qconcatenatetablesproxymodel   \
+      itemmodels/qidentityproxymodel            \
+      itemmodels/qitemselectionmodel            \
+      itemmodels/qsortfilterproxymodel          \
+      itemmodels/qstringlistmodel               \
+      itemmodels/qtransposeproxymodel           \
+      kernel/qabstracteventdispatcher           \
+      kernel/qabstractnativeeventfilter         \
+      kernel/qassociativeiterable               \
+      kernel/qbasictimer                        \
+      kernel/qcoreapplication                   \
+      kernel/qcoreevent                         \
+      kernel/qcoreglobaldata                    \
+      kernel/qdeadlinetimer                     \
+      kernel/qelapsedtimer                      \
+      kernel/qeventloop                         \
+      kernel/qiterable                          \
+      kernel/qmath                              \
+      kernel/qmetacontainer                     \
+      kernel/qmetaobject                        \
+      kernel/qmetaobjectbuilder                 \
+      kernel/qmetatype                          \
+      kernel/qmimedata                          \
+      kernel/qobject                            \
+      kernel/qobjectcleanuphandler              \
+      kernel/qpointer                           \
+      kernel/qproperty                          \
+      kernel/qsequentialiterable                \
+      kernel/qsharedmemory                      \
+      kernel/qsignalmapper                      \
+      kernel/qsocketnotifier                    \
+      kernel/qsystemerror                       \
+      kernel/qsystemsemaphore                   \
+      kernel/qtestsupport_core                  \
+      kernel/qtimer                             \
+      kernel/qtranslator                        \
+      kernel/qvariant                           \
+      mimetypes/qmimedatabase                   \
+      mimetypes/qmimeglobpattern                \
+      mimetypes/qmimemagicrule                  \
+      mimetypes/qmimemagicrulematcher           \
+      mimetypes/qmimeprovider                   \
+      mimetypes/qmimetype                       \
+      mimetypes/qmimetypeparser                 \
+      plugin/qelfparser_p                       \
+      plugin/qfactoryinterface                  \
+      plugin/qfactoryloader                     \
+      plugin/qlibrary                           \
+      plugin/qmachparser                        \
+      plugin/qpluginloader                      \
+      plugin/quuid                              \
+      serialization/qcborcommon                 \
+      serialization/qcbordiagnostic             \
+      serialization/qcborstreamreader           \
+      serialization/qcborstreamwriter           \
+      serialization/qcborvalue                  \
+      serialization/qdatastream                 \
+      serialization/qjsonarray                  \
+      serialization/qjsoncbor                   \
+      serialization/qjsondocument               \
+      serialization/qjsonobject                 \
+      serialization/qjsonparser                 \
+      serialization/qjsonvalue                  \
+      serialization/qjsonwriter                 \
+      serialization/qtextstream                 \
+      serialization/qxmlstream                  \
+      serialization/qxmlstreamgrammar           \
+      serialization/qxmlutils                   \
+      text/qbytearray                           \
+      text/qbytearraylist                       \
+      text/qbytearraymatcher                    \
+      text/qcollator                            \
+      text/qcollator_icu                        \
+      text/qlocale                              \
+      text/qlocale_icu                          \
+      text/qlocale_tools                        \
+      text/qregularexpression                   \
+      text/qstring                              \
+      text/qstringbuilder                       \
+      text/qstringconverter                     \
+      text/qstringlist                          \
+      text/qstringtokenizer                     \
+      text/qstringview                          \
+      text/qtextboundaryfinder                  \
+      text/qunicodetools                        \
+      text/qvsnprintf                           \
+      thread/qatomic                            \
+      thread/qexception                         \
+      thread/qfutureinterface                   \
+      thread/qfuturewatcher                     \
+      thread/qmutex                             \
+      thread/qreadwritelock                     \
+      thread/qresultstore                       \
+      thread/qrunnable                          \
+      thread/qsemaphore                         \
+      thread/qthread                            \
+      thread/qthreadpool                        \
+      thread/qthreadstorage                     \
+      time/qcalendar                            \
+      time/qdatetime                            \
+      time/qdatetimeparser                      \
+      time/qgregoriancalendar                   \
+      time/qhijricalendar                       \
+      time/qislamiccivilcalendar                \
+      time/qjalalicalendar                      \
+      time/qjuliancalendar                      \
+      time/qmilankoviccalendar                  \
+      time/qromancalendar                       \
+      time/qtimezone                            \
+      time/qtimezoneprivate                     \
+      tools/qarraydata                          \
+      tools/qbitarray                           \
+      tools/qcommandlineoption                  \
+      tools/qcommandlineparser                  \
+      tools/qcontiguouscache                    \
+      tools/qcryptographichash                  \
+      tools/qeasingcurve                        \
+      tools/qfreelist                           \
+      tools/qhash                               \
+      tools/qline                               \
+      tools/qmargins                            \
+      tools/qmessageauthenticationcode          \
+      tools/qpoint                              \
+      tools/qrect                               \
+      tools/qrefcount                           \
+      tools/qringbuffer                         \
+      tools/qshareddata                         \
+      tools/qsharedpointer                      \
+      tools/qsize                               \
+      tools/qtimeline                           \
+      tools/qversionnumber
+
+# Headers to be moc'ed.
+#
+moc_hdr = private/qabstractanimation_p          \
+          private/qeventdispatcher_cf_p         \
+          private/qeventdispatcher_unix_p       \
+          private/qeventdispatcher_win_p        \
+          private/qfactoryloader_p              \
+          private/qfilesystemwatcher_fsevents_p \
+          private/qfilesystemwatcher_inotify_p  \
+          private/qfilesystemwatcher_kqueue_p   \
+          private/qfilesystemwatcher_p          \
+          private/qfilesystemwatcher_polling_p  \
+          private/qfilesystemwatcher_win_p      \
+          private/qnoncontiguousbytedevice_p    \
+          private/qtextstream_p                 \
+          private/qwindowspipereader_p          \
+          private/qwindowspipewriter_p          \
+          qabstractanimation                    \
+          qabstracteventdispatcher              \
+          qabstractitemmodel                    \
+          qabstractproxymodel                   \
+          qanimationgroup                       \
+          qbuffer                               \
+          qcalendar                             \
+          qcborcommon                           \
+          qcborstreamreader                     \
+          qcborvalue                            \
+          qconcatenatetablesproxymodel          \
+          qcoreapplication                      \
+          qcoreevent                            \
+          qcryptographichash                    \
+          qeasingcurve                          \
+          qeventloop                            \
+          qfile                                 \
+          qfiledevice                           \
+          qfileselector                         \
+          qfilesystemwatcher                    \
+          qfuturewatcher                        \
+          qidentityproxymodel                   \
+          qiodevice                             \
+          qitemselectionmodel                   \
+          qlibrary                              \
+          qlocale                               \
+          qmimedata                             \
+          qmimetype                             \
+          qnamespace                            \
+          qobject                               \
+          qobjectcleanuphandler                 \
+          qparallelanimationgroup               \
+          qpauseanimation                       \
+          qpluginloader                         \
+          qprocess                              \
+          qpropertyanimation                    \
+          qsavefile                             \
+          qsequentialanimationgroup             \
+          qsettings                             \
+          qsharedmemory                         \
+          qsignalmapper                         \
+          qsocketnotifier                       \
+          qsortfilterproxymodel                 \
+          qstandardpaths                        \
+          qstringlistmodel                      \
+          qtemporaryfile                        \
+          qthread                               \
+          qthreadpool                           \
+          qtimeline                             \
+          qtimer                                \
+          qtranslator                           \
+          qtransposeproxymodel                  \
+          qvariantanimation                     \
+          qwineventnotifier
+
+# Source files to be moc'ed.
+#
+moc_src = io/qfilesystemwatcher_win     \
+          kernel/qtimer                 \
+          thread/qthreadpool
+
+moc_mm  = kernel/qeventdispatcher_cf
+
+# UNIX source files.
+#
+unix_src = io/forkfd_qt                         \
+           io/qfilesystemengine_unix            \
+           io/qfilesystemiterator_unix          \
+           io/qfsfileengine_unix                \
+           io/qlockfile_unix                    \
+           io/qprocess_unix                     \
+           kernel/qcore_unix                    \
+           kernel/qeventdispatcher_unix         \
+           kernel/qpoll                         \
+           kernel/qsharedmemory_posix           \
+           kernel/qsharedmemory_systemv         \
+           kernel/qsharedmemory_unix            \
+           kernel/qsystemsemaphore_posix        \
+           kernel/qsystemsemaphore_systemv      \
+           kernel/qsystemsemaphore_unix         \
+           kernel/qtimerinfo_unix               \
+           plugin/qlibrary_unix                 \
+           thread/qthread_unix                  \
+           thread/qwaitcondition_unix
+
+# Linux source files.
+#
+linux_src = io/qfilesystemwatcher_inotify
+
+# Windows source files.
+#
+win_src = global/qoperatingsystemversion_win    \
+          io/qfilesystemengine_win              \
+          io/qfilesystemiterator_win            \
+          io/qfilesystemwatcher_win             \
+          io/qfsfileengine_win                  \
+          io/qlockfile_win                      \
+          io/qprocess_win                       \
+          io/qsettings_win                      \
+          io/qstandardpaths_win                 \
+          io/qstorageinfo_win                   \
+          io/qwindowspipereader                 \
+          io/qwindowspipewriter                 \
+          kernel/qcoreapplication_win           \
+          kernel/qelapsedtimer_win              \
+          kernel/qeventdispatcher_win           \
+          kernel/qsharedmemory_win              \
+          kernel/qsystemsemaphore_win           \
+          kernel/qwineventnotifier              \
+          kernel/qwinregistry                   \
+          plugin/qlibrary_win                   \
+          plugin/qsystemlibrary                 \
+          text/qlocale_win                      \
+          thread/qthread_win                    \
+          thread/qwaitcondition_win
+
+# Mac OS source files.
+#
+macos_src = io/qsettings_mac            \
+            io/qstorageinfo_mac         \
+            kernel/qcfsocketnotifier    \
+            kernel/qcoreapplication_mac \
+            kernel/qelapsedtimer_mac
+
+# Define the Objective-C++ source file type.
+#
+define mm: file
+mm{*}: extension = mm
+
+macos_mm = global/qoperatingsystemversion_darwin        \
+           io/qfilesystemengine_mac                     \
+           io/qfilesystemwatcher_fsevents               \
+           io/qprocess_darwin                           \
+           io/qstandardpaths_mac                        \
+           kernel/qcore_foundation                      \
+           kernel/qcore_mac                             \
+           kernel/qeventdispatcher_cf                   \
+           text/qlocale_mac                             \
+           time/qtimezoneprivate_mac
+
+# Generated headers.
+#
+gen_hdr = qconfig       private/qconfig_p       \
+          qtcore-config private/qtcore-config_p
+
+# Force headers that are included by C source files to be C headers otherwise
+# they are most likely to be detected as C++ headers due to being included
+# most often from C++ source files, which could break build2's header
+# dependency extraction.
+#
+c_hdr = qglobal qsystemdetection qprocessordetection qcompilerdetection \
+        $gen_hdr
+
+# Header and source files.
+#
+lib{Qt6Core}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}
+
+# Included and generated source files.
+#
+lib{Qt6Core}: cxx{** -{$src} -qmimeprovider_database}   \
+              cxx{qmimeprovider_database}               \
+              global/c{qfloat16_f16c}                   \
+              3rdparty/{h hxx c cxx}{**}                \
+              3rdparty/sha3/file{**.macros}             \
+              testlib/3rdparty/h{valgrind_p}:           \
+  include = adhoc
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc .mm compilation rules below.
+#
+# Note: use qobject.h as link rule hint.
+#
+libul{Qt6CoreMeta}: hxx{qobject} $impl_libs $intf_libs
+
+# Generated headers and source files.
+#
+lib{Qt6Core}: global/cxx{qconfig-install}: for_install = true
+lib{Qt6Core}: global/cxx{qconfig-develop}: for_install = false
+
+# Platform-specific source files.
+#
+lib{Qt6Core}: cxx{$unix_src}:  include = $unix
+lib{Qt6Core}: cxx{$linux_src}: include = $linux
+lib{Qt6Core}: cxx{$win_src}:   include = $windows
+lib{Qt6Core}: cxx{$macos_src}: include = $macos
+lib{Qt6Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
+lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
+                  io/qstorageinfo_unix          \
+                  kernel/qelapsedtimer_unix     \
+                  text/qlocale_unix             \
+                  time/qtimezoneprivate_tz}:  include = ($unix && ! $macos)
+lib{Qt6Core}: cxx{time/qtimezoneprivate_icu}: include = (! $macos)
+
+# Declare the dependency of the library target on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $macos_mm
+{
+  obja{$(n).a.o}: mm{$n}
+  objs{$(n).so.o}: mm{$n}
+}
+
+liba{Qt6Core}: obja{$regex.apply($macos_mm,'(.+)','\1.a.o')}:  include = $macos
+libs{Qt6Core}: objs{$regex.apply($macos_mm,'(.+)','\1.so.o')}: include = $macos
+
+# Rules for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).
+# Note: exclude libu*{Qt6CoreMeta} from update during match not to mess
+#       up its for-install'ness.
+#
+obja{~'/(.*).a/'}: mm{~'/\1/'} libua{Qt6CoreMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libua{Qt6CoreMeta}, obja)
+  depdb hash $dep_poptions
+  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
+               --what=header --default-type=h                           \
+               --update-exclude libua{Qt6CoreMeta}                      \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+  diag obj-c++ ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+objs{~'/(.*).so/'}: mm{~'/\1/'} libus{Qt6CoreMeta}
+{{
+  dep_poptions = $cxx.lib_poptions(libus{Qt6CoreMeta}, objs)
+  depdb hash $dep_poptions
+  depdb dyndep "-I$out_root/QtCore" "-I$src_root/QtCore"                \
+               --what=header --default-type=h                           \
+               --update-exclude libus{Qt6CoreMeta}                      \
+               -- $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+  diag obj-c++ ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions $dep_poptions    \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+# Rule to generate a header with C++ compiler's predefined macros. It is used
+# to make them available to moc.
+#
+# This is necessary because moc's (built-in) preprocessor evaluates conditions
+# and expands macros and thus the set of defined macros can affect its
+# output. For example, signals and/or slots can be defined conditionally.
+#
+# Not all compilers have a mode that produces such a macro list. GCC, Clang,
+# and the Intel compiler do, but MSVC (for one) does not.
+#
+# The upstream build does not generate this header unless the compiler
+# supports such a mode (that is, moc gets no macro definitions at all). The
+# only exception is MSVC in which case Qt6 uses qmake to produce the required
+# output (by passing /Bx<path-to-qmake> to cl.exe, specifying an alternative
+# preprocessor executable), and Qt6 (via CMake) does nothing except for adding
+# the WIN32 macro to moc's definitions. We emulate the Qt6 behavior here for
+# now.
+#
+# Note also that this approach is not limited to the Qt libraries themselves:
+# applications may have preprocessor directives that affect the moc output and
+# thus will either need to do something similar or supply the necessary macro
+# definitions manually. As a result, it may make sense to provide a utility
+# (probably as part of the moc package, maybe call it moc-predefs) that knows
+# how to extract this list for various compilers (we could just pass to it the
+# compiler id and maybe the target followed by the compiler command line and
+# it can decide on the best method, potentially invoking the compiler,
+# including for MSVC).
+#
+hxx{moc_predefs}: mkspecs/features/data/cxx{dummy}
+%
+if ($cxx.id != 'msvc')
+{{
+  diag gen ($>[0])
+  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
+            -o $path($>) -dM -E $path($<)
+}}
+else
+{{
+  diag gen ($>[0])
+  cat <<EOI >$path($>)
+  #define _WIN32
+  #define WIN32
+  EOI
+}}
+
+# Dependencies involving source files generated by moc from headers.
+#
+# @@ Have to list hxx{moc_predefs} here to make dist work -- why?
+#
+#    @@ TMP Is this comment still relevant? moc_predefs is now only a
+#       dependency in the ad hoc rule below.
+#
+for s: hxx{$moc_hdr}
+{
+  n = $name($s)
+  lib{Qt6Core}: cxx{moc_$n}: include = adhoc
+  cxx{moc_$n}: $s
+}
+
+# Target type for source file generated by moc from a source file.
+#
+define moc: cxx
+moc{*}: extension = moc
+
+# Dependencies involving source files generated by moc from source files.
+#
+for s: cxx{$moc_src} mm{$moc_mm}
+{
+  n = $name($s)
+  lib{Qt6Core}: moc{$n}: include = adhoc
+  moc{$n}: $s
+}
+
+# -I options for the system header directories.
+#
+sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
+
+# Rule to run moc on a header file.
+#
+# Use -f to override the path moc uses to #include the input file, which is
+# relative to the output directory, with just the name of the input file.
+#
+# Explicitly list the generated headers as dependencies in case the
+# moc-generated file includes any of them (if only indirectly). Note that,
+# because moc's `--output-dep-file` mode (which produces a list of header
+# dependencies for the input file) silently omits non-existent headers from
+# its output, it does not support generated headers and thus there is no
+# choice but to declare these dependencies manually.
+#
+# Note that hxx{moc_predefs} must always be in position 1.
+#
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+    -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+# Rule to run moc on a source file.
+#
+# See the header-input moc rule regarding the header prerequisites.
+#
+moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+    --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+# Rule to run moc on an Objective-C++ source file.
+#
+# See the header-input moc rule regarding the header prerequisites.
+#
+moc{~'/(.*)/'}: mm{~'/\1/'} hxx{moc_predefs} h{$gen_hdr} $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
+  diag moc ($<[0])
+
+  s = $path($<[0])
+
+  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
+    --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+# Ensure that a moc-generated target's moc-generated dependencies are updated
+# before it itself is updated. This is necessary because a moc target's
+# dependencies are extracted at the same time as it is updated.
+#
+# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
+# which includes cxx{moc_foo}. (Note that other generated dependencies common
+# to all moc-generated targets are declared above.)
+#
+moc{qeventdispatcher_cf}: cxx{moc_qeventdispatcher_cf_p}
+moc{qhistorystate}:       cxx{moc_qhistorystate}
+moc{qthreadpool}:         cxx{moc_qthreadpool}
+moc{qtimer}:              cxx{moc_qtimer}
+
+# A small minority of moc-generated files need to be compiled (most are
+# included). And that's not where the inconsistency ends:
+# qfilesystemwatcher_win.cpp includes qfilesystemwatcher_win.moc but not
+# moc_qfilesystemwatcher_win.cpp, so the latter has to be compiled.
+#
+lib{Qt6Core}: cxx{moc_qcalendar \
+                  moc_qmimetype \
+                  moc_qnamespace}
+
+lib{Qt6Core}: cxx{moc_qeventdispatcher_win_p    \
+                  moc_qfilesystemwatcher_win_p  \
+                  moc_qwindowspipereader_p      \
+                  moc_qwindowspipewriter_p      \
+                  moc_qwineventnotifier}: include = $windows
+
+lib{Qt6Core}: cxx{moc_qfilesystemwatcher_kqueue_p}:   include = $bsd
+lib{Qt6Core}: cxx{moc_qfilesystemwatcher_fsevents_p}: include = $macos
+
+lib{Qt6Core}: libul{Qt6CoreMeta}
+
+# Generated headers and source files.
+#
+# In the Qt source code the features (QT_FEATURE_foo macros) are checked using
+# the QT_CONFIG(foo) macro (defined in qglobal.h) which will not compile
+# unless the macro is defined and has a value of 1 or -1.
+#
+# NOTE: to find usage instances, grep under ../upstream/qtbase/ for
+#    '(qtConfig|QT_CONFIG)\(<feature-name>\)'
+#
+# Scripts in upstream/qtbase/util/cmake/ were used to convert much of the Qt5
+# build into CMake files. E.g., configurejson2cmake.py was used to convert the
+# Qt5 configure.json files to configure.cmake for each module
+# (e.g. qtbase/configure.cmake and src/corelib/configure.cmake). (And the Qt5
+# qmake project files were converted to e.g. src/corelib/CMakeLists.txt using
+# the pro2cmake.py script). These files were also committed to the upstream
+# repo. See https://wiki.qt.io/Qt6_Build_System (very little there at the
+# moment).
+#
+using autoconf
+
+h{qconfig} global/cxx{qconfig-install qconfig-develop}: in.symbol = '$'
+
+# All-Qt public configuration header. Included by other Qt libraries via
+# QtCore/qglobal.h.
+#
+# See the .in files for more information.
+#
+h{qconfig}: in{qconfig}
+{
+  autoconf.prefix = qconfig_
+
+  QT_VERSION_STR="$version.major.$version.minor.$version.patch"
+  QT_VERSION_MAJOR="$version.major"
+  QT_VERSION_MINOR="$version.minor"
+  QT_VERSION_PATCH="$version.patch"
+}
+
+# All-Qt private configuration header. Included by a few other Qt libraries
+# via QtCore/qglobal_p.h.
+#
+# See the .in file for more information.
+#
+private/h{qconfig_p}: private/in{qconfig_p}
+{
+  autoconf.prefix = qconfig_p_
+}
+
+# Public QtCore library configuration (mostly high-level features). Included
+# by other Qt libraries via QtCore/qglobal.h.
+#
+# See the .in file for more information.
+#
+h{qtcore-config}: in{qtcore-config}
+{
+  autoconf.prefix = qtcore_config_
+}
+
+# Private QtCore library configuration (lower-level features and
+# settings). Included by a few other Qt libraries via QtCore/qglobal_p.h.
+#
+# See the .in file for more information.
+#
+private/h{qtcore-config_p}: private/in{qtcore-config_p}
+{
+  autoconf.prefix = qtcore_config_p_
+}
+
+# global/qconfig.cpp:
+#
+# This file provides information relating to installation paths. It is
+# included by global/qlibraryinfo.cpp (so we don't compile it). In upstream it
+# is generated during the configure step (qtbase/configure.pri).
+#
+# In order to support different installation paths for the installed and
+# uninstalled cases in build2 we turn qconfig.cpp into a real file (that is,
+# not generated) and turn its static variable and macro definitions into
+# extern variable declarations. Then we generate two source files,
+# qconfig-install.cpp and qconfig-develop.cpp, that define the variables to
+# values appropriate for the installed and uninstalled cases, respectively,
+# and we use (above) the `for_install` prerequisite-specific variable to
+# control which of the two gets linked in each case.
+#
+# See also comments in qconfig.cpp.in.
+#
+lib{Qt6Core}: global/cxx{qconfig}: include = adhoc
+
+# Installed case: Here the installation prefix is an absolute path and the
+# other paths are all relative (to the prefix).
+#
+# Note that while this object file should only be linked when we are
+# installing, it will be compiled even in the uninstalled case where we may
+# have no install.root.
+#
+global/cxx{qconfig-install}:
+{
+  i = ($install.root != [null])
+
+  # Values of the installation paths. Make the $install.* paths relative to
+  # $install.root.
+  #
+  prefix       = [dir_path] ($i ? $install.root : .)
+  doc          = [dir_path] ($i ? $leaf($install.resolve($install.doc), $prefix) : .)
+  incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $prefix) : .)
+  lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
+  bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
+  libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $prefix) : .)
+  plugins      = [dir_path] $lib
+  imports      = [dir_path] $lib
+  qml          = [dir_path] $lib
+  data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $prefix) : .)
+  arch_data    = [dir_path] $data
+  translations = [dir_path] translations
+  examples     = [dir_path] examples
+  tests        = [dir_path] tests
+
+  # A path appended to the path of the directory containing the installed
+  # QtCore library to get to the prefix path.
+  #
+  # For example, if the prefix is /usr/local and the library is installed in
+  # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
+  # "/usr/local".
+  #
+  lib_to_prefix = [dir_path] ($i ? $relative($prefix, $install.resolve($install.lib)) : .)
+}
+
+# Uninstalled case: Here the installation prefix is the filesystem root and
+# the other directories are all absolute paths (because the source and output
+# directories may not have a longer common prefix).
+#
+assert ($root_directory($out_root) == $root_directory($src_root)) \
+  "out_root and src_root must have common filesystem root"
+
+global/cxx{qconfig-develop}:
+{
+  # Values of the installation paths.
+  #
+  prefix       = [dir_path] $root_directory($out_root)
+  doc          = [dir_path] $out_root/doc
+  incl         = [dir_path] $src_root
+  lib          = [dir_path] $out_root
+  libexec      = [dir_path] $out_root
+  bin          = [dir_path] $out_root
+  plugins      = [dir_path] $out_root/plugins
+  imports      = [dir_path] $out_root
+  qml          = [dir_path] $out_root
+  arch_data    = [dir_path] $src_root
+  data         = [dir_path] $src_root
+  translations = [dir_path] $out_root/translations
+  examples     = [dir_path] $src_root/examples
+  tests        = [dir_path] $src_root/tests
+
+  # See comment in the installed case above.
+  #
+  lib_to_prefix = [dir_path] $relative($prefix, $lib)
+}
+
+# Installed and uninstalled cases.
+#
+global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
+{
+  # The directory path containing user application settings. Ignored on
+  # Windows where the registry is used instead.
+  #
+  settingspath = ($macos ? /Library/Preferences/Qt : etc/xdg)
+
+  # The offsets of the beginning of each substring within the
+  # qt_configure_strs string which contains the installation path values
+  # defined above.
+  #
+  o_doc            = [uint64] 0
+  o_incl           = $size($doc)
+  o_incl          += 1
+  o_incl          += $o_doc
+  o_lib            = $size($incl)
+  o_lib           += 1
+  o_lib           += $o_incl
+  o_libexec        = $size($lib)
+  o_libexec       += 1
+  o_libexec       += $o_lib
+  o_bin            = $size($libexec)
+  o_bin           += 1
+  o_bin           += $o_libexec
+  o_plugins        = $size($bin)
+  o_plugins       += 1
+  o_plugins       += $o_bin
+  o_imports        = $size($plugins)
+  o_imports       += 1
+  o_imports       += $o_plugins
+  o_qml            = $size($imports)
+  o_qml           += 1
+  o_qml           += $o_imports
+  o_arch_data      = $size($qml)
+  o_arch_data     += 1
+  o_arch_data     += $o_qml
+  o_data           = $size($arch_data)
+  o_data          += 1
+  o_data          += $o_arch_data
+  o_translations   = $size($data)
+  o_translations  += 1
+  o_translations  += $o_data
+  o_examples       = $size($translations)
+  o_examples      += 1
+  o_examples      += $o_translations
+  o_tests          = $size($examples)
+  o_tests         += 1
+  o_tests         += $o_examples
+
+  # Escape backslashes on Windows. Note: must be done after offset
+  # calculations.
+  #
+  prefix       = [dir_path] $regex.replace($prefix, '\\', '\\\\')
+  doc          = [dir_path] $regex.replace($doc, '\\', '\\\\')
+  incl         = [dir_path] $regex.replace($incl, '\\', '\\\\')
+  lib          = [dir_path] $regex.replace($lib, '\\', '\\\\')
+  libexec      = [dir_path] $regex.replace($libexec, '\\', '\\\\')
+  bin          = [dir_path] $regex.replace($bin, '\\', '\\\\')
+  plugins      = [dir_path] $regex.replace($plugins, '\\', '\\\\')
+  imports      = [dir_path] $regex.replace($imports, '\\', '\\\\')
+  qml          = [dir_path] $regex.replace($qml, '\\', '\\\\')
+  arch_data    = [dir_path] $regex.replace($arch_data, '\\', '\\\\')
+  data         = [dir_path] $regex.replace($data, '\\', '\\\\')
+  translations = [dir_path] $regex.replace($translations, '\\', '\\\\')
+  examples     = [dir_path] $regex.replace($examples, '\\', '\\\\')
+  tests        = [dir_path] $regex.replace($tests, '\\', '\\\\')
+
+  lib_to_prefix = [dir_path] $regex.replace($lib_to_prefix, '\\', '\\\\')
+}
+
+# qmimeprovider_database.cpp:
+#
+# Convert mimetypes/mime/packages/freedesktop.org.xml into an array definition
+# which is included by mimetypes/qmimeprovider.cpp. Note that the
+# MimeTypeDatabaseOriginalSize variable is the size of the uncompressed data.
+#
+# @@ TODO Consider using compression. The uncompressed array is ~2MB but can
+#    be reduced to ~300KB. Would need to package gzip or zstd to use as a
+#    build-time dependency.
+#
+cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
+{{
+    diag xxd ($<[0])
+
+    i = $path($<[0]) # Input.
+    o = $path($>)    # Output.
+
+    echo '#define MIME_DATABASE_IS_UNCOMPRESSED'               >$o
+    echo 'static const unsigned char mimetype_database[] = {' >>$o
+    $xxd -i <$i                                               >>$o
+    echo '};'                                                 >>$o
+    echo 'static constexpr size_t MimeTypeDatabaseOriginalSize = sizeof(mimetype_database);' >> $o
+}}
+
+# Build options.
+#
+# Add QtCore/3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
+# QtCore/3rdparty/forkfd/ for an include of <forkfd.h>.
+#
+cxx.poptions =+ "-I$out_root" "-I$src_root"                                     \
+                "-I$out_root/QtCore" "-I$src_root/QtCore"                       \
+                "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"       \
+                "-I$src_root/QtCore/3rdparty/harfbuzz/src"                      \
+                "-I$src_root/QtCore/3rdparty/forkfd"
+
+cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
+                -DQT_NO_LINKED_LIST                             \
+                -DQT_NO_USING_NAMESPACE                         \
+                -DQT_NO_FOREACH                                 \
+                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_ASCII_CAST_WARNINGS                        \
+                -DQT_MOC_COMPAT                                 \
+                -DQT_USE_QSTRINGBUILDER                         \
+                -DQT_DEPRECATED_WARNINGS                        \
+                -D_REENTRANT                                    \
+                -DQT_DEPRECATED_WARNINGS_SINCE=0x060000         \
+                -DQT_NO_VERSION_TAGGING
+
+if! $config.libQt6Core.debug
+  cxx.poptions += -DQT_NO_DEBUG
+
+# Note: the same macro from export/import (see also -DQT_BUILD_CORE_LIB).
+#
+{hbmia obja}{*}: cxx.poptions += -DQT_STATIC
+{hbmis objs}{*}: cxx.poptions += -DQT_SHARED
+
+# @@ TODO -DQT_NO_DEBUG (as one would expect, upstream defines it for release
+#    builds).
+#
+
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
+if $windows
+{
+  # Qt6 supports only Windows 10 and newer. Although the Qt headers do define
+  # WINVER and _WIN32_WINNT (the minimum Windows version supported) to 0x0A00
+  # if they're undefined, mingw defines them to Windows 7 before Qt can do it.
+  #
+  cxx.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00         \
+                  -DQT_DISABLE_DEPRECATED_BEFORE=0x040800       \
+                  -D_CRT_SECURE_NO_WARNINGS                     \
+                  -D_USE_MATH_DEFINES                           \
+                  -DUNICODE                                     \
+                  -D_UNICODE                                    \
+                  -DWIN32
+}
+else
+{
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000       \
+                  -DQT_NO_CAST_TO_ASCII                         \
+                  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+
+  if $linux
+    lib{Qt6Core}: cxx.libs += -ldl
+}
+
+# Not sure if/when this is necessary (see `libatomic` in
+# corelib/configure.json). I believe this library is only necessary if
+# std::automic<T> operations cannot be implemented as instructions (usually
+# with T=int64_t) and as a result must be emulated. In this case this
+# emulation is provided by this library.
+#
+# cxx.libs += -latomic
+
+# libexecinfo is required for backtrace(3) on BSD (see global/qlogging.cpp).
+#
+if $bsd
+  lib{Qt6Core}: cxx.libs += -lexecinfo
+
+# Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
+#
+# Note that Mac OS with GCC is not supported by upstream (see README-DEV for
+# details).
+#
+switch $cxx.target.class, $cxx.id, $cxx.target.system
+{
+  case 'linux', 'gcc'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-g++"
+  case 'linux', 'clang'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/linux-clang"
+  case 'macos', 'clang-apple'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
+    lib{Qt6Core}: cxx.libs += -framework AppKit                 \
+                              -framework CoreServices           \
+                              -framework DiskArbitration        \
+                              -framework Foundation             \
+                              -framework IOKit                  \
+                              -framework Security
+  }
+  case 'bsd', 'clang', 'freebsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
+  case 'bsd', 'gcc', 'openbsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/openbsd-g++"
+  case 'bsd', 'gcc', 'netbsd'
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/netbsd-g++"
+  case 'windows', 'msvc'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    # @@ synchronization.lib is only for Windows >= 8; on older versions no
+    #    library should be added.
+    #
+    lib{Qt6Core}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
+                              mpr.lib netapi32.lib synchronization.lib  \
+                              userenv.lib version.lib winmm.lib ws2_32.lib
+  }
+  case 'windows', 'msvc-clang' | 'clang'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    lib{Qt6Core}: cxx.libs += ole32.lib advapi32.lib shell32.lib        \
+                              mpr.lib netapi32.lib synchronization.lib  \
+                              userenv.lib version.lib winmm.lib ws2_32.lib
+  }
+  case 'windows', 'gcc', 'mingw32'
+  {
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
+                    -DMINGW_HAS_SECURE_API=1
+    cxx.coptions += -fno-keep-inline-dllexport
+
+    lib{Qt6Core}: cxx.libs += -lole32 -ladvapi32 -lshell32 -lmpr        \
+                              -lnetapi32 -luuid -lsynchronization       \
+                              -luserenv -lversion -lwinmm -lws2_32
+  }
+}
+
+# Export options.
+#
+lib{Qt6Core}:
+{
+  cxx.export.poptions = "-I$out_root" "-I$src_root"                     \
+                        "-I$out_root/QtCore" "-I$src_root/QtCore"       \
+                        -DQT_NO_VERSION_TAGGING
+  cxx.export.libs = $intf_libs
+}
+
+liba{Qt6Core}: cxx.export.poptions += -DQT_STATIC
+libs{Qt6Core}: cxx.export.poptions += -DQT_SHARED
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{Qt6Core}: bin.lib.version = "-$version.project_id"
+else
+  lib{Qt6Core}: bin.lib.version = "-$version.major.$version.minor"
+
+# Install public headers into the QtCore/ subdirectory of, say, /usr/include/.
+#
+# @@ TODO: Debian installs into include/qt6/QtCore/ but we currently won't be
+#          able to handle that (no way to propagate this to pkg-config).
+#
+private/{hxx h}{*}: install = false
+{hxx h}{*}:
+{
+  install = include/QtCore/
+}
