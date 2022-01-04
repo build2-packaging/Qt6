@@ -1,9 +1,10 @@
 : 1
-name: Qt6Moc
+name: libQt6Core
 version: 6.2.0-a.0.z
 project: Qt6
-summary: Qt meta object compiler
-license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
+summary: Qt6 core library
+license: LGPL-3.0-only
+license: GPL-2.0-or-later
 license: other: available source
 description-file: README.md
 url: https://www.qt.io/
@@ -12,9 +13,15 @@ package-url: https://github.com/build2-packaging/Qt6
 email: interest@qt-project.org      ; Mailing list for developers using Qt.
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
-builds: host : &default
+builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
 depends: * build2 >= 0.15.0-
 depends: * bpkg >= 0.15.0-
+depends: * Qt6Moc == $
+depends: libdouble-conversion ^3.2.0
+depends: libb2 >= 0.98.1-
+depends: libicuuc >= 65.1.0
+depends: libicui18n >= 65.1.0
 depends: libpcre2 ^10.38.0
-depends: libtinycbor ^0.6.0-
+depends: libtinycbor ^0.6.0
+depends: libz ^1.2.1100

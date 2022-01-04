@@ -1,0 +1,6 @@
+$out_root/
+{
+  include QtCore/
+}
+
+export $out_root/QtCore/$import.target

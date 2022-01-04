@@ -1,2 +1,4 @@
 : 1
 location: Qt6Moc/
+:
+location: libQt6Core/

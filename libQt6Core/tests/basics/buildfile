@@ -1,0 +1,3 @@
+import libs = libQt6Core%lib{Qt6Core}
+
+exe{driver}: cxx{driver} $libs
