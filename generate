@@ -26,29 +26,49 @@ rm -rf Qt6Moc/moc/QtCore/
 rm -f Qt6Moc/moc/mkspecs
 rm -rf Qt6Moc/moc/3rdparty
 rm -rf Qt6Moc/moc/shared
+rm -rf libQt6Core/QtCore/{*.h,Q*,*.orig}
+rm -f libQt6Core/QtCore/mkspecs
+rm -rf libQt6Core/QtCore/3rdparty
+rm -f libQt6Core/QtCore/testlib
 
 # Create output directories.
 #
-mkdir Qt6Moc/moc/QtCore
-mkdir Qt6Moc/moc/QtCore/private
+mkdir -p Qt6Moc/moc/QtCore/private
+mkdir -p libQt6Core/QtCore/private
 
 # This directory has to be a sibling to QtCore/ because the QtCore source
 # files use include paths such as "../../3rdparty/freebsd/strtoll.c".
 #
 mkdir Qt6Moc/moc/3rdparty
+mkdir libQt6Core/QtCore/3rdparty
+
+# Directory for the MIME type database source XML file.
+#
+mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 
 # Symlink the upstream platform-specific include directories.
 #
 ln -s ../../upstream/qtbase/mkspecs Qt6Moc/moc/
+ln -s ../../upstream/qtbase/mkspecs libQt6Core/QtCore/
 
-# Symlink the upstream third-party directories required to build moc.
+# Symlink the upstream third-party directories.
 #
 ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
       Qt6Moc/moc/3rdparty/
-
 ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
 
-# Symlink all QtCore sources into Qt6Moc/moc/QtCore/.
+ln -s ../../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd} \
+      ../../../upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
+   libQt6Core/QtCore/3rdparty/
+
+# This is made necessary by the inclusion of
+# "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp. (That is,
+# QtCore includes a private header from QTestLib, an entirely different
+# library...)
+#
+ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
+
+# Symlink all QtCore sources into <output-path-prefix>/QtCore/.
 #
 # Note that we have to rearrange the upstream sources because they cannot be
 # built the way they're laid out in upstream/qtbase/src/corelib/ (the upstream
@@ -71,32 +91,39 @@ ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
 #
 # create the following layout:
 #
-#   Qt6Moc
-#   └── moc
-#       └── QtCore
-#           ├── foo
-#           │   ├── foo.cpp
-#           │   ...
-#           ├── bar
-#           │   ├── bar.cpp
-#           │   ...
-#           ├── private
-#           │   ├── foo_p.h
-#           │   ├── bar_p.h
-#           │   ...
-#           ├── foo.h
-#           ├── bar.h
-#           ...
+#   <output-path-prefix>
+#    └── QtCore
+#        ├── foo
+#        │   ├── foo.cpp
+#        │   ...
+#        ├── bar
+#        │   ├── bar.cpp
+#        │   ...
+#        ├── private
+#        │   ├── foo_p.h
+#        │   ├── bar_p.h
+#        │   ...
+#        ├── foo.h
+#        ├── bar.h
+#        ...
 #
-for d in upstream/qtbase/src/corelib/*/; do
-  d="${d%/}" # Strip trailing /.
+function symlink_qtcore_subdir () # <output-path-prefix> <qtcore-dir>
+{
+  local opp="$1" # Output path prefix.
+  local d="$2"   # QtCore subdirectory from upstream.
 
-  sdd="Qt6Moc/moc/QtCore/$(basename $d)" # Source file destination directory.
-  mkdir "$sdd"
+  # Project directory path: the relative path to get to the project directory
+  # from the output path prefix (`opp`). For example, from Qt6Moc/moc/ it
+  # would be `../..`.
+  #
+  local pdp="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
+  local sdd="$opp/QtCore/$(basename $d)" # Source file destination directory.
+  mkdir -p "$sdd"
 
   # All of the source files of interest are directly under one of
   # src/corelib/'s subdirectories (that is, nested no deeper).
   #
+  local f
   for f in "$d"/*; do
     f="${f#upstream/}" # Strip "upstream/" prefix.
 
@@ -106,20 +133,19 @@ for d in upstream/qtbase/src/corelib/*/; do
       # Private header.
       #
       *_p.h)
-        tpp="../../../.."
-        spp="Qt6Moc/moc/QtCore/private"
+        tpp="$pdp/../.."
+        spp="$opp/QtCore/private"
         ;;
       # Public header.
       #
       *.h)
-        tpp="../../.."
-        spp="Qt6Moc/moc/QtCore"
+        tpp="$pdp/.."
+        spp="$opp/QtCore"
         ;;
-      # C++ source file.
-      # Objective-C++ source file.
+      # C++, Objective-C++, or C source file.
       #
-      *.cpp | *.mm)
-        tpp="../../../.."
+      *.cpp | *.mm | *.c)
+        tpp="$pdp/../.."
         spp="$sdd"
         ;;
       # Not a source file.
@@ -131,12 +157,12 @@ for d in upstream/qtbase/src/corelib/*/; do
     # upstream filename while the upstream original's symlink gets the
     # upstream filename with a ".orig" extension.
     #
-    fn="$(basename "$f")" # File name.
+    local fn="$(basename "$f")" # File name.
     if [[ -f "downstream/$f" ]]; then
-      ln -s "$tpp/upstream/$f"   "$spp/$fn.orig"
-      ln -s "$tpp/downstream/$f" "$spp/$fn"
+      ln -sf "$tpp/upstream/$f"   "$spp/$fn.orig"
+      ln -sf "$tpp/downstream/$f" "$spp/$fn"
     else
-      ln -s "$tpp/upstream/$f"   "$spp/$fn"
+      ln -sf "$tpp/upstream/$f"   "$spp/$fn"
     fi
   done
 
@@ -146,17 +172,24 @@ for d in upstream/qtbase/src/corelib/*/; do
   if [[ -z "$(ls "$sdd")" ]]; then
     rmdir "$sdd"
   fi
+}
+
+# Symlink the upstream QtCore sources into Qt6Moc/ and libQt6Core/. Although
+# the Qt6Moc build includes only a subset of the QtCore sources we symlink all
+# of them for the sake of simplicity (its buildfile does not use wildcards).
+#
+for d in upstream/qtbase/src/corelib/*/; do
+  d="${d%/}" # Strip trailing /.
+  symlink_qtcore_subdir "Qt6Moc/moc" "$d"
+  symlink_qtcore_subdir "libQt6Core" "$d"
 done
 
-# Create camelcase headers required by
-# upstream/qtbase/src/tools/shared/depfile_shared.h.
+# Symlink the upstream MIME type database source XML file.
 #
-# @@ The QtCore build will require camelcase versions for all headers but for
-#    now do only the few required by the moc build.
-#
-echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
-echo '#include "qfile.h"'      > Qt6Moc/moc/QtCore/QFile
-echo '#include "qstring.h"'    > Qt6Moc/moc/QtCore/QString
+ln -sf "../../../../../\
+upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml" \
+"libQt6Core/QtCore/mimetypes/mime/packages/"
+
 
 # Symlink all of the moc application's headers and source files into
 # Qt6Moc/moc/.
@@ -174,3 +207,53 @@ for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
     ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn"
   fi
 done
+
+# Create the few camelcase headers required by the moc build (specifically,
+# upstream/qtbase/src/tools/shared/depfile_shared.h).
+#
+echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
+echo '#include "qfile.h"'      > Qt6Moc/moc/QtCore/QFile
+echo '#include "qstring.h"'    > Qt6Moc/moc/QtCore/QString
+
+# This file is generated by upstream/qtbase/cmake/QtTargetHelpers.cmake.
+#
+echo '#include <private/qtrace_p.h>' > libQt6Core/QtCore/qtcore_tracepoints_p.h
+
+# Copy headers generated by the upstream build into libQt6Core/QtCore/. (None
+# of these are required for the Qt6Moc build.)
+#
+# The majority of the generated headers are camelcase versions of the public
+# headers (foobar.h -> QFooBar) but a few additional headers (public only) are
+# also generated.
+#
+# Run the upstream syncqt.pl script to produce the include tree and copy only
+# those headers that don't also exist in the upstream directory (in which case
+# they are not generated and will already have been symlinked above).
+#
+
+# Extract the Qt version from upstream/qtbase/.qmake.conf.
+#
+qt_version="$(sed -nE 's%MODULE_VERSION = (.+)%\1%p' \
+                  upstream/qtbase/.qmake.conf)"
+
+tmpdir="$(mktemp -d)"
+
+if ! upstream/qtbase/libexec/syncqt.pl \
+     -copy -module QtCore -version "$qt_version" \
+     -outdir "$tmpdir" upstream/qtbase \
+     > /dev/null; then
+  rm -r "$tmpdir"
+  error "syncqt.pl failed"
+fi
+
+# Copy those public *.h headers that have not already been symlinked and all
+# camelcase headers (of which all are generated and thus none symlinked).
+#
+for p in "$tmpdir/include/QtCore/"*; do
+  f="$(basename "$p")"
+  if [[ ("$f" == *.h && ! -e "libQt6Core/QtCore/$f") || "$f" == Q* ]]; then
+    cp "$p" libQt6Core/QtCore/
+  fi
+done
+
+rm -r "$tmpdir"
