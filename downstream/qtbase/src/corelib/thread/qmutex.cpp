@@ -39,7 +39,6 @@
 **
 ****************************************************************************/
 
-#include "global/qglobal.h"
 #include "qplatformdefs.h"
 #include "qmutex.h"
 #include <qdebug.h>
@@ -48,6 +47,7 @@
 #include "qfutex_p.h"
 #include "qthread.h"
 #include "qmutex_p.h"
+#include <qglobal.h>
 
 #ifndef QT_ALWAYS_USE_FUTEX
 #include "private/qfreelist_p.h"
