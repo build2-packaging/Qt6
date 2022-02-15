@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/corelib/io/qfilesystemwatcher_fsevents.mm
+../../../../downstream/qtbase/src/corelib/io/qfilesystemwatcher_fsevents.mm

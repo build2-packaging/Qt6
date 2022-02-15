@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/corelib/itemmodels/qsortfilterproxymodel.cpp
