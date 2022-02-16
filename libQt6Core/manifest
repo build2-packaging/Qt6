@@ -20,7 +20,7 @@ depends: * bpkg >= 0.15.0-
 depends: * Qt6Moc == $
 depends: * xxd >= 8.2.0
 depends: libdouble-conversion ^3.2.0
-depends: libb2 >= 0.98.1-
+depends: libb2 >= 0.98.1
 depends: libicuuc >= 65.1.0
 depends: libicui18n >= 65.1.0
 depends: libpcre2 ^10.38.0
