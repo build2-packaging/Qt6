@@ -17,4 +17,4 @@ builds: -( +macos &gcc ) ; See README-DEV.
 depends: * build2 >= 0.15.0-
 depends: * bpkg >= 0.15.0-
 depends: libpcre2 ^10.38.0
-depends: libtinycbor ^0.6.0-
+depends: libtinycbor ^0.6.0
