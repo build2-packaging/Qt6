@@ -1,0 +1,13 @@
+: 1
+name: Qt6Rcc
+version: 0.1.0-a.0.z
+project: Qt6
+summary: Qt6Rcc C++ executable
+license: other: proprietary ; Not free/open source.
+description-file: README.md
+url: https://example.org/Qt6
+email: francois@codesynthesis.com
+#build-error-email: francois@codesynthesis.com
+depends: * build2 >= 0.14.0
+depends: * bpkg >= 0.14.0
+#depends: libhello ^1.0.0

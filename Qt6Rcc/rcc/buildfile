@@ -1,0 +1,6 @@
+libs =
+#import libs += libhello%lib{hello}
+
+exe{Qt6Rcc}: {hxx cxx}{**} $libs testscript
+
+cxx.poptions =+ "-I$out_root" "-I$src_root"

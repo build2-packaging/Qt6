@@ -1,0 +1,7 @@
+project = Qt6Rcc
+
+using version
+using config
+using test
+using install
+using dist

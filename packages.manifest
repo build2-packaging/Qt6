@@ -2,3 +2,5 @@
 location: Qt6Moc/
 :
 location: libQt6Core/
+:
+location: Qt6Rcc/
