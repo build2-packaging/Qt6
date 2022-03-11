@@ -1,3 +1,3 @@
 # Qt6Rcc
 
-C++ executable
+This package contains the Qt6 resource compiler (`rcc`).
