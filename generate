@@ -26,6 +26,12 @@ rm -rf Qt6Moc/moc/QtCore/
 rm -f Qt6Moc/moc/mkspecs
 rm -rf Qt6Moc/moc/3rdparty
 rm -rf Qt6Moc/moc/shared
+
+rm -f Qt6Rcc/rcc/*.{h,cpp,orig}
+rm -rf Qt6Rcc/rcc/QtCore/
+rm -f Qt6Rcc/rcc/mkspecs
+rm -rf Qt6Rcc/rcc/3rdparty
+
 rm -rf libQt6Core/QtCore/{*.h,Q*,*.orig}
 rm -f libQt6Core/QtCore/mkspecs
 rm -rf libQt6Core/QtCore/3rdparty
@@ -33,13 +39,18 @@ rm -f libQt6Core/QtCore/testlib
 
 # Create output directories.
 #
-mkdir -p Qt6Moc/moc/QtCore/private
-mkdir -p libQt6Core/QtCore/private
-
-# This directory has to be a sibling to QtCore/ because the QtCore source
-# files use include paths such as "../../3rdparty/freebsd/strtoll.c".
+# 3rdparty/ has to be a sibling to QtCore/ because the QtCore source files use
+# include paths such as "../../3rdparty/freebsd/strtoll.c".
 #
+mkdir -p Qt6Moc/moc/QtCore/private
 mkdir Qt6Moc/moc/3rdparty
+
+mkdir -p Qt6Rcc/rcc/QtCore/private
+mkdir Qt6Rcc/rcc/3rdparty
+
+mkdir -p libQt6Core/QtCore/private
+# @@ TMP This probably only works by coincidence (see comment just above).
+#
 mkdir libQt6Core/QtCore/3rdparty
 
 # Directory for the MIME type database source XML file.
@@ -49,6 +60,7 @@ mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 # Symlink the upstream platform-specific include directories.
 #
 ln -s ../../upstream/qtbase/mkspecs Qt6Moc/moc/
+ln -s ../../upstream/qtbase/mkspecs Qt6Rcc/rcc/
 ln -s ../../upstream/qtbase/mkspecs libQt6Core/QtCore/
 
 # Symlink the upstream third-party directories.
@@ -57,9 +69,12 @@ ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
       Qt6Moc/moc/3rdparty/
 ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
 
-ln -s ../../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd} \
+ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
+      Qt6Rcc/rcc/3rdparty/
+
+ln -s ../../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd}     \
       ../../../upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
-   libQt6Core/QtCore/3rdparty/
+      libQt6Core/QtCore/3rdparty/
 
 # This is made necessary by the inclusion of
 # "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp. (That is,
@@ -68,13 +83,14 @@ ln -s ../../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd} \
 #
 ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
 
-# Symlink all QtCore sources into <output-path-prefix>/QtCore/.
+# Symlink all of a Qt module's sources into
+# <output-path-prefix>/<module-name>/.
 #
 # Note that we have to rearrange the upstream sources because they cannot be
-# built the way they're laid out in upstream/qtbase/src/corelib/ (the upstream
+# built the way they're laid out in upstream/qtbase/src/<module> (the upstream
 # build also rearranges them).
 #
-# From the upstream directory layout,
+# From the upstream directory layout (using QtCore as an example):
 #
 #   upstream/qtbase/src/corelib
 #   ├── foo
@@ -107,21 +123,22 @@ ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
 #        ├── bar.h
 #        ...
 #
-function symlink_qtcore_subdir () # <output-path-prefix> <qtcore-dir>
+function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
 {
-  local opp="$1" # Output path prefix.
-  local d="$2"   # QtCore subdirectory from upstream.
+  local opp="$1"   # Output path prefix.
+  local mod="$2"   # Qt module name.
+  local d="${3%/}" # Module subdirectory from upstream (strip trailing /).
 
   # Project directory path: the relative path to get to the project directory
   # from the output path prefix (`opp`). For example, from Qt6Moc/moc/ it
   # would be `../..`.
   #
   local pdp="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
-  local sdd="$opp/QtCore/$(basename $d)" # Source file destination directory.
+  local sdd="$opp/$mod/$(basename $d)" # Source file destination directory.
   mkdir -p "$sdd"
 
   # All of the source files of interest are directly under one of
-  # src/corelib/'s subdirectories (that is, nested no deeper).
+  # src/<module>/'s subdirectories (that is, nested no deeper).
   #
   local f
   for f in "$d"/*; do
@@ -134,13 +151,13 @@ function symlink_qtcore_subdir () # <output-path-prefix> <qtcore-dir>
       #
       *_p.h)
         tpp="$pdp/../.."
-        spp="$opp/QtCore/private"
+        spp="$opp/$mod/private"
         ;;
       # Public header.
       #
       *.h)
         tpp="$pdp/.."
-        spp="$opp/QtCore"
+        spp="$opp/$mod"
         ;;
       # C++, Objective-C++, or C source file.
       #
@@ -174,14 +191,15 @@ function symlink_qtcore_subdir () # <output-path-prefix> <qtcore-dir>
   fi
 }
 
-# Symlink the upstream QtCore sources into Qt6Moc/ and libQt6Core/. Although
-# the Qt6Moc build includes only a subset of the QtCore sources we symlink all
-# of them for the sake of simplicity (its buildfile does not use wildcards).
+# Symlink the upstream QtCore sources into Qt6Moc/, Qt6Rcc/, and
+# libQt6Core/. Although the Qt6Moc and Qt6Rcc builds include only a subset of
+# the QtCore sources we symlink all of them for the sake of simplicity (their
+# buildfiles do not use wildcards).
 #
 for d in upstream/qtbase/src/corelib/*/; do
-  d="${d%/}" # Strip trailing /.
-  symlink_qtcore_subdir "Qt6Moc/moc" "$d"
-  symlink_qtcore_subdir "libQt6Core" "$d"
+  symlink_module_subdir "Qt6Moc/moc" QtCore "$d"
+  symlink_module_subdir "Qt6Rcc/rcc" QtCore "$d"
+  symlink_module_subdir "libQt6Core" QtCore "$d"
 done
 
 # Symlink the upstream MIME type database source XML file.
@@ -205,6 +223,23 @@ for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
     ln -s "../../downstream/$f" "Qt6Moc/moc/$fn"
   else
     ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn"
+  fi
+done
+
+# Symlink all of the rcc application's headers and source files into
+# Qt6Rcc/rcc/.
+#
+for f in upstream/qtbase/src/tools/rcc/*.{h,cpp}; do
+  f="${f#upstream/}"    # Strip "upstream/" prefix.
+  fn="$(basename "$f")" # File name.
+
+  # See the symlinking of the QtCore sources above.
+  #
+  if [[ -f "downstream/$f" ]]; then
+    ln -s "../../upstream/$f"   "Qt6Rcc/rcc/$fn.orig"
+    ln -s "../../downstream/$f" "Qt6Rcc/rcc/$fn"
+  else
+    ln -s "../../upstream/$f"   "Qt6Rcc/rcc/$fn"
   fi
 done
 
