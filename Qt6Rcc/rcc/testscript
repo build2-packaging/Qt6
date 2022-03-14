@@ -1,9 +1,29 @@
+# Note that the input XML does not specify any resource files (because that
+# would complicate things unnecessarily) and, as a result, RCC will print a
+# warning to stderr.
+#
+# Note that we have to use a temporary file since there is some issue in rcc
+# when reading from stdin on Windows and input contains CRLF.
+#
 : basics
+: Check that the RCC binary runs.
 :
-$* 'World' >'Hello, World!'
-
-: missing-name
-:
-$* 2>>EOE != 0
-error: missing name
+cat <<EOI >=qpdf.qrc;
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="qpdf/">
+    </qresource>
+</RCC>
+EOI
+$* qpdf.qrc >>~%EOO% 2>>EOE
+/****************************************************************************
+** Resource object code
+**
+%\*\* Created by: The Resource Compiler for Qt version .+%
+**
+** WARNING! All changes made in this file will be lost!
+*****************************************************************************/
+%.+
+EOO
+RCC: Warning: No resources in 'qpdf.qrc'.
 EOE
