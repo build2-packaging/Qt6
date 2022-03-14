@@ -1,0 +1,6 @@
+$out_root/
+{
+  include rcc/
+}
+
+export $out_root/rcc/$import.target

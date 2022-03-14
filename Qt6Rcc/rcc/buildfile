@@ -1,6 +1,258 @@
-libs =
-#import libs += libhello%lib{hello}
+import libs  = libpcre2%lib{pcre2-16}
+import libs += libz%lib{z}
 
-exe{Qt6Rcc}: {hxx cxx}{**} $libs testscript
+# Target metadata, see also --build2-metadata in main.cpp.
+#
+# Note that qt6rcc does not query any environment variables that can affect
+# its output.
+#
+exe{qt6rcc}:
+{
+  export.metadata = 1 qt6rcc
+  qt6rcc.name = [string] rcc
+  qt6rcc.version  = [string] $version
+  qt6rcc.checksum = [string] $version
+}
 
-cxx.poptions =+ "-I$out_root" "-I$src_root"
+windows = ($cxx.target.class == 'windows')
+unix    = ($cxx.target.class != 'windows')
+macos   = ($cxx.target.class == 'macos')
+
+# The upstream build creates a static bootstrap library consisting of a
+# selection of the QtCore sources which is then used to build moc, rcc, and
+# tracegen.
+#
+
+# The rcc executable source files.
+#
+rcc_src = rcc main
+
+# The QtCore source files required to build the rcc executable. (These all go
+# into the bootstrap library in the upstream build.)
+#
+core_src = QtCore/global/qendian                        \
+           QtCore/global/qglobal                        \
+           QtCore/global/qlogging                       \
+           QtCore/global/qnumeric                       \
+           QtCore/global/qoperatingsystemversion        \
+           QtCore/global/qrandom                        \
+           QtCore/io/qabstractfileengine                \
+           QtCore/io/qbuffer                            \
+           QtCore/io/qdebug                             \
+           QtCore/io/qdir                               \
+           QtCore/io/qdiriterator                       \
+           QtCore/io/qfile                              \
+           QtCore/io/qfileinfo                          \
+           QtCore/io/qfilesystementry                   \
+           QtCore/io/qfilesystemengine                  \
+           QtCore/io/qfsfileengine                      \
+           QtCore/io/qfsfileengine_iterator             \
+           QtCore/io/qiodevice                          \
+           QtCore/io/qipaddress                         \
+           QtCore/io/qfiledevice                        \
+           QtCore/io/qloggingcategory                   \
+           QtCore/io/qloggingregistry                   \
+           QtCore/io/qtemporaryfile                     \
+           QtCore/io/qsavefile                          \
+           QtCore/io/qstandardpaths                     \
+           QtCore/io/qurl                               \
+           QtCore/io/qurlidna                           \
+           QtCore/io/qurlquery                          \
+           QtCore/io/qurlrecode                         \
+           QtCore/kernel/qcoreapplication               \
+           QtCore/kernel/qcoreglobaldata                \
+           QtCore/kernel/qmetatype                      \
+           QtCore/kernel/qvariant                       \
+           QtCore/kernel/qsystemerror                   \
+           QtCore/plugin/quuid                          \
+           QtCore/serialization/qdatastream             \
+           QtCore/serialization/qtextstream             \
+           QtCore/serialization/qxmlutils               \
+           QtCore/serialization/qxmlstream              \
+           QtCore/serialization/qxmlstreamgrammar       \
+           QtCore/text/qbytearray                       \
+           QtCore/text/qbytearraylist                   \
+           QtCore/text/qbytearraymatcher                \
+           QtCore/text/qlocale                          \
+           QtCore/text/qlocale_tools                    \
+           QtCore/text/qregularexpression               \
+           QtCore/text/qstring                          \
+           QtCore/text/qstringconverter                 \
+           QtCore/text/qstringlist                      \
+           QtCore/text/qvsnprintf                       \
+           QtCore/time/qcalendar                        \
+           QtCore/time/qdatetime                        \
+           QtCore/time/qgregoriancalendar               \
+           QtCore/time/qromancalendar                   \
+           QtCore/tools/qarraydata                      \
+           QtCore/tools/qbitarray                       \
+           QtCore/tools/qcommandlineparser              \
+           QtCore/tools/qcommandlineoption              \
+           QtCore/tools/qcryptographichash              \
+           QtCore/tools/qhash                           \
+           QtCore/tools/qringbuffer
+
+# The UNIX-specific QtCore source files required to build rcc. Note that
+# this includes Mac OS.
+#
+unix_core_src = QtCore/kernel/qcore_unix                \
+                QtCore/io/qfilesystemengine_unix        \
+                QtCore/io/qfilesystemiterator_unix      \
+                QtCore/io/qfsfileengine_unix
+
+# The Windows-specific QtCore source files required to build rcc.
+#
+win_core_src = QtCore/io/qfilesystemengine_win                  \
+               QtCore/io/qfilesystemiterator_win                \
+               QtCore/io/qfsfileengine_win                      \
+               QtCore/global/qoperatingsystemversion_win        \
+               QtCore/io/qstandardpaths_win                     \
+               QtCore/kernel/qcoreapplication_win               \
+               QtCore/kernel/qwinregistry                       \
+               QtCore/plugin/qsystemlibrary
+
+# The Mac OS-specific C++ QtCore source files required to build rcc.
+#
+macos_core_src = QtCore/kernel/qcoreapplication_mac
+
+# Define the Objective-C++ source file type.
+#
+define mm: file
+mm{*}: extension = mm
+
+# The Mac OS-specific Objective-C++ QtCore source files required to build
+# rcc.
+#
+macos_core_src_mm = QtCore/io/qfilesystemengine_mac                     \
+                    QtCore/global/qoperatingsystemversion_darwin        \
+                    QtCore/io/qstandardpaths_mac                        \
+                    QtCore/kernel/qcore_foundation                      \
+                    QtCore/kernel/qcore_mac
+
+exe{qt6rcc}: hxx{**} cxx{$core_src $rcc_src} $libs testscript
+
+exe{qt6rcc}: cxx{$unix_core_src}:                include = $unix
+exe{qt6rcc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
+exe{qt6rcc}: cxx{$macos_core_src}:               include = $macos
+exe{qt6rcc}: cxx{$win_core_src}:                 include = $windows
+
+# Ensure that C and C++ source files that are included by other source files
+# instead of compiled themselves are included in the distribution.
+#
+exe{qt6rcc}: 3rdparty/freebsd/file{strtoll.c strtoull.c}: include = adhoc
+
+exe{qt6rcc}: cxx{3rdparty/sha1/sha1             \
+                 QtCore/global/archdetect       \
+                 QtCore/text/qchar              \
+                 QtCore/text/qstringmatcher     \
+                 QtCore/text/qunicodetables}: include = adhoc
+
+# Declare the dependency of the rcc executable on the Objective-C++ source
+# files via the corresponding object files.
+#
+for n: $macos_core_src_mm
+  obje{$(n).o}: mm{$n}
+
+exe{qt6rcc}: obje{$macos_core_src_mm}: include = $macos
+
+# Rule for compiling Objective-C++ source files into object files.
+#
+# Note: these rules are only used on Mac OS (so no -fPIC, etc).
+#
+obje{~'/(.*)/'}: mm{~'/\1/'}
+{{
+  depdb dyndep --what=header --default-type=h           \
+               -- $cxx.path $cc.poptions $cxx.poptions  \
+                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
+  diag objcxx ($<[0])
+  $cxx.path $cc.poptions $cxx.poptions                  \
+            $cc.coptions $cxx.coptions $cxx.mode        \
+            -o $path($>) -c -x objective-c++ $path($<[0])
+}}
+
+cxx.poptions =+ "-I$src_root/rcc"                       \
+                "-I$src_root/rcc/QtCore"                \
+                "-I$src_root/rcc/QtCore/private"
+
+# Define macros from the upstream build.
+#
+cxx.poptions +=                                 \
+  -DQT_BOOTSTRAPPED                             \
+  -DQT_NO_CAST_FROM_ASCII                       \
+  -DQT_NO_CAST_TO_ASCII                         \
+  -DQT_NO_DEBUG                                 \
+  -DQT_NO_EXCEPTIONS                            \
+  -DQT_NO_FOREACH                               \
+  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT      \
+  -DQT_USE_QSTRINGBUILDER                       \
+  -DQT_VERSION_MAJOR="$version.major"           \
+  -DQT_VERSION_MINOR="$version.minor"           \
+  -DQT_VERSION_PATCH="$version.patch"           \
+  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""
+
+if $windows
+{
+    cxx.poptions += -D_CRT_SECURE_NO_WARNINGS   \
+                    -D_USE_MATH_DEFINES         \
+                    -DUNICODE                   \
+                    -D_UNICODE                  \
+                    -DWIN32
+}
+else
+{
+  cxx.poptions += -D_LARGEFILE64_SOURCE \
+                  -D_LARGEFILE_SOURCE
+}
+
+# Add platform-specific header directories, libraries, compilation options,
+# and macro definitions.
+#
+# Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
+#
+# Note that Mac OS with GCC is not supported by upstream (see README-DEV for
+# details).
+#
+switch $cxx.target.class, $cxx.id, $cxx.target.system
+{
+  case 'linux', 'gcc'
+    cxx.poptions += "-I$src_root/rcc/mkspecs/linux-g++"
+  case 'linux', 'clang'
+    cxx.poptions += "-I$src_root/rcc/mkspecs/linux-clang"
+  case 'macos', 'clang-apple'
+  {
+    cxx.poptions += "-I$src_root/rcc/mkspecs/macx-clang"
+    cxx.libs     += -framework AppKit           \
+                    -framework CoreServices     \
+                    -framework Foundation       \
+                    -framework IOKit            \
+                    -framework Security
+  }
+  case 'bsd', 'clang', 'freebsd'
+    cxx.poptions += "-I$src_root/rcc/mkspecs/freebsd-clang"
+  case 'bsd', 'gcc', 'openbsd'
+    cxx.poptions += "-I$src_root/rcc/mkspecs/openbsd-g++"
+  case 'bsd', 'gcc', 'netbsd'
+    cxx.poptions += "-I$src_root/rcc/mkspecs/netbsd-g++"
+  case 'windows', 'msvc'
+  {
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+  }
+  case 'windows', 'msvc-clang' | 'clang'
+  {
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-clang-msvc" \
+                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+  }
+  case 'windows', 'gcc', 'mingw32'
+  {
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-g++" \
+                    -DMINGW_HAS_SECURE_API=1
+    cxx.coptions += -fno-keep-inline-dllexport
+    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lnetapi32 \
+                    -luuid
+  }
+}
