@@ -390,8 +390,8 @@ lib{Qt6Core}: hxx{** -{$c_hdr} +Q*.} h{$c_hdr} cxx{$src}
 #
 lib{Qt6Core}: cxx{** -{$src} -qmimeprovider_database}   \
               global/c{qfloat16_f16c}                   \
-              3rdparty/{h hxx c cxx}{**}                \
-              3rdparty/sha3/file{**.macros}             \
+              ../3rdparty/{h hxx c cxx}{**}             \
+              ../3rdparty/sha3/file{**.macros}          \
               testlib/3rdparty/h{valgrind_p}:           \
   include = adhoc
 
@@ -968,14 +968,14 @@ cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
 
 # Build options.
 #
-# Add QtCore/3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
-# QtCore/3rdparty/forkfd/ for an include of <forkfd.h>.
+# Add 3rdparty/harfbuzz/src/ for an include of <harfbuzz-shaper.h>; and
+# 3rdparty/forkfd/ for an include of <forkfd.h>.
 #
 cxx.poptions =+ "-I$out_root" "-I$src_root"                                     \
                 "-I$out_root/QtCore" "-I$src_root/QtCore"                       \
                 "-I$out_root/QtCore/private" "-I$src_root/QtCore/private"       \
-                "-I$src_root/QtCore/3rdparty/harfbuzz/src"                      \
-                "-I$src_root/QtCore/3rdparty/forkfd"
+                "-I$src_root/3rdparty/harfbuzz/src"                             \
+                "-I$src_root/3rdparty/forkfd"
 
 cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_NO_LINKED_LIST                             \

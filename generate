@@ -34,7 +34,7 @@ rm -rf Qt6Rcc/rcc/3rdparty
 
 rm -rf libQt6Core/QtCore/{*.h,Q*,*.orig}
 rm -f libQt6Core/QtCore/mkspecs
-rm -rf libQt6Core/QtCore/3rdparty
+rm -rf libQt6Core/3rdparty
 rm -f libQt6Core/QtCore/testlib
 
 # Create output directories.
@@ -49,9 +49,7 @@ mkdir -p Qt6Rcc/rcc/QtCore/private
 mkdir Qt6Rcc/rcc/3rdparty
 
 mkdir -p libQt6Core/QtCore/private
-# @@ TMP This probably only works by coincidence (see comment just above).
-#
-mkdir libQt6Core/QtCore/3rdparty
+mkdir libQt6Core/3rdparty
 
 # Directory for the MIME type database source XML file.
 #
@@ -72,9 +70,9 @@ ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
 ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
       Qt6Rcc/rcc/3rdparty/
 
-ln -s ../../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd}     \
-      ../../../upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
-      libQt6Core/QtCore/3rdparty/
+ln -s ../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd}     \
+      ../../upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
+      libQt6Core/3rdparty/
 
 # This is made necessary by the inclusion of
 # "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp. (That is,
