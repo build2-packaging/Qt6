@@ -1102,7 +1102,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-# Export options.
+# Export and pkg-config options.
 #
 lib{Qt6Core}:
 {
@@ -1110,6 +1110,7 @@ lib{Qt6Core}:
                         "-I$out_root/QtCore" "-I$src_root/QtCore"       \
                         -DQT_NO_VERSION_TAGGING
   cxx.export.libs = $intf_libs
+  cxx.pkgconfig.include = include/qt6/
 }
 
 liba{Qt6Core}: cxx.export.poptions += -DQT_STATIC
@@ -1124,13 +1125,8 @@ if $version.pre_release
 else
   lib{Qt6Core}: bin.lib.version = "-$version.major.$version.minor"
 
-# Install public headers into the QtCore/ subdirectory of, say, /usr/include/.
+# Install public headers into the QtCore/ subdirectory of, say,
+# /usr/include/qt6/.
 #
-# @@ TODO: Debian installs into include/qt6/QtCore/ but we currently won't be
-#          able to handle that (no way to propagate this to pkg-config).
-#
-private/{hxx h}{*}: install = false
-{hxx h}{*}:
-{
-  install = include/QtCore/
-}
+{h hxx}{../3rdparty/* private/* testlib/*}: install = false
+{hxx h}{*}: install = include/qt6/QtCore/
