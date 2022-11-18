@@ -83,14 +83,16 @@ core_src = QtCore/global/qendian                        \
            QtCore/time/qcalendar                        \
            QtCore/time/qdatetime                        \
            QtCore/time/qgregoriancalendar               \
+           QtCore/time/qlocaltime                       \
            QtCore/time/qromancalendar                   \
            QtCore/tools/qarraydata                      \
            QtCore/tools/qbitarray                       \
-           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcommandlineoption              \
+           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcryptographichash              \
            QtCore/tools/qhash                           \
-           QtCore/tools/qringbuffer
+           QtCore/tools/qringbuffer                     \
+           QtCore/tools/qversionnumber
 
 # The UNIX-specific QtCore source files required to build rcc. Note that
 # this includes Mac OS.
@@ -115,11 +117,6 @@ win_core_src = QtCore/io/qfilesystemengine_win                  \
 #
 macos_core_src = QtCore/kernel/qcoreapplication_mac
 
-# Define the Objective-C++ source file type.
-#
-define mm: file
-mm{*}: extension = mm
-
 # The Mac OS-specific Objective-C++ QtCore source files required to build
 # rcc.
 #
@@ -129,61 +126,54 @@ macos_core_src_mm = QtCore/io/qfilesystemengine_mac                     \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
-exe{qt6rcc}: hxx{**} cxx{$core_src $rcc_src} $libs testscript
+exe{qt6rcc}: hxx{** -QtCore/qtcoreexports +QtCore/Q*.} QtCore/h{qtcoreexports}  \
+             cxx{$core_src $rcc_src}                                            \
+             testscript
 
 exe{qt6rcc}: cxx{$unix_core_src}:                include = $unix
 exe{qt6rcc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
 exe{qt6rcc}: cxx{$macos_core_src}:               include = $macos
+exe{qt6rcc}: mm{$macos_core_src_mm}:             include = $macos
 exe{qt6rcc}: cxx{$win_core_src}:                 include = $windows
 
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
 #
-exe{qt6rcc}: 3rdparty/freebsd/file{strtoll.c strtoull.c}: include = adhoc
-
 exe{qt6rcc}: cxx{3rdparty/sha1/sha1             \
                  QtCore/global/archdetect       \
                  QtCore/text/qchar              \
                  QtCore/text/qstringmatcher     \
                  QtCore/text/qunicodetables}: include = adhoc
 
-# Declare the dependency of the rcc executable on the Objective-C++ source
-# files via the corresponding object files.
-#
-for n: $macos_core_src_mm
-  obje{$(n).o}: mm{$n}
+QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
+{
+  in.symbol = '@'
+  header_base_name_upper = QTCOREEXPORTS
+  module_define_infix    = CORE
+}
 
-exe{qt6rcc}: obje{$macos_core_src_mm}: include = $macos
+exe{qt6rcc}: $libs
 
-# Rule for compiling Objective-C++ source files into object files.
-#
-# Note: these rules are only used on Mac OS (so no -fPIC, etc).
-#
-obje{~'/(.*)/'}: mm{~'/\1/'}
-{{
-  depdb dyndep --what=header --default-type=h           \
-               -- $cxx.path $cc.poptions $cxx.poptions  \
-                  $cc.coptions $cxx.coptions $cxx.mode -M -MG $path($<[0])
-  diag objcxx ($<[0])
-  $cxx.path $cc.poptions $cxx.poptions                  \
-            $cc.coptions $cxx.coptions $cxx.mode        \
-            -o $path($>) -c -x objective-c++ $path($<[0])
-}}
+cxx.poptions =+                                                                 \
+  "-I$out_root/rcc"        "-I$src_root/rcc"                                    \
+  "-I$out_root/rcc/QtCore" "-I$src_root/rcc/QtCore"                             \
+                           "-I$src_root/rcc/QtCore/private"                     \
+                           "-I$src_root/rcc/QtCore/private/QtCore"              \
+                           "-I$src_root/rcc/QtCore/private/QtCore/private"
 
-cxx.poptions =+ "-I$src_root/rcc"                       \
-                "-I$src_root/rcc/QtCore"                \
-                "-I$src_root/rcc/QtCore/private"
-
-# Define macros from the upstream build.
+# Define macros from the upstream build (a union of the bootstrap library and
+# rcc builds as far as possible).
 #
 cxx.poptions +=                                 \
   -DQT_BOOTSTRAPPED                             \
+  -DQT_LEAN_HEADERS=1                           \
   -DQT_NO_CAST_FROM_ASCII                       \
   -DQT_NO_CAST_TO_ASCII                         \
   -DQT_NO_DEBUG                                 \
-  -DQT_NO_EXCEPTIONS                            \
   -DQT_NO_FOREACH                               \
+  -DQT_NO_JAVA_STYLE_ITERATORS                  \
   -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT      \
+  -DQT_TYPESAFE_FLAGS                           \
   -DQT_USE_QSTRINGBUILDER                       \
   -DQT_VERSION_MAJOR="$version.major"           \
   -DQT_VERSION_MINOR="$version.minor"           \
@@ -238,21 +228,44 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/rcc/mkspecs/win32-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+    cxx.libs += ole32.lib advapi32.lib netapi32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
     cxx.poptions += "-I$src_root/rcc/mkspecs/win32-clang-msvc" \
                     -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
-    cxx.libs += ole32.lib advapi32.lib shell32.lib netapi32.lib
+    cxx.libs += ole32.lib advapi32.lib netapi32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
     cxx.poptions += "-I$src_root/rcc/mkspecs/win32-g++" \
                     -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
-    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lnetapi32 \
-                    -luuid
+    cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -luuid
+  }
+}
+
+obj{$rcc_src}: cxx.poptions += -DQT_RCC
+
+# Disable exceptions on the rcc objects.
+#
+switch $cxx.class
+{
+  case 'gcc'
+  {
+    obj{$rcc_src}:
+    {
+      cxx.poptions += -DQT_NO_EXCEPTIONS
+      cxx.coptions += -fno-exceptions
+    }
+  }
+  case 'msvc'
+  {
+    obj{$rcc_src}:
+    {
+      cxx.poptions += -DQT_NO_EXCEPTIONS
+      cxx.coptions += /EHs- /EHc-
+    }
   }
 }
