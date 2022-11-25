@@ -1,1 +1,280 @@
-See build2-packaging/Qt5/README-DEV.
+Also see build2-packaging/Qt5/README-DEV.
+
+1. The upstream build
+
+Qt5's qmake build has been completely converted to cmake in Qt6.
+
+Scripts in upstream/qtbase/util/cmake/ were used to convert much of the Qt5
+build into CMake files. For example, configurejson2cmake.py was used to
+convert the Qt5 configure.json files to configure.cmake for each module, and
+the Qt5 qmake project files (.pro, .pri) were converted to CMakeLists.txt
+using the pro2cmake.py script.
+
+1.1 Upstream build documentation
+
+- https://wiki.qt.io/Qt6_Build_System (not much there at the time of writing,
+  however).
+
+1.2 Configuration system
+
+A module's features are defined in qtbase/src/<module>/configure.cmake as
+follows:
+
+  qt_feature("<feature-name>" <visibility>...)
+
+This results in definitions like the following in the module config header
+(public or private, depending on the visibility):
+
+  #define QT_FEATURE_foo  1 // Enabled feature
+  #define QT_FEATURE_bar -1 // Disabled feature
+
+Upstream code checks for features using the QT_CONFIG() macro defined in
+qtconfigmacros.h. Every feature "foo" thus tested must have a corresponding
+`#define QT_FEATURE_foo {1,-1}` in one of the module
+config headers, otherwise there will be a compilation error.
+
+Some features have associated macros that are defined only if the features is
+either enabled or disabled. These are always defined in the public module
+config header. Then there are "extra" macros which are standalone and can be
+defined in the public or private module config header.
+
+These macros are defined using the following functions:
+
+qt_feature_definition(<feature-name> <macro-name>): Define a
+                                                    feature-associated macro
+                                                    in the public module
+                                                    config header
+                                                    conditionally based on the
+                                                    enabled value of the
+                                                    feature.
+
+qt_extra_definition(<macro-name> PUBLIC|PRIVATE): Define a macro in the public
+                                                  or private module config
+                                                  header.
+
+1.2.1 Downstream module configuration headers
+
+Because we manage these headers manually we have automated the process of
+checking that we haven't missed any features or macros defined upstream. This
+is necessary because there are currently more than 400 of them and Qt6 is
+still being actively developed so features and macros will be added, removed,
+and moved (for example, from the public to the private header).
+
+The `check-config-header` script prints all features and macros not handled
+both upstream and downstream. Therefore, in order for it to produce usable
+output, it is necessary to put every single feature and macro defined upstream
+in our downstream headers. Note however that commented-out features and macros
+are treated identically to uncommented ones so not every feature and macro
+needs to actually be defined.
+
+Many features defined upstream are not actually referenced by any code. These
+are typically only used internally by the upstream build. We prefer to leave
+these features/macros commented out because this makes it clear that the
+feature/macro is unused and obviates the need to have to figure out under what
+conditions it should be enabled and writing the additional code that that
+would require.
+
+Recommended ordering of features and macros within a downstream module config
+header:
+
+- Application/user-level features
+  For example: scrollbars.
+
+- Internal Qt library-level features
+  For example: threads, concurrent, appstore_compliant.
+
+- Dependencies
+  For example: zstd, glib, icu.
+
+- Build-related
+  For example: shared, static, debug_and_release, cross_compile, framework
+
+- C and C++ language features
+  For example: c99, cxx17, cxx11_filesystem
+
+- Low-level implementation and platform-specific details
+  For example: largefile support, signaling_nan, SSE, AVX, AES.
+
+Divergences from upstream
+
+Although QT_CONFIG() is not available in qconfig.h and qtcore-config.h by
+default (because qglobal.h includes them before the header that defines
+QT_CONFIG(), qtconfigmacros.h), we put our own definition in qconfig.h so that
+we can consistently use QT_CONFIG across all module config headers. Although
+upstream clearly didn't intend for this macro to be used in the module config
+headers, its downstream use is necessary because testing QT_FEATURE_foo macros
+directly would just be too verbose and error prone.
+
+Private features that have an associated macro are moved to the public
+header. Otherwise the feature macro and its associated macro would be in
+different headers which would make manual maintenance impractical. The
+associated macro is only defined if the feature is either enabled or disabled
+and we'd otherwise not be able express this relationship programmatically
+because private features are not available in the public module config
+headers. We'd also have to document the relationship between the feature and
+its associated macro using comments and add cross-references to the public and
+private headers. Furthermore, it seems that if you need a public macro
+QT_NO_FOO which is defined if a private feature QT_FEATURE_foo is disabled
+then the feature is not really very private anymore as one half of its
+potential values are already exposed. I don't think making such features
+public downstream is taking it much further. When the feature and associated
+macro are in the same header everything is completely clear:
+
+  #define QT_FEATURE_jpeg 1 // Moved from private
+  #if !QT_CONFIG(jpeg)
+  #  define QT_NO_IMAGEFORMAT_JPEG 1
+  #endif
+
+The "Moved from private" comment tells the `check-config-header` script to not
+report the feature as being in the downstream public header (otherwise it
+would look like a public feature that was removed from upstream). To prevent
+`check-config-header` from reporting it as a missing private feature, also
+keep it in the private header, but commented out, with a "Moved to public"
+comment for the sake of human readers:
+
+  // #define QT_FEATURE_jpeg 1 // Moved to public
+
+In the upstream module feature configuration files (for example,
+upstream/qtbase/src/gui/configure.cmake), the `PUBLIC PRIVATE` visibility spec
+causes a feature to be defined in both the public and private module headers
+(presumably to cause public features to be automatically pulled in when the
+private features are included).
+
+However, we treat `PUBLIC PRIVATE` and `PRIVATE PUBLIC` merely as public (that
+is, we do not duplicate these features into both the public and private module
+config headers) for the following reasons:
+
+1) It's not clear that the `PUBLIC PRIVATE` scheme is even necessary. I asked
+   one of the developers who works on the cmake build on IRC what its purpose
+   is (in light of the points below) and even he couldn't tell me.
+
+   As far back as Qt5 the upstream intention has clearly been that the module
+   config headers should be included only via the corresponding module global
+   header:
+
+   Firstly, there are only a handful of places outside of the module global
+   headers where a module config header is included directly, but hundreds
+   where a global module header is included.
+
+   Secondly, every module's private global header includes its private module
+   config header and its public global header, which includes the public
+   module config header. (For example, qtwidgetsglobal_p.h includes
+   qtwidgets-config_p.h, and qtwidgetsglobal.h, which includes
+   qtwidgets-config.h.) Thus the public features are automatically pulled in
+   when the private features are included. Including the private module config
+   headers directly would defeat this scheme.
+
+   So the automatic pulling in of public features when private features are
+   included was already covered by the global module header scheme for a long
+   time.
+
+2) Because we manage the module config headers manually it would be very
+   tedious to keep every feature duplicated in both files and it would also
+   make reading those files much more difficult.
+
+For these reasons we diverge from upstream by including the public module
+config header from the private one instead of duplicating `PUBLIC PRIVATE`
+features in both headers.
+
+1.4 How to identify sources to be moc'd
+
+grep -REl 'Q_OBJ|Q_GADGET|Q_NAMESPACE' upstream/qtbase/src/<module>
+
+This will include headers and source files (C++ and Objective-C++). The
+transformations are as follows:
+
+  `moc foo.hpp` produces moc_foo.cpp
+  `moc foo.cpp` produces foo.moc (a C++ source file)
+  `moc foo.mm`  produces foo.moc (note: also a C++ source file)
+
+Most moc outputs are included, but some are compiled.
+
+- Find included header moc outputs:
+
+    grep -REh 'include.+moc_.+\.cpp' upstream/qtbase/src/<module>
+
+- Find included source file moc outputs:
+
+    grep -REh 'include.+\.moc' upstream/qtbase/src/<module>
+
+- Find compiled moc outputs (from within the upstream build directory):
+
+    find . -type f -name mocs_compilation.cpp -exec grep -h '#include' {} \;
+
+2. TODO upon upstream upgrade
+
+2.1. Upgrade upstream/qtbase/ to the latest release.
+
+2.2. Check whether upstream versions of any files in downstream/ have changed.
+
+Print all files under downstream/ that have changed upstream since the last
+release (using version 6.4.1 in this example):
+
+  $ ./find-outdated-patches v6.4.1
+  qtbase/src/tools/moc/generator.cpp
+  qtbase/src/tools/moc/main.cpp
+  qtbase/src/corelib/thread/qmutex.cpp
+  qtbase/src/corelib/compat/removed_api.cpp
+  qtbase/src/corelib/serialization/qcborstreamreader.cpp
+
+Then make use of something like `git add --patch` to merge the new upstream
+changes and our downstream patches:
+
+  $ cp {upstream,downstream}/qtbase/src/tools/moc/generator.cpp
+  $ git add --patch downstream/qtbase/src/tools/moc/generator.cpp
+
+2.3 Run the generate script.
+
+2.4. Ensure resource collection files (.qrc) have not changed.
+
+In the upstream build all of the .qrc files are generated by cmake. We use
+copies of the upstream-generated ones but usually they need to be edited (for
+example, to make absolute paths relative).
+
+To generate the .qrc files, simply run cmake on the upstream build:
+
+  $ mkdir qt6-build
+  $ cd qt6-build
+  $ cmake ~/work/build2-packaging/Qt6/upstream/qtbase
+  $ find . -name \*.qrc
+  ./src/gui/.rcc/qpdf.qrc
+  ./src/gui/.rcc/gui_shaders.qrc
+  ./src/widgets/.rcc/qstyle1.qrc
+  ./src/widgets/.rcc/qstyle.qrc
+  ./src/widgets/.rcc/qmessagebox.qrc
+
+2.5. Check version scripts
+
+Ensure that our copied version scripts still match the upstream-generated
+ones.
+
+Currently the only one is
+libQt6Gui/QtGuiPlugins/platforms/xcb/QtXcbQpa.version. Although it is very
+simple (it does nothing but put all symbols inside the Qt_6 version node --
+that is, it does not restrict the visibility of any symbols -- it is generated
+by the upstream build so it's best to check that nothing important has
+changed.
+
+Generate the upstream version script with the following command (assuming the
+build directory is ./qt6-build/):
+
+  make -C qt6-build XcbQpaPrivate_version_script
+
+This will generate qt6-build/src/plugins/platforms/xcb/XcbQpaPrivate.version.
+
+2.6. Check for new or removed Qt configuration features and macros
+
+Run the `check-config-header` script for all modules. For example:
+
+check-config-header --module global --visibility pub
+check-config-header --module global --visibility priv
+check-config-header --module core   --visibility pub
+check-config-header --module core   --visibility priv
+
+etc.
+
+This script prints the names of features and macros that are not handled both
+upstream and downstream, so this list will include features and macros added
+or removed by the upstream upgrade. Update the downstream module config
+headers indicated by the module and visibility options passed as required (see
+the script itself for the list of headers).
