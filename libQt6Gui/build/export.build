@@ -1,0 +1,27 @@
+switch $name($import.target)
+{
+  case 'Qt5Gui' | 'Qt5GuiPrivate'
+  {
+    $out_root/
+    {
+      include QtGui/
+    }
+    export $out_root/QtGui/$import.target
+  }
+  default
+  {
+    $out_root/
+    {
+      include QtGuiPlugins/
+    }
+    switch $trg_name
+    {
+      case lib{qxcb}
+	export $out_root/QtGuiPlugins/platforms/$import.target
+      case lib{qgif} | lib{qico} | lib{qjpeg}
+	export $out_root/QtGuiPlugins/imageformats/$import.target
+      case lib{composeplatforminputcontextplugin}
+	export $out_root/QtGuiPlugins/platforminputcontexts/$import.target
+    }
+  }
+}
