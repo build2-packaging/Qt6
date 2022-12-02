@@ -1,0 +1,15 @@
+: 1
+name: libQt6GuiTests
+version: 6.4.2-a.0.z
+project: Qt6
+summary: Tests for libQt6Gui
+license: MIT
+description-file: README.md
+url: https://github.com/build2-packaging/Qt6
+email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+depends: * Qt6Moc == $

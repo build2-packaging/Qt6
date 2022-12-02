@@ -1,0 +1,33 @@
+import libs = libQt6Gui%lib{Qt6Gui}
+
+import! [metadata] moc = Qt6Moc%exe{qt6moc}
+
+exe{gui-app}: hxx{rasterwindow} cxx{gui-app} $libs
+{
+  # Close the window automatically after a few seconds.
+  #
+  test.options = --auto-close
+}
+
+exe{gui-app}:          cxx{moc_rasterwindow}: include = adhoc
+cxx{moc_rasterwindow}: hxx{rasterwindow}
+
+# Rule to run moc on a header file (foo.h -> moc_foo.cpp).
+#
+cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} $moc
+{{
+  o = $path($>[0])
+  t = $(o).t
+
+  depdb dyndep \
+    --byproduct --drop-cycles --what=header --default-type=h --file $t
+
+  s = $path($<[0])
+
+  # -i: don't include the header (we don't need it and it's simpler this way).
+  #
+  $moc $cc.poptions $cxx.poptions       \
+    -i --output-dep-file --dep-file-path $t -o $o $s
+}}
+
+cxx.poptions =+ "-I$out_base"

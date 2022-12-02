@@ -1,0 +1,6 @@
+project = libQt6GuiTests
+
+using version
+using config
+using dist
+using test
