@@ -1,0 +1,19 @@
+switch $name($import.target)
+{
+  case 'Qt6Widgets'
+  {
+    $out_root/
+    {
+      include QtWidgets/
+    }
+    export $out_root/QtWidgets/$import.target
+  }
+  default # Plugins.
+  {
+    $out_root/
+    {
+      include QtWidgetsPlugins/
+    }
+    export $out_root/QtWidgetsPlugins/styles/$import.target
+  }
+}

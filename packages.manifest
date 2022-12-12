@@ -10,3 +10,5 @@ location: libQt6Core/
 location: libQt6Gui/
 :
 location: libQt6GuiTests/
+:
+location: libQt6Widgets/

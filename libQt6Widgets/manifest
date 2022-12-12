@@ -1,0 +1,26 @@
+: 1
+name: libQt6Widgets
+version: 6.4.2-a.0.z
+project: Qt6
+summary: Qt6 GUI widgets library
+license: LGPL-3.0-only
+license: GPL-2.0-only
+license: GPL-3.0-only
+license: other: available source
+description-file: README.md
+url: https://www.qt.io/
+src-url: https://invent.kde.org/qt/qt/qtbase
+package-url: https://github.com/build2-packaging/Qt6
+email: interest@qt-project.org      ; Mailing list for developers using Qt.
+package-email: packaging@build2.org ; Mailing list.
+build-error-email: builds@build2.org
+builds: default
+builds: -( +macos &gcc ) ; See README-DEV.
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+depends: * Qt6Moc == $
+depends: * Qt6Rcc == $
+depends: * Qt6Uic == $
+depends: libQt6Core == $
+depends: libQt6Gui == $
+# tests: libQt6WidgetsTests == $
