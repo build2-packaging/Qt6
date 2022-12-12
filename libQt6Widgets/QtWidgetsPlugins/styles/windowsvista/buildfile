@@ -1,0 +1,73 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt6Core/QtCore/buildfile.
+#
+
+include ../../../QtWidgets/
+
+src = main                      \
+      qwindowsvistastyle        \
+      qwindowsxpstyle
+
+moc_hdr = qwindowsvistastyle_p          \
+          qwindowsvistastyle_p_p        \
+          qwindowsxpstyle_p
+
+moc_src_adhoc = main
+
+../lib{qwindowsvistastyle}: ../../../mkspecs/hxx{**} hxx{*} cxx{$src}
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc moc rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt6PluginsWindowsVistaStyleMeta}: \
+  ../../../QtWidgets/lib{Qt6Widgets Qt6WidgetsPrivate}
+
+# Plugin metadata file.
+#
+../lib{qwindowsvistastyle}: file{windowsvistastyle.json}: include = adhoc
+
+# Dependencies involving moc-generated C++ source files.
+#
+
+# Dependencies involving lib{qwindowsvistastyle}, moc-generated C++ source
+# files (moc_foo.cpp), and the C++ headers the they were generated from (for
+# example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr}
+{
+  cxx{moc_$name($s)}: $s libul{Qt6PluginsWindowsVistaStyleMeta}
+  ../lib{qwindowsvistastyle}: cxx{moc_$name($s)}
+}
+
+# Dependencies involving lib{qwindowsvistastyle}, moc-generated C++ source
+# files (foo.moc), and the C++ source files the .moc's were generated from
+# (for example, `moc foo.cpp` produces foo.moc).
+#
+for s: cxx{$moc_src_adhoc}
+{
+  n = $name($s)
+  moc{$n}: $s libul{Qt6PluginsWindowsVistaStyleMeta}
+  ../lib{qwindowsvistastyle}: moc{$n}: include = adhoc
+}
+
+../lib{qwindowsvistastyle}: libul{Qt6PluginsWindowsVistaStyleMeta}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+cxx.poptions += -DQT_PLUGIN
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+if ($cxx.target.system == 'mingw32')
+  ../lib{qwindowsvistastyle}: cxx.libs += -lgdi32 -luxtheme
+else
+  ../lib{qwindowsvistastyle}: cxx.libs += gdi32.lib uxtheme.lib
+
+# Installation.
+#
+../lib{qwindowsvistastyle}: install = lib/qt6/plugins/styles/

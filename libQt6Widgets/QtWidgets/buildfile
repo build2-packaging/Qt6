@@ -1,0 +1,451 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt6Core/QtCore/buildfile.
+#
+
+import intf_libs = libQt6Gui%lib{Qt6Gui}
+import impl_libs = libQt6Gui%lib{Qt6GuiPrivate}
+
+# Interface libraries for lib{Qt6WidgetsPrivate}.
+#
+import priv_intf_libs = libQt6Gui%lib{Qt6GuiPrivate}
+
+# For post hoc dependency (see below).
+#
+include ../QtWidgetsPlugins/
+
+moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
+                private/QtWidgets/private/qcolumnviewgrip_p             \
+                private/QtWidgets/private/qcombobox_p                   \
+                private/QtWidgets/private/qcompleter_p                  \
+                private/QtWidgets/private/qdatetimeedit_p               \
+                private/QtWidgets/private/qdockwidget_p                 \
+                private/QtWidgets/private/qflickgesture_p               \
+                private/QtWidgets/private/qfusionstyle_p                \
+                private/QtWidgets/private/qgesturemanager_p             \
+                private/QtWidgets/private/qgraphicseffect_p             \
+                private/QtWidgets/private/qgraphicsscenebsptreeindex_p  \
+                private/QtWidgets/private/qgraphicssceneindex_p         \
+                private/QtWidgets/private/qgraphicsscenelinearindex_p   \
+                private/QtWidgets/private/qitemeditorfactory_p          \
+                private/QtWidgets/private/qlineedit_p                   \
+                private/QtWidgets/private/qlistwidget_p                 \
+                private/QtWidgets/private/qmainwindowlayout_p           \
+                private/QtWidgets/private/qpixmapfilter_p               \
+                private/QtWidgets/private/qpixmapstyle_p                \
+                private/QtWidgets/private/qplaintextedit_p              \
+                private/QtWidgets/private/qscroller_p                   \
+                private/QtWidgets/private/qsidebar_p                    \
+                private/QtWidgets/private/qstyleanimation_p             \
+                private/QtWidgets/private/qstylesheetstyle_p            \
+                private/QtWidgets/private/qsystemtrayicon_p             \
+                private/QtWidgets/private/qtablewidget_p                \
+                private/QtWidgets/private/qtoolbarextension_p           \
+                private/QtWidgets/private/qtoolbarlayout_p              \
+                private/QtWidgets/private/qtoolbarseparator_p           \
+                private/QtWidgets/private/qtreewidget_p                 \
+                private/QtWidgets/private/qwidget_p                     \
+                private/QtWidgets/private/qwidgetanimator_p             \
+                private/QtWidgets/private/qwidgetlinecontrol_p          \
+                private/QtWidgets/private/qwidgetrepaintmanager_p       \
+                private/QtWidgets/private/qwidgetresizehandler_p        \
+                private/QtWidgets/private/qwidgettextcontrol_p          \
+                private/QtWidgets/private/qwidgetwindow_p               \
+                private/QtWidgets/private/qwindowcontainer_p            \
+                private/QtWidgets/private/qwindowsstyle_p               \
+                qabstractbutton                                         \
+                qabstractitemdelegate                                   \
+                qabstractitemview                                       \
+                qabstractscrollarea                                     \
+                qabstractslider                                         \
+                qabstractspinbox                                        \
+                qapplication                                            \
+                qboxlayout                                              \
+                qbuttongroup                                            \
+                qcalendarwidget                                         \
+                qcheckbox                                               \
+                qcolordialog                                            \
+                qcolumnview                                             \
+                qcombobox                                               \
+                qcommandlinkbutton                                      \
+                qcommonstyle                                            \
+                qcompleter                                              \
+                qdatawidgetmapper                                       \
+                qdatetimeedit                                           \
+                qdial                                                   \
+                qdialog                                                 \
+                qdialogbuttonbox                                        \
+                qdockwidget                                             \
+                qerrormessage                                           \
+                qfiledialog                                             \
+                qfocusframe                                             \
+                qfontcombobox                                           \
+                qfontdialog                                             \
+                qformlayout                                             \
+                qframe                                                  \
+                qgesture                                                \
+                qgraphicsanchorlayout                                   \
+                qgraphicseffect                                         \
+                qgraphicsitem                                           \
+                qgraphicsitemanimation                                  \
+                qgraphicsproxywidget                                    \
+                qgraphicsscene                                          \
+                qgraphicstransform                                      \
+                qgraphicsview                                           \
+                qgraphicswidget                                         \
+                qgridlayout                                             \
+                qgroupbox                                               \
+                qheaderview                                             \
+                qinputdialog                                            \
+                qitemdelegate                                           \
+                qkeysequenceedit                                        \
+                qlabel                                                  \
+                qlayout                                                 \
+                qlcdnumber                                              \
+                qlineedit                                               \
+                qlistview                                               \
+                qlistwidget                                             \
+                qmainwindow                                             \
+                qmdiarea                                                \
+                qmdisubwindow                                           \
+                qmenu                                                   \
+                qmenubar                                                \
+                qmessagebox                                             \
+                qplaintextedit                                          \
+                qprogressbar                                            \
+                qprogressdialog                                         \
+                qproxystyle                                             \
+                qpushbutton                                             \
+                qradiobutton                                            \
+                qrubberband                                             \
+                qscrollarea                                             \
+                qscrollbar                                              \
+                qscroller                                               \
+                qsizegrip                                               \
+                qsizepolicy                                             \
+                qslider                                                 \
+                qspinbox                                                \
+                qsplashscreen                                           \
+                qsplitter                                               \
+                qstackedlayout                                          \
+                qstackedwidget                                          \
+                qstatusbar                                              \
+                qstyle                                                  \
+                qstyleditemdelegate                                     \
+                qstyleplugin                                            \
+                qsystemtrayicon                                         \
+                qtabbar                                                 \
+                qtableview                                              \
+                qtablewidget                                            \
+                qtabwidget                                              \
+                qtextbrowser                                            \
+                qtextedit                                               \
+                qtoolbar                                                \
+                qtoolbox                                                \
+                qtoolbutton                                             \
+                qtreeview                                               \
+                qtreewidget                                             \
+                qundoview                                               \
+                qwidget                                                 \
+                qwidgetaction                                           \
+                qwizard
+
+win_src = dialogs/qwizard_win
+
+macos_src = kernel/qmacgesturerecognizer
+
+macos_mm = widgets/qmenu_mac
+
+# Qt resource collection files (.qrc).
+#
+qrc = dialogs/qmessagebox       \
+      styles/qstyle             \
+      styles/qstyle1
+
+# User interface definition files (.ui).
+#
+ui = dialogs/qfiledialog
+
+# Generated C++ headers.
+#
+gen_hdr = private/QtWidgets/private/qtwidgets-config_p \
+          qtwidgetsexports
+
+# The names of C++ source files generated by moc from headers (foo.h ->
+# moc_foo.cpp) and by qrc from resource collection files (foo.qrc ->
+# qrc_foo.cpp).
+#
+gen_src  = $regex.apply($moc_hdr_adhoc $macos_moc_hdr,  \
+                       '(.+/)?(.+)', 'moc_\2')          \
+           $regex.apply($qrc,                           \
+                       '(.+/)?(.+)', 'qrc_\2')
+
+./: lib{Qt6Widgets}
+
+# This target exports search directories for the private headers which are
+# located in a deeper directory subtree to prevent them from being found by
+# accident.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] lib{Qt6WidgetsPrivate}:
+
+./: lib{Qt6WidgetsPrivate}: $priv_intf_libs
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc moc rules.
+#
+[rule_hint=cxx] libul{Qt6WidgetsMeta}: $intf_libs
+
+# Headers and source files.
+#
+lib{Qt6Widgets}: ../mkspecs/hxx{**}                                 \
+                 hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr}             \
+                 cxx{** -{$gen_src                                  \
+                          kernel/qapplication-* $win_src $macos_src \
+                          util/qsystemtrayicon_x11                  \
+                          util/qsystemtrayicon_qpa}}
+
+# Make sure plugins are built if the shared Qt6Widgets library is built.
+#
+libs{Qt6Widgets}: ../QtWidgetsPlugins/alias{Qt6WidgetsPlugins}: \
+  include = posthoc
+
+# Use different versions of kernel/qapplication.cpp for the develop and
+# installed cases because their plugin paths differ.
+#
+# Note: kernel/qapplication-develop.cpp is generated (see below) but
+# kernel/qapplication-install.cpp is a symlink to the unmodified upstream
+# version.
+#
+lib{Qt6Widgets}: kernel/cxx{qapplication-install}: for_install = true
+lib{Qt6Widgets}: kernel/cxx{qapplication-develop}: for_install = false
+
+# Platform-specific source files.
+#
+lib{Qt6Widgets}: cxx{$macos_src} mm{$macos_mm}: include = $macos
+lib{Qt6Widgets}: cxx{$win_src}:                 include = $windows
+
+# util/qsystemtrayicon_{x11,qpa}.cpp: build the former on XCB platforms and
+# the latter on non-XCB platforms.
+#
+lib{Qt6Widgets}: cxx{util/qsystemtrayicon_x11}: include = ($linux || $bsd)
+lib{Qt6Widgets}: cxx{util/qsystemtrayicon_qpa}: include = ($windows || $macos)
+
+# Dependencies involving moc-generated source files.
+#
+# Note: Explicitly list the generated headers as dependencies in case the
+# moc-generated file includes any of them (if only indirectly).
+#
+
+# Dependencies involving lib{Qt6Gui}, moc-generated source files
+# (moc_foo.cpp), and the header files they were generated from (for example,
+# `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr_adhoc}
+{
+  n = $name($s)
+  cxx{moc_$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+  lib{Qt6Widgets}: cxx{moc_$n}: include = adhoc
+}
+
+# Dependencies involving lib{Qt6Widgets}, moc-generated source files
+# (foo.moc), and the C++ source files the .moc's were generated from (for
+# example, `moc foo.cpp` produces foo.moc).
+#
+# The purpose of the additional cxx{moc_*} prerequisite in some cases is to
+# ensure that the moc-generated target's moc-generated dependencies are
+# updated before it itself is updated. This is necessary because a moc
+# target's dependencies are extracted at the same time as it is updated:
+# moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
+# which includes cxx{moc_foo}.
+#
+for s: cxx{dialogs/qcolordialog         \
+           dialogs/qfontdialog          \
+           dialogs/qinputdialog         \
+           dialogs/qmessagebox          \
+           itemviews/qtableview         \
+           util/qundoview               \
+           widgets/qcalendarwidget      \
+           widgets/qfontcombobox        \
+           widgets/qmdisubwindow        \
+           widgets/qmenu                \
+           widgets/qtabbar              \
+           widgets/qtoolbox}
+{
+  n = $name($s)
+  lib{Qt6Widgets}: moc{$n}: include = adhoc
+  moc{$n}: $s libul{Qt6WidgetsMeta} cxx{moc_$n} hxx{$gen_hdr}
+}
+
+for s: cxx{kernel/qtooltip              \
+           kernel/qwhatsthis            \
+           util/qsystemtrayicon_x11     \
+           widgets/qeffects}
+{
+  n = $name($s)
+  lib{Qt6Widgets}: moc{$n}: include = adhoc
+  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+}
+
+# More or less as above, except with different cxx{moc_*} dependencies.
+#
+for n: qdockwidget              \
+       qitemeditorfactory       \
+       qlistwidget              \
+       qwidgetrepaintmanager
+  lib{Qt6Widgets}: moc{$n}: include = adhoc
+
+moc{qdockwidget}:           cxx{widgets/qdockwidget}            \
+                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
+                            cxx{moc_qdockwidget} cxx{moc_qdockwidget_p}
+moc{qlistwidget}:           cxx{itemviews/qlistwidget}          \
+                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
+                            cxx{moc_qlistwidget} cxx{moc_qlistwidget_p}
+moc{qitemeditorfactory}:    cxx{itemviews/qitemeditorfactory}   \
+                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
+                            cxx{moc_qitemeditorfactory_p}
+moc{qwidgetrepaintmanager}: cxx{kernel/qwidgetrepaintmanager}   \
+                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
+                            cxx{moc_qwidgetrepaintmanager_p}
+
+# Dependencies involving source files generated by rcc from Qt resource
+# collection files and their associated resources.
+#
+for s: qrc{$qrc}
+{
+  n = $name($s)
+  lib{Qt6Widgets}: cxx{qrc_$(n)}
+  cxx{qrc_$(n)}: $s dialogs/images/file{*.png}  \
+                    styles/images/file{*.png}
+}
+
+# Dependencies involving C++ headers generated by uic from user interface
+# definition files.
+#
+for s: ui{$ui}
+{
+  n = $name($s)
+  lib{Qt6Widgets}: hxx{ui_$(n)}
+  hxx{ui_$(n)}: $s
+}
+
+lib{Qt6Widgets}: libul{Qt6WidgetsMeta} $impl_libs
+
+# Generated headers and source files.
+#
+using autoconf
+
+# Header that defines symbol exporting, inlining, and deprecation macros.
+#
+hxx{qtwidgetsexports}: in{qtwidgetsexports}
+{
+  header_base_name_upper = QTWIDGETSEXPORTS
+  module_define_infix    = WIDGETS
+}
+
+# The private module config header.
+#
+# Note that the public module config header is not generated because it
+# contains only features that control specific widgets, all of which we
+# enable.
+#
+private/QtWidgets/private/hxx{qtwidgets-config_p}: \
+  private/QtWidgets/private/in{qtwidgets-config_p}
+{
+  QT_FEATURE_style_mac          = ($macos   ? 1 : -1)
+  QT_FEATURE_style_windowsvista = ($windows ? 1 : -1)
+}
+
+# Development version of qapplication.cpp in which $out_root/QtWidgetsPlugins/
+# is registered to be searched for the QtWidgets plugins at runtime. (The
+# unmodified upstream version is used for the installed case.)
+#
+kernel/cxx{qapplication-develop}: kernel/in{qapplication-develop}
+{
+  # Escape backslashes on Windows.
+  #
+  widgets_plugins_path = [dir_path] $regex.replace("$out_root/QtWidgetsPlugins", \
+                                                   '\\', '\\\\')
+}
+
+# Build options.
+#
+cxx.poptions =+                                                         \
+"-I$out_root"                           "-I$src_root"                   \
+"-I$out_base"                           "-I$src_base"                   \
+"-I$out_base/private"                   "-I$src_base/private"           \
+"-I$out_base/private/QtWidgets"         "-I$src_base/private/QtWidgets" \
+"-I$out_base/private/QtWidgets/private" "-I$src_base/private/QtWidgets/private"
+
+# Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
+#       so need neither be defined again nor exported.
+#
+cxx.poptions += -DQT_ASCII_CAST_WARNINGS                        \
+                -DQT_BUILDING_QT                                \
+                -DQT_BUILD_WIDGETS_LIB                          \
+                -DQT_MOC_COMPAT                                 \
+                -DQT_NO_CAST_TO_ASCII                           \
+                -DQT_NO_USING_NAMESPACE                         \
+                -DQT_USE_QSTRINGBUILDER
+
+switch $cxx.target.class, $cxx.target.system
+{
+  case  'windows', 'mingw32'
+    lib{Qt6Widgets}: cxx.libs += -ldwmapi -luxtheme
+  case  'windows'
+    lib{Qt6Widgets}: cxx.libs += dwmapi.lib uxtheme.lib
+  case 'macos'
+    lib{Qt6Widgets}: cxx.libs += -framework AppKit
+}
+
+# Export options.
+#
+lib{Qt6Widgets}:
+{
+  cxx.export.poptions = "-I$out_root"  "-I$src_root" \
+                        "-I$out_base"  "-I$src_base" \
+                        -DQT_WIDGETS_LIB
+
+  cxx.export.libs = $intf_libs
+}
+
+lib{Qt6WidgetsPrivate}:
+{
+  cxx.export.poptions =                                                 \
+    "-I$out_base/private"                   "-I$src_base/private"       \
+    "-I$out_base/private/QtWidgets"         "-I$src_base/private/QtWidgets"
+
+  cxx.export.libs = $priv_intf_libs
+}
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{Qt6Widgets}: bin.lib.version = "-$version.project_id"
+else
+  lib{Qt6Widgets}: bin.lib.version = "-$version.major.$version.minor"
+
+# Install public headers into the qt6/QtWidgets/ subdirectory of, say,
+# /usr/include/. Note that headers may be included with or without the
+# `QtWidgets/` prefix.
+#
+{hxx}{* Q*.}: install = include/qt6/QtWidgets/
+
+lib{Qt6Widgets}: cxx.pkgconfig.include = include/qt6/ include/qt6/QtWidgets
+
+# Install private headers into the qt6/QtWidgets/private/ subdirectory of,
+# say, /usr/include/, recreating subdirectories. Note that private headers may
+# be included prefixed with `QtWidgets/private/`, `private/`, or without a
+# prefix.
+#
+{hxx}{private/*}:
+{
+  install = include/qt6/QtWidgets/private/
+  install.subdirs = true
+}
+
+lib{Qt6WidgetsPrivate}:                                 \
+  cxx.pkgconfig.include = include/qt6/QtWidgets/private \
+                          include/qt6/QtWidgets/private/QtWidgets

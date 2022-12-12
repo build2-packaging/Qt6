@@ -184,9 +184,11 @@ if ($build.mode != 'skeleton')
     }
   }
 
-  cc.poptions += -DQT_DEPRECATED_WARNINGS       \
-                 -DQT_NO_JAVA_STYLE_ITERATORS   \
-                 -DQT_NO_LINKED_LIST            \
+  cc.poptions += -DQT_DEPRECATED_WARNINGS                                               \
+                 -DQT_DEPRECATED_WARNINGS_SINCE=0x070000                                \
+                 -DQT_DISABLE_DEPRECATED_BEFORE=($windows ? 0x040800 : 0x050000)        \
+                 -DQT_LEAN_HEADERS=1                                                    \
+                 -DQT_NO_JAVA_STYLE_ITERATORS                                           \
                  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT
 
   # Disable exceptions.
@@ -207,9 +209,15 @@ if ($build.mode != 'skeleton')
 
   if $windows
   {
-    cc.poptions += -DUNICODE -D_UNICODE         \
-                   -DWIN32                      \
-                   -D_CRT_SECURE_NO_WARNINGS    \
+    # Qt6 supports only Windows 10 and newer. Although the Qt headers do
+    # define WINVER and _WIN32_WINNT (the minimum Windows version supported)
+    # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
+    # Qt can do it.
+    #
+    cc.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
+                   -DUNICODE -D_UNICODE                         \
+                   -DWIN32                                      \
+                   -D_CRT_SECURE_NO_WARNINGS                    \
                    -D_USE_MATH_DEFINES
 
     if ($cxx.target.system == 'mingw32')
@@ -231,5 +239,10 @@ if ($build.mode != 'skeleton')
   {
     if ($cxx.class == 'gcc')
       cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+    # Don't install any plugin headers (for static linking the API is presumably
+    # declared by the Qt plugin infrastructure).
+    #
+    hxx{*}: install = false
   }
 } # $build.mode != 'skeleton'

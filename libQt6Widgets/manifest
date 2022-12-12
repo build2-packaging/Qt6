@@ -23,4 +23,4 @@ depends: * Qt6Rcc == $
 depends: * Qt6Uic == $
 depends: libQt6Core == $
 depends: libQt6Gui == $
-# tests: libQt6WidgetsTests == $
+tests: libQt6WidgetsTests == $

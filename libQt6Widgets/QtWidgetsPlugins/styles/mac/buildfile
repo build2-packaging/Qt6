@@ -1,0 +1,65 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt6Core/QtCore/buildfile.
+#
+
+include ../../../QtWidgets/
+
+../lib{qmacstyle}: ../../../mkspecs/hxx{**} hxx{*} mm{*}
+
+moc_hdr = qmacstyle_mac_p
+
+moc_src_adhoc = main
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the ad hoc Objective-C++ compilation and moc
+# rules below.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt6PluginsMacStyleMeta}: \
+  ../../../QtWidgets/lib{Qt6Widgets Qt6WidgetsPrivate}
+
+# Plugin metadata file.
+#
+../lib{qmacstyle}: file{macstyle.json}: include = adhoc
+
+# Dependencies involving moc-generated C++ source files.
+#
+
+# Dependencies involving lib{qmacstyle}, moc-generated C++ source files
+# (moc_foo.cpp), and the C++ headers the they were generated from (for
+# example, `moc foo.h` produces moc_foo.cpp).
+#
+for s: hxx{$moc_hdr}
+{
+  cxx{moc_$name($s)}: $s libul{Qt6PluginsMacStyleMeta}
+  ../lib{qmacstyle}: cxx{moc_$name($s)}
+}
+
+# Dependencies involving lib{qmacstyle}, moc-generated C++ source files
+# (foo.moc), and the Objective-C++ source files the .moc's were generated from
+# (for example, `moc foo.mm` produces foo.moc).
+#
+for s: mm{$moc_src_adhoc}
+{
+  n = $name($s)
+  moc{$n}: $s libul{Qt6PluginsMacStyleMeta}
+  ../lib{qmacstyle}: moc{$n}: include = adhoc
+}
+
+../lib{qmacstyle}: libul{Qt6PluginsMacStyleMeta}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+cxx.poptions += -DQT_PLUGIN
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+../lib{qmacstyle}: cxx.libs += -framework AppKit
+
+# Installation.
+#
+../lib{qmacstyle}: install = lib/qt6/plugins/styles/
