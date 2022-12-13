@@ -1,6 +1,10 @@
-import libs = libtinycbor%lib{tinycbor}
+import libs  = libpcre2%lib{pcre2-16}
+import libs += libtinycbor%lib{tinycbor}
 
 # Target metadata, see also --build2-metadata in main.cpp.
+#
+# Note that qt6uic does not query any environment variables that can affect
+# its output.
 #
 exe{qt6uic}:
 {
@@ -14,16 +18,33 @@ windows = ($cxx.target.class == 'windows')
 unix    = ($cxx.target.class != 'windows')
 macos   = ($cxx.target.class == 'macos')
 
-# The QtCore source files required to build the uic executable. (These all go
-# into the bootstrap library in the upstream build.)
+# UIC application source files.
 #
-core_src = QtCore/codecs/qlatincodec                    \
-           QtCore/codecs/qtextcodec                     \
-           QtCore/codecs/qutfcodec                      \
-           QtCore/global/qendian                        \
+uic_src = customwidgetsinfo             \
+          databaseinfo                  \
+          driver                        \
+          main                          \
+          treewalker                    \
+          ui4                           \
+          uic                           \
+          validator                     \
+          cpp/cppwritedeclaration       \
+          cpp/cppwriteincludes          \
+          cpp/cppwriteinitialization    \
+          python/pythonwritedeclaration \
+          python/pythonwriteimports     \
+          shared/language               \
+          shared/writeincludesbase
+
+# The QtCore source files required to build the uic executable.
+#
+# Note that the upstream UIC is linked against the QtCore library proper but
+# we cannot do that because that library is/should not be in the host
+# configuration).
+#
+core_src = QtCore/global/qendian                        \
            QtCore/global/qglobal                        \
            QtCore/global/qlogging                       \
-           QtCore/global/qmalloc                        \
            QtCore/global/qnumeric                       \
            QtCore/global/qoperatingsystemversion        \
            QtCore/global/qrandom                        \
@@ -41,6 +62,8 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/io/qiodevice                          \
            QtCore/io/qipaddress                         \
            QtCore/io/qfiledevice                        \
+           QtCore/io/qloggingcategory                   \
+           QtCore/io/qloggingregistry                   \
            QtCore/io/qtemporaryfile                     \
            QtCore/io/qsavefile                          \
            QtCore/io/qstandardpaths                     \
@@ -54,41 +77,32 @@ core_src = QtCore/codecs/qlatincodec                    \
            QtCore/kernel/qvariant                       \
            QtCore/kernel/qsystemerror                   \
            QtCore/plugin/quuid                          \
-           QtCore/serialization/qcborcommon             \
-           QtCore/serialization/qcborstreamwriter       \
-           QtCore/serialization/qcborvalue              \
            QtCore/serialization/qdatastream             \
-           QtCore/serialization/qjsoncbor               \
-           QtCore/serialization/qjsondocument           \
-           QtCore/serialization/qjsonobject             \
-           QtCore/serialization/qjsonarray              \
-           QtCore/serialization/qjsonvalue              \
-           QtCore/serialization/qjsonparser             \
-           QtCore/serialization/qjsonwriter             \
            QtCore/serialization/qtextstream             \
-           QtCore/serialization/qxmlstream              \
            QtCore/serialization/qxmlutils               \
+           QtCore/serialization/qxmlstream              \
+           QtCore/serialization/qxmlstreamgrammar       \
            QtCore/text/qbytearray                       \
            QtCore/text/qbytearraylist                   \
            QtCore/text/qbytearraymatcher                \
            QtCore/text/qlocale                          \
            QtCore/text/qlocale_tools                    \
-           QtCore/text/qregexp                          \
+           QtCore/text/qregularexpression               \
            QtCore/text/qstring                          \
+           QtCore/text/qstringconverter                 \
            QtCore/text/qstringlist                      \
            QtCore/text/qvsnprintf                       \
            QtCore/time/qcalendar                        \
            QtCore/time/qdatetime                        \
            QtCore/time/qgregoriancalendar               \
+           QtCore/time/qlocaltime                       \
            QtCore/time/qromancalendar                   \
            QtCore/tools/qarraydata                      \
            QtCore/tools/qbitarray                       \
-           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcommandlineoption              \
+           QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcryptographichash              \
            QtCore/tools/qhash                           \
-           QtCore/tools/qlist                           \
-           QtCore/tools/qmap                            \
            QtCore/tools/qringbuffer                     \
            QtCore/tools/qversionnumber
 
@@ -124,9 +138,9 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
-exe{qt6uic}: hxx{**}                                            \
-             cxx{* cpp/* shared/* python/*} cxx{$core_src}      \
-             $libs testscript
+exe{qt6uic}: hxx{** -QtCore/qtcoreexports +QtCore/Q*.} QtCore/h{qtcoreexports}  \
+             cxx{$core_src $uic_src}                                            \
+             testscript
 
 exe{qt6uic}: cxx{$unix_core_src}:                include = $unix
 exe{qt6uic}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
@@ -137,44 +151,48 @@ exe{qt6uic}: cxx{$win_core_src}:                 include = $windows
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
 #
-exe{qt6uic}: 3rdparty/freebsd/file{strtoll.c strtoull.c}: include = adhoc
-
 exe{qt6uic}: cxx{3rdparty/sha1/sha1                     \
                  QtCore/global/archdetect               \
-                 QtCore/serialization/qcborarray        \
-                 QtCore/serialization/qcbormap          \
                  QtCore/text/qchar                      \
                  QtCore/text/qstringmatcher             \
                  QtCore/text/qunicodetables}: include = adhoc
 
+QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
+{
+  in.symbol = '@'
+  header_base_name_upper = QTCOREEXPORTS
+  module_define_infix    = CORE
+}
+
+exe{qt6uic}: $libs
+
 # Build options.
 #
-cxx.poptions =+ "-I$src_base"                                   \
-                "-I$src_base/QtCore"                            \
-                "-I$src_base/QtCore/private"                    \
-                "-I$src_base/QtCore/private/QtCore"             \
-                "-I$src_base/QtCore/private/QtCore/private"     \
-                "-I$src_base/cpp"                               \
-                "-I$src_base/python"                            \
-                "-I$src_base/shared"
+cxx.poptions =+ "-I$out_base"         "-I$src_base"                                     \
+                "-I$out_base/QtCore"  "-I$src_base/QtCore"                              \
+                                      "-I$src_base/QtCore/private"                      \
+                                      "-I$src_base/QtCore/private/QtCore"               \
+                                      "-I$src_base/QtCore/private/QtCore/private"       \
+                                      "-I$src_base/cpp"                                 \
+                                      "-I$src_base/python"                              \
+                                      "-I$src_base/shared"
 
-cxx.poptions +=                                                         \
-  -DQT_BOOTSTRAPPED                                                     \
-  -DQT_NO_CAST_TO_ASCII                                                 \
-  -DQT_NO_CAST_FROM_ASCII                                               \
-  -DQT_NO_COMPRESS                                                      \
-  -DQT_NO_DEBUG                                                         \
-  -DQT_NO_EXCEPTIONS                                                    \
-  -DQT_NO_FOREACH                                                       \
-  -DQT_NO_JAVA_STYLE_ITERATORS                                          \
-  -DQT_NO_LINKED_LIST                                                   \
-  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT                              \
-  -DQT_UIC                                                              \
-  -DQT_USE_QSTRINGBUILDER                                               \
-  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""   \
-  -DQT_VERSION_MAJOR="$version.major"                                   \
-  -DQT_VERSION_MINOR="$version.minor"                                   \
-  -DQT_VERSION_PATCH="$version.patch"
+cxx.poptions +=                                 \
+  -DQT_BOOTSTRAPPED                             \
+  -DQT_LEAN_HEADERS=1                           \
+  -DQT_NO_CAST_FROM_ASCII                       \
+  -DQT_NO_CAST_TO_ASCII                         \
+  -DQT_NO_DEBUG                                 \
+  -DQT_NO_FOREACH                               \
+  -DQT_NO_JAVA_STYLE_ITERATORS                  \
+  -DQT_NO_LINKED_LIST                           \
+  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT      \
+  -DQT_TYPESAFE_FLAGS                           \
+  -DQT_USE_QSTRINGBUILDER                       \
+  -DQT_VERSION_MAJOR="$version.major"           \
+  -DQT_VERSION_MINOR="$version.minor"           \
+  -DQT_VERSION_PATCH="$version.patch"           \
+  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""
 
 if $windows
 {
@@ -188,12 +206,12 @@ if $windows
   {
     cxx.poptions += -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
-    cxx.libs     += -lole32 -ladvapi32 -lshell32 -lnetapi32 -luuid
+    cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -luuid
   }
   else
   {
     cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-    cxx.libs     += ole32.lib advapi32.lib shell32.lib netapi32.lib
+    cxx.libs     += ole32.lib advapi32.lib netapi32.lib
   }
 }
 else
@@ -205,9 +223,8 @@ else
     cxx.libs += -framework AppKit       \
                 -framework CoreServices \
                 -framework Foundation   \
-                -framework IOKit
-
-  cxx.libs += -pthread
+                -framework IOKit        \
+                -framework Security
 }
 
 # Add platform-specific header directories, libraries, compilation options,
@@ -238,4 +255,28 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions =+ "-I$src_root/uic/mkspecs/win32-clang-msvc"
   case 'windows', 'gcc', 'mingw32'
     cxx.poptions =+ "-I$src_root/uic/mkspecs/win32-g++"
+}
+
+obj{$uic_src}: cxx.poptions += -DQT_UIC
+
+# Disable exceptions on the uic objects.
+#
+switch $cxx.class
+{
+  case 'gcc'
+  {
+    obj{$uic_src}:
+    {
+      cxx.poptions += -DQT_NO_EXCEPTIONS
+      cxx.coptions += -fno-exceptions
+    }
+  }
+  case 'msvc'
+  {
+    obj{$uic_src}:
+    {
+      cxx.poptions += -DQT_NO_EXCEPTIONS
+      cxx.coptions += /EHs- /EHc-
+    }
+  }
 }
