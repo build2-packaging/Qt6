@@ -1,0 +1,7 @@
+project = Qt6Uic
+
+using version
+using config
+using test
+using install
+using dist

@@ -1,0 +1,24 @@
+# Note that we have to use a temporary file since there is some issue in uic
+# when reading from stdin on Windows and input contains CRLF.
+#
+: basics
+: Check that the UIC binary runs.
+:
+cat <<EOI >=foo.ui;
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Foo</class>
+ <widget class="QDialog" name="Bar">
+ </widget>
+</ui>
+EOI
+$* foo.ui >>~%EOO%
+/********************************************************************************
+** Form generated from reading UI file 'foo.ui'
+**
+%\*\* Created by: Qt User Interface Compiler version .+%
+**
+** WARNING! All changes made in this file will be lost when recompiling UI file!
+********************************************************************************/
+%.+
+EOO

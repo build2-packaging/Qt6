@@ -3,6 +3,8 @@ location: Qt6Moc/
 :
 location: Qt6Rcc/
 :
+location: Qt6Uic/
+:
 location: libQt6Core/
 :
 location: libQt6Gui/
