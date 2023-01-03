@@ -1,0 +1,8 @@
+easing  symlink=dir
+forkfd  symlink=dir
+freebsd symlink=dir
+md4     symlink=dir
+md5     symlink=dir
+rfc6234 symlink=dir
+sha1    symlink=dir
+sha3    symlink=dir

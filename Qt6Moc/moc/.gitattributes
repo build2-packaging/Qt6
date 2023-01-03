@@ -1,0 +1,2 @@
+mkspecs symlink=dir
+shared  symlink=dir
