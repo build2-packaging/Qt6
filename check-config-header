@@ -1,0 +1,393 @@
+#!/usr/bin/env bash
+
+# file      : check-config-header
+# license   : MIT
+
+# Print the names of Qt features and macros not handled both upstream and
+# downstream.
+#
+# Used to identify Qt features and macros added or removed by an upstream
+# upgrade and thus the need to update our downstream module config headers.
+#
+# This script reads the upstream configure.cmake for the specified module,
+# extracts the names of the features and macros defined with the specified
+# visibility (public or private, where applicable), and writes them to a
+# temporary file, one name per line.
+#
+# Then it extracts all feature and macro names from the downstream config
+# header corresponding to the specified module and visibility (see below) and
+# appends them to the same temporary file (again, one name per
+# line). Commented-out features/macros are treated just like uncommented ones
+# (that is, considered handled instead of overlooked).
+#
+# Then it removes all duplicated lines (that is, those features/macros that
+# occur in both the upstream and downstream files), leaving only those
+# features and macros not defined both upstream and downstream, and prints
+# those to stdout.
+#
+# Options:
+#
+# --module|-m The Qt module name: global|core|gui|widgets
+#
+# --visibility|-v The feature/macro visibility level: pub|priv
+#
+# Upstream defines all of a module's features and macros in a single file:
+# upstream/qtbase/src/<module>/configure.cmake. Downstream features and macros
+# are extracted from the module config headers of which there is, for each
+# module, a public and private one (although QtCore also contains the global
+# config headers; see below).
+#
+# The upstream build generates the module config headers from configure.cmake
+# but we generate each from a corresponding manually-created .in template
+# file.
+#
+# The upstream module configuration file and downstream module config headers
+# for the currently-supported modules are as follows:
+#
+#   module: global
+#   upstream cfg: upstream/qtbase/configure.cmake
+#   pub header:   libQt6Core/QtCore/qconfig.h.in
+#   priv header:  libQt6Core/QtCore/private/QtCore/private/qconfig_p.h.in
+#
+#   module: core (QtCore)
+#   upstream cfg: upstream/qtbase/src/corelib/configure.cmake
+#   pub header:   libQt6Core/QtCore/qtcore-config.h.in
+#   priv header:  libQt6Core/QtCore/private/QtCore/private/qtcore-config_p.h.in
+#
+#   module: gui (QtGui)
+#   upstream cfg: upstream/qtbase/src/gui/configure.cmake
+#   pub header:   libQt6Gui/QtGui/qtgui-config.h.in
+#   priv header:  libQt6Gui/QtGui/private/QtGui/private/qtgui-config_p.h.in
+#
+#   module: widgets (QtWidgets)
+#   upstream cfg: upstream/qtbase/src/widgets/configure.cmake
+#   pub header:   libQt6Widgets/QtWidgets/qtwidgets-config.h
+#   priv header:  libQt6Widgets/QtWidgets/private/QtWidgets/private/qtwidgets-config_p.h.in
+#
+
+owd="$(pwd)"
+trap "{ cd '$owd'; exit 1; }" ERR
+set -o errtrace     # Trap in functions and subshells.
+set -o pipefail     # Fail if any pipeline command fails.
+shopt -s lastpipe   # Execute last pipeline command in the current shell.
+shopt -s nullglob   # Expand no-match globs to nothing rather than themselves.
+
+function info () { echo "$*" 1>&2; }
+function error () { info "$*"; exit 1; }
+
+# Parse options.
+#
+
+mod= # Module name.
+vis= # Feature visibility.
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --mod|-m)
+      shift
+      mod="$1"
+      shift
+      ;;
+    --visibility|-v)
+      shift
+      vis="$1"
+      shift
+      ;;
+    -*)
+      error "unknown option: $1"
+      ;;
+    # End of options.
+    #
+    *)
+      error "unexpected '$1'"
+      break
+      ;;
+  esac
+done
+
+# Validate options.
+#
+case "$mod" in
+  global|core|gui|widgets) ;;
+  *) error "invalid module '$mod'" ;;
+esac
+
+case "$vis" in
+  pub|priv) ;;
+  *) error "invalid visibility '$vis'" ;;
+esac
+
+# Temporary file to which the names of defined features ands macros (from
+# upstream and downstream) will be written.
+#
+tempfile="$(mktemp)"
+
+# Get the features and macros defined upstream.
+#
+
+# For QtCore they use `core` in names but the source directory is called
+# `corelib`, whereas for the other modules there's no difference.
+#
+if [[ "$mod" == "core" ]]; then
+  mod="corelib"
+fi
+
+# Path to the upstream module configuration file.
+#
+config="configure.cmake"
+if [[ "$mod" != "global" ]]; then
+  config="upstream/qtbase/src/$mod/$config"
+else
+  config="upstream/qtbase/$config"
+fi
+
+# Get feature-associated and general macros defined in the upstream module
+# configuration.
+#
+
+vis_re= # Subregex for the requested visibility.
+
+if [[ "$vis" == pub ]]; then
+  vis_re='PUBLIC'
+else
+  vis_re='PRIVATE'
+fi
+
+# If public visibility was requested, write feature-associated macros defined
+# in the upstream module configuration to the temporary file.
+#
+#   qt_feature_definition("<feature-name>" "<macro-name>" ...)
+#
+if [[ "$vis" == pub ]]; then
+  sed -nEe "
+    s%\s*qt_feature_definition\(\s*\"(.+)\"\s+\"([[:alnum:]_]+)\".*\)%\2%p" \
+      "$config" | sort | uniq > "$tempfile"
+fi
+
+# Append general macro definitions (public or private) in the upstream module
+# configuration to the temporary file.
+#
+#   qt_extra_definition("<macro-name>" .. PUBLIC)
+#
+sed -nEe "
+  # Copy the input line (in the pattern space) to the hold space.
+  #
+  h
+
+  # Extract the macro name from the input line; skip it if it doesn't begin
+  # with 'qt_extra_definition(foo'.
+  #
+  s%\s*qt_extra_definition\(\s*\"([[:alnum:]_]+)\".+\)%\1%
+  t l0 # Jump to label :l0 if a replacement was done.
+  d    # Start next cycle (skip current input line).
+  :l0
+
+  # Save the macro name by copying it into the hold space and the original
+  # input line back into the pattern space.
+  #
+  x # Swap contents of pattern space and hold space.
+
+  # Check for the requested visibility and print the macro name if found.
+  #
+  s%.+\s+$vis_re\s*\)%%
+  t l1 # Jump to label :l1 if a replacement was done.
+  d    # Start next cycle (skip current input line).
+  :l1
+  x    # Swap hold space (containing macro name) and pattern space.
+  p    # Print pattern space (macro name).
+"             \
+    "$config" \
+  | sort | uniq >> "$tempfile"
+
+# Append features defined in the upstream module configuration to the
+# temporary file.
+#
+# Feature definitions in configure.cmake come in the following forms:
+#
+#   qt_feature("foo" PUBLIC)
+#   qt_feature("foo" PRIVATE)
+#   qt_feature("foo" PUBLIC PRIVATE)
+#   qt_feature("foo" PRIVATE PUBLIC)
+#   qt_feature("foo")
+#
+# If the visibility spec is missing it's an "internal feature" which only gets
+# used in the upstream build system and is not written to any headers. We skip
+# these features.
+#
+# The visibility spec can also be on the next line:
+#
+#   qt_feature("foo"
+#     PUBLIC
+#
+# Upstream the `PUBLIC PRIVATE` visibility spec causes the feature to be
+# defined in both the public and private module headers. However we diverge
+# from upstream by treating `PUBLIC PRIVATE` as public only. (See README-DEV
+# for the reasons why, and how, we diverge.)
+#
+if [[ "$vis" == pub ]]; then
+  # The public visibility subregex.
+  #
+  # Matches:
+  #
+  #   PUBLIC
+  #   PUBLIC PRIVATE
+  #   PRIVATE PUBLIC
+  #
+  vis_re='((PRIVATE\s+)?PUBLIC|PUBLIC(\s+PRIVATE)?)'
+else
+  # The private visibility subregex.
+  #
+  # Note: Does not match:
+  #
+  #   PRIVATE PUBLIC
+  #
+  vis_re='PRIVATE(\s*$|\s+[^P])'
+fi
+
+# Parse the upstream configure.cmake for feature definitions.
+#
+# From lines like 'qt_feature("<feature-name>" PUBLIC)':
+#
+#   1) Extract the feature name and save it.
+#
+#   2) Remove the 'qt_feature("<feature-name>"' prefix and any subsequent
+#      whitespace.
+#
+#   3) Check the remaining text for the requested visibility.
+#
+#   4) Print the feature name if the requested visibility was found, otherwise
+#      skip the line.
+#
+# Note that all commands used below (h, s, t, d, x, N, p) are also supported
+# by the FreeBSD, OpenBSD, NetBSD, and macOS versions of sed.
+#
+sed -nE \
+    -e "
+  # Copy the input line (in the pattern space) to the hold space.
+  #
+  h
+
+  # Extract the feature name from the input line; skip it if it does not
+  # begin with 'qt_feature(foo':
+  #
+  #   'qt_feature(\"foo\" PUBLIC' -> 'foo'
+  #
+  s%^qt_feature\(\"(.+)\".*%\1%
+  t l0 # Jump to label :l0 if a replacement was done.
+  d    # Start next cycle (skip current input line).
+  :l0
+
+  # Save the feature name by copying it into the hold space and the original
+  # input line back into the pattern space.
+  #
+  x # Swap contents of pattern space and hold space.
+
+  # Remove the 'qt_feature(foo' prefix and any subsequent whitespace from the
+  # (original) input line, leaving only the visibility spec; skip the input
+  # line if the prefix was not found.
+  #
+  #   'qt_feature(\"foo\" PUBLIC PRIVATE' -> 'PUBLIC PRIVATE'
+  #
+  s%(^qt_feature\(\".+\"\s*)%%
+  t l1 # Jump to label :l1 if a replacement was done.
+  d    # Start next cycle (skip current input line).
+  :l1
+
+  # Check for the requested visibility and print the feature name if found.
+  #
+  s%^$vis_re%%
+  t print # Jump to label :print if a replacement was done.
+
+  # Look for the visibility spec on the next input line: Read the next line of
+  # input, then check for the requested visibility again (but also account for
+  # newly-inserted whitespace); skip the input line if the requested
+  # visibility was not found.
+  #
+  N               # Read next input line and append to pattern space.
+  s%^\s*$vis_re%% # Check for requested visibility.
+  t print         # Jump to label :print if a replacement was done.
+  d               # Start next cycle (skip current input line).
+
+  :print
+  # Print the feature name (currently in the hold space).
+  #
+  x             # Swap hold space (containing feature name) and pattern space.
+  s%\-%_%g      # Replace '-' with '_' in pattern space (feature name).
+  s%c\+\+%cxx%g # Replace 'c++' with 'cxx' in pattern space (feature name).
+  p             # Print pattern space (feature name).
+"             \
+    "$config" \
+  | sort | uniq >> "$tempfile"
+
+# Get the downstream config features and macros.
+#
+
+if [[ "$mod" == "corelib" ]]; then
+  mod="core"
+fi
+
+cdp= # Config directory path.
+cfn= # Config file name.
+
+if [[ "$mod" == "global" ]]; then
+  cdp="libQt6Core/QtCore"
+  cfn="qconfig"
+else
+  cdp="libQt6${mod^}/Qt${mod^}" # Capitalize module name.
+  cfn="qt$mod-config"
+fi
+
+if [[ "$vis" == pub ]]; then
+  cfn="$cfn.h"
+else
+  cfn="${cfn}_p.h"
+
+  # Append "/private/Qt<Mod>/private" to the config directory path. "Qt<Mod>"
+  # is taken from the last component of `cdp`.
+  #
+  cdp="$cdp/private/${cdp#*/}/private"
+fi
+
+# Check the `.h.in` if it exists, otherwise check the `.h`.
+#
+if [[ -e "$cdp/$cfn.in" ]]; then
+  cfn="$cfn.in"
+fi
+
+# Extract feature and macro names from the downstream module config header.
+#
+# Note: Remove duplicate feature names because some are defined to 1 or -1
+# conditionally and thus appear more than once.
+#
+sed -nEe "
+  # Skip items moved from the private header (see README-DEV). Assume this can
+  # only match in the public header which would mean the requested visibility
+  # is public.
+  #
+  s%.+// Moved from private%%
+  t # Jump to end if a replacement was done.
+
+  # Look for '#define QT_FEATURE_<feature-name>' and print the feature name if
+  # found.
+  #
+  s%^(\s*//.*)?#\s*define\s+QT_FEATURE_([[:alnum:]_]+)\s+.*%\2%p
+
+  # Skip our definition of QT_CONFIG(<feature>) in qconfig.h.in.
+  #
+  s%^\s*(//.*)?#\s*define QT_CONFIG\(%%
+  t # Jump to end if a replacement was done.
+
+  # Look for '#define QT_*' and print the macro name if found.
+  #
+  s%^(\s*//.*)?#\s*define\s+(QT_[[:alnum:]_]+).*%\2%p
+"               \
+    "$cdp/$cfn" \
+  | sort | uniq >> "$tempfile"
+
+# Print features not defined in both upstream and downstream (sort temporary
+# file which contains the names of all upstream and downstream features and
+# then remove duplicate lines).
+#
+sort "$tempfile" | uniq -u
+
+rm "$tempfile"
