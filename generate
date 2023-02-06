@@ -19,78 +19,289 @@ shopt -s nullglob   # Expand no-match globs to nothing rather than themselves.
 function info () { echo "$*" 1>&2; }
 function error () { info "$*"; exit 1; }
 
+# Recursively remove all files in <dir> that are symlinks.
+#
+function rm_symlinks () # <dir>
+{
+  find "$1" -type l -exec rm {} \;
+}
+
+# Recursively remove all empty directories in <dir>.
+#
+function rm_empty_dirs () # <dir>
+{
+  local d="${1%/}"
+
+  local sd # Subdirectory.
+  for sd in "$d"/*/; do
+    # Remove subdirectory contents, then remove subdirectory itself if empty.
+    #
+    rm_empty_dirs "$sd"
+
+    if [[ -z "$(ls -a "$sd")" ]]; then
+      rmdir "$sd"
+    fi
+  done
+}
+
 # Remove previously-generated files and directories.
 #
-rm -f Qt6Moc/moc/*.{h,cpp,orig}
-rm -rf Qt6Moc/moc/QtCore/
-rm -f Qt6Moc/moc/mkspecs
-rm -rf Qt6Moc/moc/3rdparty
-rm -rf Qt6Moc/moc/shared
+rm_symlinks Qt6Moc/moc/
+rm_empty_dirs Qt6Moc/moc/
+rm -f Qt6Moc/moc/QtCore/Q*
 
-rm -f Qt6Rcc/rcc/*.{h,cpp,orig}
-rm -rf Qt6Rcc/rcc/QtCore/
-rm -f Qt6Rcc/rcc/mkspecs
-rm -rf Qt6Rcc/rcc/3rdparty
+rm_symlinks Qt6Rcc/rcc/
+rm_empty_dirs Qt6Rcc/rcc/
+rm -f Qt6Rcc/rcc/QtCore/Q*
 
-rm -rf libQt6Core/QtCore/{*.h,Q*,*.orig}
-rm -f libQt6Core/QtCore/mkspecs
+rm_symlinks Qt6Uic/uic/
+rm_empty_dirs Qt6Uic/uic/
+rm -f Qt6Uic/uic/QtCore/Q*
+
+rm_symlinks libQt6Core/QtCore/
+rm_empty_dirs libQt6Core/QtCore/
+rm -f  libQt6Core/QtCore/Q*
 rm -rf libQt6Core/3rdparty
-rm -f libQt6Core/QtCore/testlib
+
+rm_symlinks libQt6Gui/QtGui/
+rm_empty_dirs libQt6Gui/QtGui/
+rm -rf libQt6Gui/mkspecs
+rm -rf libQt6Gui/3rdparty/
+rm -rf libQt6Gui/QtGui/qpa/
+rm -rf libQt6Gui/QtGui/private/QtGui/qpa/
+rm -f  libQt6Gui/QtGui/Q*
+
+rm_symlinks libQt6Gui/QtGuiPlugins/
+rm_empty_dirs libQt6Gui/QtGuiPlugins/
+rm -rf libQt6Gui/QtGuiPlugins/{Qt*Support,QtPlatformHeaders}
+
+rm -f libQt6GuiTests/mkspecs
+
+rm -f libQt6Widgets/mkspecs
+#rm -rf libQt6Widgets/QtWidgets/QtPlatformHeaders
+rm_symlinks libQt6Widgets/QtWidgets/
+rm_empty_dirs libQt6Widgets/QtWidgets/
+rm -f libQt6Widgets/QtWidgets/Q*
+
+rm_symlinks libQt6Widgets/QtWidgetsPlugins/
+rm_empty_dirs libQt6Widgets/QtWidgetsPlugins/
+
+rm_symlinks libQt6WidgetsTests/widgets-app
+rm -f libQt6WidgetsTests/mkspecs
 
 # Create output directories.
 #
 # 3rdparty/ has to be a sibling to QtCore/ because the QtCore source files use
 # include paths such as "../../3rdparty/freebsd/strtoll.c".
 #
-mkdir -p Qt6Moc/moc/QtCore/private
-mkdir Qt6Moc/moc/3rdparty
+mkdir -p Qt6Moc/moc/QtCore/private/QtCore/private
 
-mkdir -p Qt6Rcc/rcc/QtCore/private
-mkdir Qt6Rcc/rcc/3rdparty
+mkdir -p Qt6Rcc/rcc/QtCore/private/QtCore/private
 
-mkdir -p libQt6Core/QtCore/private
-mkdir libQt6Core/3rdparty
+mkdir -p Qt6Uic/uic/QtCore/private/QtCore/private
+
+mkdir    libQt6Core/3rdparty
+
+mkdir libQt6Gui/3rdparty
+mkdir libQt6Gui/QtGui/qpa
+mkdir libQt6Gui/QtGui/private/QtGui/qpa
 
 # Directory for the MIME type database source XML file.
 #
 mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 
-# Symlink the upstream platform-specific include directories.
+# Create a symlink to one or more upstream directories and set the
+# `symlink=dir` attribute on each in the containing directory's
+# .gitattributes.
 #
-ln -s ../../upstream/qtbase/mkspecs Qt6Moc/moc/
-ln -s ../../upstream/qtbase/mkspecs Qt6Rcc/rcc/
-ln -s ../../upstream/qtbase/mkspecs libQt6Core/QtCore/
-
-# Symlink the upstream third-party directories.
+# Create symlinks to all <target-dir-path> arguments inside
+# <symlink-dir-path>.
 #
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
-      Qt6Moc/moc/3rdparty/
-ln -s ../../upstream/qtbase/src/tools/shared Qt6Moc/moc/
+# Recreates .gitattributes from scratch so invoke this function only once for
+# each containing directory.
+#
+# @@ TODO Do this for Qt5 as well.
+#
+function symlink_dirs ()
+  # <target-dir-path> [<target-dir-path>..] <symlink-dir-path>
+{
+  local args=("$@")
 
-ln -s ../../../upstream/qtbase/src/3rdparty/{freebsd,sha1} \
-      Qt6Rcc/rcc/3rdparty/
+  # Process the symlink path (the last function argument).
+  #
+  local si="${#args[@]}"-1      # Symlink path's index in `args()`
+  local sp="${args[$si]}"       # Symlink path.
+  sp="${sp%/}"                  # Strip trailing '/'.
+  unset "args[$si]"             # Remove from `args` (leaving only targets).
 
-ln -s ../../upstream/qtbase/src/3rdparty/{easing,freebsd,forkfd}     \
-      ../../upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
-      libQt6Core/3rdparty/
+  # Target path prefix consisting of the right number of "../"s to get from
+  # the symlink directory to the project root (working) directory.
+  #
+  local tpfx="$(sed -E 's%[^/]+%..%g' <<<"$sp")"
 
-# This is made necessary by the inclusion of
+  rm -f "$sp/.gitattributes"
+
+  # Apply the prefix to each target and create its entry in .gitattributes.
+  #
+  local i # Index into `args` array.
+  for i in "${!args[@]}"; do
+    local t="${args[$i]}" # Target path currently being processed.
+    t="${t%/}"            # Strip trailing '/'.
+
+    args["$i"]="$tpfx/$t" # Apply prefix to target path.
+
+    echo "$(basename "$t") symlink=dir" >> "$sp/.gitattributes"
+  done
+
+  # Create the symlinks.
+  #
+  ln -s "${args[@]}" "$sp/"
+}
+
+# Symlink upstream directories.
+#
+symlink_dirs upstream/qtbase/mkspecs          \
+             upstream/qtbase/src/tools/shared \
+             Qt6Moc/moc/
+symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+             Qt6Moc/moc/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs \
+             Qt6Rcc/rcc/
+symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+             Qt6Rcc/rcc/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs \
+             Qt6Uic/uic/
+symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+             Qt6Uic/uic/3rdparty/
+
+# The testlib/ symlink is made necessary by the inclusion of
 # "../testlib/3rdparty/valgrind_p.h" by corelib/tools/qsimd.cpp. (That is,
 # QtCore includes a private header from QTestLib, an entirely different
 # library...)
 #
-ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
+symlink_dirs upstream/qtbase/mkspecs     \
+             upstream/qtbase/src/testlib \
+             libQt6Core/QtCore/
 
-# Symlink all of a Qt module's sources into
-# <output-path-prefix>/<module-name>/.
+symlink_dirs upstream/qtbase/src/3rdparty/{easing,forkfd}             \
+             upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
+             libQt6Core/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs \
+             libQt6Gui/
+symlink_dirs upstream/qtbase/src/3rdparty/{icc,wintab} \
+             libQt6Gui/3rdparty/
+
+symlink_dirs upstream/qtbase/mkspecs libQt6Widgets/
+
+# Symlink an upstream source file into our project directory structure.
+#
+# If there is a downstream version of the source file, its symlink gets the
+# upstream filename while the upstream original's symlink gets the upstream
+# filename with a ".orig" extension.
+#
+# <symlink-target-path>: path to the symlink's upstream target, relative to
+#                        the destination directory (so will contain some
+#                        `../`s).
+#
+# <destination-dir-path>: path to the directory that will contain the symlink,
+#                         relative to the project root.
+#
+# For example, assuming downstream/foo/bar/baz.cpp exists:
+#
+#   call:   symlink_source_file ../../upstream/foo/bar/baz.cpp foo/bar/
+#   result: foo/bar/baz.cpp      -> downstream/foo/bar/baz.cpp
+#           foo/bar/baz.cpp.orig ->   upstream/foo/bar/baz.cpp
+#
+function symlink_source_file () # <symlink-target-path> <destination-dir-path>
+{
+  local ut="${1%/}" # Upstream symlink target path.
+  local d="${2%/}"  # Destination directory path.
+
+  local fn="$(basename "$ut")" # Upstream target file name.
+
+  # Path to the downstream version of the symlink target, relative to the
+  # destination directory. (Don't use sed because doing so for every file is
+  # too slow).
+  #
+  local dt="${ut/upstream/downstream}" # Downstream symlink target path.
+
+  if [[ -f "$d/$dt" ]]; then
+    ln -sf "$ut" "$d/$fn.orig"
+    ln -sf "$dt" "$d/$fn"
+  else
+    ln -sf "$ut" "$d/$fn"
+  fi
+}
+
+# Symlink the sources of an upstream non-module.
+#
+# Non-modules include tools, plugins, and internal modules such as those in
+# upstream/qtbase/src/platformsupport/.
+#
+# Note that we don't rearrange non-modules' sources as we do those of "proper"
+# Qt modules such as QtCore and QtGui because it does not seem worth the
+# trouble for the following reasons: 1) These subprojects have a different
+# layout in that there are source files in the root directory (for example, in
+# upstream/qtbase/src/plugins/platforms/xcb/) which is where subdirectory
+# headers would be copied to, and 2) in some instances source files are more
+# than one directory level down from the root (for example, in
+# upstream/qtbase/src/plugins/platforms/xcb/gl_integrations/xcb_egl/). And 3)
+# tools are not libraries while the plugin libraries are loaded at runtime by
+# one of the "proper" Qt modules (for example, libQt6Gui loads libqxcb) and
+# are thus not user-facing to the same degree.
+#
+function symlink_non_module () # <source-directory> <destination-directory>
+{
+  local s="${1%/}"                  # Source directory.
+  local d="${2%/}/$(basename "$s")" # Destination directory.
+
+  # Prefix to make target path relative to the destination directory (one
+  # `../` for each directory component in the destination path).
+  #
+  local tp="$(sed -Ee 's%[^/]+%..%g' <<<"$d")" # Target prefix.
+
+  local t # Target file.
+  for t in "$s"/*; do
+    case "$t" in
+      *.h|*.cpp|*.c|*.mm|*.json)
+        symlink_source_file "$tp/$t" "$d"
+        ;;
+      *)
+        if [[ -d "$t" ]]; then
+          local sp="$d/$(basename "$t")" # Directory symlink path.
+          mkdir -p "$sp"
+          symlink_non_module "$t" "$d"
+          # Remove the directory if it's empty (contained no interesting
+          # files).
+          #
+          if [[ -z "$(ls "$sp")" ]]; then
+            rmdir "$sp"
+          fi
+        fi
+    esac
+  done
+}
+
+# @@ TODO Make Qt5 version look like this.
+#
+# Symlink all of the sources and other files of interest in the upstream Qt
+# module subdirectory <subdir> into <output-path-prefix>/<module-name>/,
+# preserving subdirectories.
+#
+# <subdir> is a path of the following form:
+# upstream/qtbase/src/module/foo[/bar[/baz]].
 #
 # Note that we have to rearrange the upstream sources because they cannot be
-# built the way they're laid out in upstream/qtbase/src/<module> (the upstream
+# built the way they're laid out in upstream/qtbase/src/module (the upstream
 # build also rearranges them).
 #
-# From the upstream directory layout (using QtCore as an example):
+# From the upstream directory layout (after the repeated application of this
+# function to all of a module's subdirectories):
 #
-#   upstream/qtbase/src/corelib
+#   upstream/qtbase/src/module
 #   ├── foo
 #   │   ├── foo.cpp
 #   │   ├── foo.h
@@ -106,7 +317,7 @@ ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
 # create the following layout:
 #
 #   <output-path-prefix>
-#    └── QtCore
+#    └── QtModuleName
 #        ├── foo
 #        │   ├── foo.cpp
 #        │   ...
@@ -123,71 +334,94 @@ ln -sf ../../upstream/qtbase/src/testlib libQt6Core/QtCore/
 #
 function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
 {
-  local opp="$1"   # Output path prefix.
-  local mod="$2"   # Qt module name.
-  local d="${3%/}" # Module subdirectory from upstream (strip trailing /).
+  local opp="$1"    # Output path prefix.
+  local mod="$2"    # Qt module name.
+  local sd="${3%/}" # Subdir path (with upstream/qtbase/src/module prefix).
 
-  # Project directory path: the relative path to get to the project directory
-  # from the output path prefix (`opp`). For example, from Qt6Moc/moc/ it
-  # would be `../..`.
+  # Unprefixed subdir path. For example, a <subdir> argument of
+  # "upstream/qtbase/src/corelib/kernel" becomes "kernel" and
+  # "upstream/qtbase/src/gui/platform/unix" becomes "platform/unix".
   #
-  local pdp="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
-  local sdd="$opp/$mod/$(basename $d)" # Source file destination directory.
-  mkdir -p "$sdd"
+  local usd="$(sed -E 's%upstream/qtbase/src/[^/]+/%%' <<<"$sd")"
+
+  # Symlink target path prefix base: the relative path to get to the project
+  # directory from <output-path-prefix>.
+  #
+  # For example, "../../" for a <output-path-prefix> of Qt6Moc/moc/:
+  #
+  #   ln -s ../../upstream/qtbase/src/tools/moc/main.cpp Qt6Moc/moc/
+  #
+  local tpp_base="$(sed -E 's%[^/]+%..%g' <<<"$opp")"
+
+  # Portion of the symlink target path prefix corresponding to the unprefixed
+  # subdir path (that is, needs to be appended to `tpp_base`).
+  #
+  local tpp_sd="$(sed -E 's%[^/]+%..%g' <<<"$mod/$usd")"
+
+  # Create the output directory for non-header files.
+  #
+  mkdir -p "$opp/$mod/$usd"
 
   # All of the source files of interest are directly under one of
   # src/<module>/'s subdirectories (that is, nested no deeper).
   #
   local f
-  for f in "$d"/*; do
-    f="${f#upstream/}" # Strip "upstream/" prefix.
-
-    tpp= # Symlink target path prefix.
+  for f in "$sd"/*; do
+    tpp= # Target path prefix.
     spp= # Symlink path prefix.
+
     case "$f" in
       # Private header.
       #
       *_p.h)
-        tpp="$pdp/../.."
-        spp="$opp/$mod/private"
+        tpp="$tpp_base/../../../.."
+        spp="$opp/$mod/private/$mod/private"
         ;;
       # Public header.
       #
       *.h)
-        tpp="$pdp/.."
+        tpp="$tpp_base/.."
         spp="$opp/$mod"
         ;;
-      # C++, Objective-C++, or C source file.
+      # Source files and other file types we are interested in.
       #
-      *.cpp | *.mm | *.c)
-        tpp="$pdp/../.."
-        spp="$sdd"
+      *.cpp | *.mm | *.c | *.xml | *.qsb)
+        tpp="$tpp_base/$tpp_sd"
+        spp="$opp/$mod/$usd"
         ;;
-      # Not a source file.
+      # Not an interesting file type. Recurse into subdirectories and skip
+      # regular files.
       #
-      *) continue ;;
+      *)
+        if [[ -d "$f" ]]; then
+          symlink_module_subdir "$opp" "$mod" "$sd/$(basename "$f")"
+        fi
+
+        continue
+        ;;
     esac
 
-    # If there is a downstream version of this file, its symlink gets the
-    # upstream filename while the upstream original's symlink gets the
-    # upstream filename with a ".orig" extension.
-    #
-    local fn="$(basename "$f")" # File name.
-    if [[ -f "downstream/$f" ]]; then
-      ln -sf "$tpp/upstream/$f"   "$spp/$fn.orig"
-      ln -sf "$tpp/downstream/$f" "$spp/$fn"
-    else
-      ln -sf "$tpp/upstream/$f"   "$spp/$fn"
-    fi
+    symlink_source_file "$tpp/$f" "$spp"
   done
 
-  # Remove the source file destination directory if it is empty (which would
-  # be the case if the upstream directory contained no source files).
+  # Remove the output directory for non-header files if it is empty (which
+  # would be the case if the upstream directory contained no files of
+  # interest).
   #
-  if [[ -z "$(ls "$sdd")" ]]; then
-    rmdir "$sdd"
+  if [[ -z "$(ls "$opp/$mod/$usd")" ]]; then
+    rmdir "$opp/$mod/$usd"
   fi
 }
+
+# Symlink the moc and rcc applications' headers and source files into
+# Qt6Moc/moc/, Qt6Rcc/rcc/.
+#
+symlink_non_module upstream/qtbase/src/tools/moc \
+                   Qt6Moc/
+symlink_non_module upstream/qtbase/src/tools/rcc \
+                   Qt6Rcc/
+symlink_non_module upstream/qtbase/src/tools/uic \
+                   Qt6Uic/
 
 # Symlink the upstream QtCore sources into Qt6Moc/, Qt6Rcc/, and
 # libQt6Core/. Although the Qt6Moc and Qt6Rcc builds include only a subset of
@@ -195,58 +429,130 @@ function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
 # buildfiles do not use wildcards).
 #
 for d in upstream/qtbase/src/corelib/*/; do
-  symlink_module_subdir "Qt6Moc/moc" QtCore "$d"
-  symlink_module_subdir "Qt6Rcc/rcc" QtCore "$d"
-  symlink_module_subdir "libQt6Core" QtCore "$d"
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
+  fi
+  symlink_module_subdir Qt6Moc/moc QtCore "$d"
+  symlink_module_subdir Qt6Rcc/rcc QtCore "$d"
+  symlink_module_subdir Qt6Uic/uic QtCore "$d"
+  symlink_module_subdir libQt6Core QtCore "$d"
 done
+
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Moc/moc/QtCore/qtcoreexports.h.in
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Rcc/rcc/QtCore/qtcoreexports.h.in
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Uic/uic/QtCore/qtcoreexports.h.in
+ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
+      libQt6Core/QtCore/qtcoreexports.h.in
 
 # Symlink the upstream MIME type database source XML file.
 #
-ln -sf "../../../../../\
-upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml" \
-"libQt6Core/QtCore/mimetypes/mime/packages/"
+ln -sf ../../../../../\
+upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml \
+       libQt6Core/QtCore/mimetypes/mime/packages/
 
-
-# Symlink all of the moc application's headers and source files into
-# Qt6Moc/moc/.
+# Symlink the upstream QtGui sources into libQt6Gui/.
 #
-for f in upstream/qtbase/src/tools/moc/*.{h,cpp}; do
-  f="${f#upstream/}"    # Strip "upstream/" prefix.
-  fn="$(basename "$f")" # File name.
-
-  # See the symlinking of the QtCore sources above.
-  #
-  if [[ -f "downstream/$f" ]]; then
-    ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn.orig"
-    ln -s "../../downstream/$f" "Qt6Moc/moc/$fn"
-  else
-    ln -s "../../upstream/$f"   "Qt6Moc/moc/$fn"
+for d in upstream/qtbase/src/gui/*/; do
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
   fi
+  symlink_module_subdir libQt6Gui QtGui "$d"
 done
 
-# Symlink all of the rcc application's headers and source files into
-# Qt6Rcc/rcc/.
-#
-for f in upstream/qtbase/src/tools/rcc/*.{h,cpp}; do
-  f="${f#upstream/}"    # Strip "upstream/" prefix.
-  fn="$(basename "$f")" # File name.
+ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
+      libQt6Gui/QtGui/qtguiexports.h.in
 
-  # See the symlinking of the QtCore sources above.
-  #
-  if [[ -f "downstream/$f" ]]; then
-    ln -s "../../upstream/$f"   "Qt6Rcc/rcc/$fn.orig"
-    ln -s "../../downstream/$f" "Qt6Rcc/rcc/$fn"
-  else
-    ln -s "../../upstream/$f"   "Qt6Rcc/rcc/$fn"
+symlink_non_module upstream/qtbase/src/plugins/platforms/xcb/ \
+                   libQt6Gui/QtGuiPlugins/platforms/
+
+symlink_non_module upstream/qtbase/src/plugins/platforms/cocoa/ \
+                   libQt6Gui/QtGuiPlugins/platforms/
+
+symlink_non_module upstream/qtbase/src/plugins/platforms/windows/ \
+                   libQt6Gui/QtGuiPlugins/platforms/
+
+# Symlink the Cocoa plugin's resources.
+#
+symlink_dirs upstream/qtbase/src/plugins/platforms/cocoa/images/ \
+             libQt6Gui/QtGuiPlugins/platforms/cocoa/
+
+# Symlink the Windows plugin's resources.
+#
+symlink_dirs upstream/qtbase/src/plugins/platforms/windows/images/ \
+             libQt6Gui/QtGuiPlugins/platforms/windows/
+
+symlink_non_module \
+  upstream/qtbase/src/plugins/platforminputcontexts/compose/ \
+  libQt6Gui/QtGuiPlugins/platforminputcontexts/
+
+# Symlink directly to the imageformats plugins' directories (not their
+# contents).
+#
+symlink_dirs upstream/qtbase/src/plugins/imageformats/{gif,ico,jpeg} \
+             libQt6Gui/QtGuiPlugins/imageformats/
+
+# Remove the QPA headers because they belong under qpa/ (and will be moved
+# there below, as per the upstream build).
+#
+rm libQt6Gui/QtGui/qplatform*.h
+rm libQt6Gui/QtGui/private/QtGui/private/qplatform*_p.h
+
+mv libQt6Gui/QtGui/kernel/qguiapplication.cpp \
+   libQt6Gui/QtGui/kernel/qguiapplication-install.cpp
+
+# Symlink the upstream QtWidgets sources into libQt6Widgets/.
+#
+for d in upstream/qtbase/src/widgets/*/; do
+  if [[ "$(basename "$d")" == doc ]]; then
+    continue
   fi
+  symlink_module_subdir libQt6Widgets QtWidgets "$d"
 done
 
-# Create the few camelcase headers required by the moc build (specifically,
-# upstream/qtbase/src/tools/shared/depfile_shared.h).
+ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
+      libQt6Widgets/QtWidgets/qtwidgetsexports.h.in
+
+mv libQt6Widgets/QtWidgets/kernel/qapplication.cpp \
+   libQt6Widgets/QtWidgets/kernel/qapplication-install.cpp
+
+# Symlink upstream Qt resources collection files and their associated
+# resources into libQt6Widgets/.
 #
+symlink_dirs upstream/qtbase/src/widgets/styles/images \
+             libQt6Widgets/QtWidgets/styles/
+ln -s ../../../upstream/qtbase/src/widgets/dialogs/qfiledialog.ui \
+      libQt6Widgets/QtWidgets/dialogs/
+symlink_dirs upstream/qtbase/src/widgets/dialogs/images \
+             libQt6Widgets/QtWidgets/dialogs/
+
+symlink_non_module upstream/qtbase/src/plugins/styles/mac/ \
+                   libQt6Widgets/QtWidgetsPlugins/styles/
+symlink_non_module upstream/qtbase/src/plugins/styles/windowsvista/ \
+                   libQt6Widgets/QtWidgetsPlugins/styles/
+
+ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
+      libQt6WidgetsTests/widgets-app/
+ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
+      libQt6WidgetsTests/widgets-app/
+
+# Create the few required QtCore camelcase headers.
+#
+echo '#include "qstring.h"' > Qt6Moc/moc/QtCore/QString
+echo '#include "qfile.h"' > Qt6Moc/moc/QtCore/QFile
 echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
-echo '#include "qfile.h"'      > Qt6Moc/moc/QtCore/QFile
-echo '#include "qstring.h"'    > Qt6Moc/moc/QtCore/QString
+echo '#include "qbytearrayview.h"' > Qt6Moc/moc/QtCore/QByteArrayView
+echo '#include "qvarlengtharray.h"' > Qt6Moc/moc/QtCore/QVarLengthArray
+
+echo '#include "qbytearrayview.h"' > Qt6Rcc/rcc/QtCore/QByteArrayView
+echo '#include "qvarlengtharray.h"' > Qt6Rcc/rcc/QtCore/QVarLengthArray
+echo '#include "qcoreapplication.h"' > Qt6Rcc/rcc/QtCore/QCoreApplication
+
+echo '#include "qbytearrayview.h"' > Qt6Uic/uic/QtCore/QByteArrayView
+echo '#include "qvarlengtharray.h"' > Qt6Uic/uic/QtCore/QVarLengthArray
+echo '#include "qcoreapplication.h"' > Qt6Uic/uic/QtCore/QCoreApplication
 
 # This file is generated by upstream/qtbase/cmake/QtTargetHelpers.cmake.
 #
@@ -264,20 +570,50 @@ echo '#include <private/qtrace_p.h>' > libQt6Core/QtCore/qtcore_tracepoints_p.h
 # they are not generated and will already have been symlinked above).
 #
 
-# Extract the Qt version from upstream/qtbase/.qmake.conf.
+# Extract the Qt version from upstream/qtbase/.cmake.conf.
 #
-qt_version="$(sed -nE 's%MODULE_VERSION = (.+)%\1%p' \
-                  upstream/qtbase/.qmake.conf)"
+qt_version="$(sed -nE 's%set\(QT_REPO_MODULE_VERSION "(.+)"\)%\1%p' \
+                  upstream/qtbase/.cmake.conf)"
 
-tmpdir="$(mktemp -d)"
+# Copy headers generated by the upstream build.
+#
+# The majority of the generated headers are camelcase versions of the public
+# headers (foobar.h -> QFooBar) but in some cases headers from different
+# subdirectories are copied to a single directory to allow their inclusion
+# using a common path prefix.
+#
+# Run the upstream syncqt.pl script to produce the include tree and copy only
+# those headers that don't already exist in the upstream directory (in which
+# case they are not generated and will already have been symlinked above).
+#
 
-if ! upstream/qtbase/libexec/syncqt.pl \
-     -copy -module QtCore -version "$qt_version" \
-     -outdir "$tmpdir" upstream/qtbase \
-     > /dev/null; then
-  rm -r "$tmpdir"
-  error "syncqt.pl failed"
-fi
+# Run the upstream syncqt.pl script to generate headers for the given Qt
+# module in a temporary directory.
+#
+# Return the path to the temporary directory.
+#
+function gen_hdrs () # <module-name>
+{
+  local mod="$1" # Module name.
+  local tmpdir
+  if ! tmpdir="$(mktemp -d)"; then
+    error "mktemp failed"
+  fi
+
+  if ! upstream/qtbase/libexec/syncqt.pl           \
+       -copy -module "$mod" -version "$qt_version" \
+       -outdir "$tmpdir" upstream/qtbase           \
+       > /dev/null; then
+    rm -r "$tmpdir"
+    error "syncqt.pl failed"
+  fi
+
+  echo "$tmpdir"
+}
+
+# Copy headers generated for QtCore into libQt6Core/QtCore/.
+#
+tmpdir="$(gen_hdrs QtCore)"
 
 # Copy those public *.h headers that have not already been symlinked and all
 # camelcase headers (of which all are generated and thus none symlinked).
@@ -290,3 +626,67 @@ for p in "$tmpdir/include/QtCore/"*; do
 done
 
 rm -r "$tmpdir"
+
+# This (empty) header is generated by qmake in the upstream build.
+#
+touch libQt6Core/QtCore/QtCoreDepends
+
+# Copy headers generated for QtGui into libQt6Gui/QtGui/.
+#
+tmpdir="$(gen_hdrs QtGui)"
+
+# In addition to the generated public *.h and Q* headers as for QtCore, also
+# copy the generated QPA (Qt Platform Abstraction) headers.
+#
+# Note that they are usually included with a `qpa/` prefix so must go into
+# their own subdirectory (unlike normal headers).
+#
+for p in "$tmpdir/include/QtGui/"*; do
+  f="$(basename "$p")"
+
+  if [[ ("$f" == *.h && ! -e "libQt6Gui/QtGui/$f") || "$f" == Q* ]]; then
+    cp "$p" libQt6Gui/QtGui/
+  elif [[ "$f" == "$qt_version" ]]; then
+    for p2 in "$p/QtGui/qpa/"*; do
+      case "$p2" in
+        *_p.h)
+          cp "$p2" libQt6Gui/QtGui/private/QtGui/qpa/
+          ;;
+        *.h)
+          cp "$p2" libQt6Gui/QtGui/qpa/
+          ;;
+      esac
+    done
+  fi
+done
+
+rm -r "$tmpdir"
+
+cat > libQt6Gui/QtGui/QtGuiDepends << EOF
+/* This file was generated by cmake with the info from Gui target. */
+#ifdef __cplusplus /* create empty PCH in C mode */
+#  include <QtCore/QtCore>
+#endif
+EOF
+
+# Copy headers generated for QtWidgets into libQt6Widgets/QtWidgets/.
+#
+tmpdir="$(gen_hdrs QtWidgets)"
+
+for p in "$tmpdir/include/QtWidgets/"*; do
+  f="$(basename "$p")"
+
+  if [[ ("$f" == *.h && ! -e "libQt6Widgets/QtWidgets/$f") || "$f" == Q* ]]; then
+    cp "$p" libQt6Widgets/QtWidgets/
+  fi
+done
+
+rm -r "$tmpdir"
+
+cat > libQt6Widgets/QtWidgets/QtWidgetsDepends << EOF
+/* This file was generated by cmake with the info from Widgets target. */
+#ifdef __cplusplus /* create empty PCH in C mode */
+#  include <QtCore/QtCore>
+#  include <QtGui/QtGui>
+#endif
+EOF
