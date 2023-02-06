@@ -1,0 +1,65 @@
+# Note: if anything in this file seems underdocumented it is probably covered
+#       in libQt6Core/QtCore/buildfile.
+#
+
+import impl_libs_jpeg = libjpeg-turbo%lib{jpeg}
+
+include ../../QtGui/
+
+./: lib{qgif}:  gif/hxx{qgifhandler_p} \
+                gif/cxx{main qgifhandler}
+./: lib{qico}:  ico/hxx{qicohandler} \
+                ico/cxx{main qicohandler}
+./: lib{qjpeg}: jpeg/hxx{qjpeghandler_p} \
+                jpeg/cxx{main qjpeghandler}
+
+lib{qgif qico qjpeg}: ../../hxx{mkspecs/**}
+
+# Plugin metadata files.
+#
+lib{qgif}:  gif/file{gif.json}: include = adhoc
+lib{qico}:  ico/file{ico.json}: include = adhoc
+lib{qjpeg}: jpeg/file{jpeg.json}: include = adhoc
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the moc ad hoc rules.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt6PluginsImageFormatsMeta}: \
+                  ../../QtGui/lib{Qt6Gui Qt6GuiPrivate}
+
+# Dependencies involving moc_main.cpp and main.h (from which it is generated).
+#
+lib{qgif}:  gif/moc{main}: include = adhoc
+lib{qico}:  ico/moc{main}: include = adhoc
+lib{qjpeg}: jpeg/moc{main}: include = adhoc
+
+gif/moc{main}:  gif/cxx{main} libul{Qt6PluginsImageFormatsMeta}
+ico/moc{main}:  ico/cxx{main} libul{Qt6PluginsImageFormatsMeta}
+jpeg/moc{main}: jpeg/cxx{main} libul{Qt6PluginsImageFormatsMeta}
+
+lib{qgif qico qjpeg}: libul{Qt6PluginsImageFormatsMeta}
+
+lib{qjpeg}: $impl_libs_jpeg
+
+# Build options.
+#
+cxx.poptions += -DQT_PLUGIN
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+gif/obj{main qgifhandler}: \
+  cxx.poptions =+ "-I$out_base/gif" "-I$src_base/gif"
+ico/obj{main qicohandler}: \
+  cxx.poptions =+ "-I$out_base/ico" "-I$src_base/ico"
+jpeg/obj{main qjpeghandler}: \
+  cxx.poptions =+ "-I$out_base/jpeg" "-I$src_base/jpeg"
+
+if ($cxx.target.class != 'windows')
+  lib{qgif qico qjpeg}: cxx.libs += -pthread
+
+# Installation.
+#
+lib{qgif qico qjpeg}: install = lib/qt6/plugins/imageformats/

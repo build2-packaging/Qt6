@@ -1,4 +1,4 @@
-project = libQt5Gui
+project = libQt6Gui
 
 using version
 using config

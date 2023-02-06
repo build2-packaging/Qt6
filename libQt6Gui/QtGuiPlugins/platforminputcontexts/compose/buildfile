@@ -1,0 +1,58 @@
+# Note: If anything in this file seems underdocumented it is probably covered
+#       in libQt6Core/QtCore/buildfile.
+#
+
+include ../../../QtGui/
+
+# C++ headers and source files.
+#
+../lib{composeplatforminputcontextplugin}:      \
+  ../../../hxx{mkspecs/**}                      \
+  hxx{qcomposeplatforminputcontext}             \
+  cxx{qcomposeplatforminputcontext qcomposeplatforminputcontextmain}
+
+# Plugin metadata file.
+#
+../lib{composeplatforminputcontextplugin}: file{compose.json}: include = adhoc
+
+# The "metadata library": its purpose is to make sure all the imported
+# libraries are resolved for the moc ad hoc rules.
+#
+# Note: use a rule hint to resolve ambiguity between C and C++ library.
+#
+[rule_hint=cxx] libul{Qt6PluginsLibComposeMeta}: \
+  ../../../QtGui/lib{Qt6Gui Qt6GuiPrivate}
+
+# Dependencies involving moc_qcomposeplatforminputcontext.cpp and
+# qcomposeplatforminputcontext.h (from which the former is generated).
+#
+../lib{composeplatforminputcontextplugin}: \
+  cxx{moc_qcomposeplatforminputcontext}: include = adhoc
+cxx{moc_qcomposeplatforminputcontext}: hxx{qcomposeplatforminputcontext} \
+                                       libul{Qt6PluginsLibComposeMeta}
+
+# Dependencies involving qcomposeplatforminputcontextmain.moc and
+# qcomposeplatforminputcontextmain.cpp (from which the former is generated).
+#
+../lib{composeplatforminputcontextplugin}: \
+  moc{qcomposeplatforminputcontextmain}: include = adhoc
+moc{qcomposeplatforminputcontextmain}: cxx{qcomposeplatforminputcontextmain} \
+                                       libul{Qt6PluginsLibComposeMeta}
+
+../lib{composeplatforminputcontextplugin}: libul{Qt6PluginsLibComposeMeta}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+cxx.poptions += -DQT_PLUGIN
+
+if ($cxx.class == 'gcc')
+  cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
+
+../lib{composeplatforminputcontextplugin}: \
+  cxx.libs += -pthread -lxkbcommon
+
+# Installation.
+#
+../lib{composeplatforminputcontextplugin}: \
+  install = lib/qt6/plugins/platforminputcontexts/

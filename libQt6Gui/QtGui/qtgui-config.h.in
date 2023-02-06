@@ -1,0 +1,345 @@
+#pragma once
+
+#define QT_FEATURE_accessibility 1
+#if !QT_CONFIG(accessibility)
+#  define QT_NO_ACCESSIBILITY 1
+#endif
+
+// ATSPI is disabled for the time being. See
+// QT_FEATURE_accessibility_atspi_bridge in qtgui-config_p.h.
+//
+#define QT_FEATURE_accessibility_atspi_bridge -1
+#if !QT_CONFIG(accessibility_atspi_bridge)
+#  define QT_NO_ACCESSIBILITY_ATSPI_BRIDGE 1
+#endif
+
+// "QAction/Provides widget actions."
+//
+#define QT_FEATURE_action 1
+#if !QT_CONFIG(action)
+#  define QT_NO_ACTION 1
+#endif
+
+// "Provides cut and paste operations."
+//
+#define QT_FEATURE_clipboard 1
+#if !QT_CONFIG(clipboard)
+# define QT_NO_CLIPBOARD 1
+#endif
+
+// "Supports color names such as \"red\", used by QColor and by some HTML
+// documents."
+//
+#define QT_FEATURE_colornames 1
+#if !QT_CONFIG(colornames)
+#  define QT_NO_COLORNAMES 1
+#endif
+
+// "Provides a parser for Cascading Style Sheets."
+//
+#define QT_FEATURE_cssparser 1
+#if !QT_CONFIG(cssparser)
+#  define QT_NO_CSSPARSER 1
+#endif
+
+// "Provides mouse cursors."
+//
+#define QT_FEATURE_cursor 1
+#if !QT_CONFIG(cursor)
+#  define QT_NO_CURSOR 1
+#endif
+
+// "Provides methods for accessing common desktop services."
+//
+#define QT_FEATURE_desktopservices 1
+#if !QT_CONFIG(desktopservices)
+#  define QT_NO_DESKTOPSERVICES 1
+#endif
+
+// "Supports the drag and drop mechansim."
+//
+#define QT_FEATURE_draganddrop 1
+#if !QT_CONFIG(draganddrop)
+#  define QT_NO_DRAGANDDROP 1
+#endif
+
+// "Provides automatic scaling of DPI-unaware applications on high-DPI
+// displays."
+//
+#define QT_FEATURE_highdpiscaling 1
+#if !QT_CONFIG(highdpiscaling)
+#  define QT_NO_HIGHDPISCALING 1
+#endif
+
+// "Supports creating a 1-bpp heuristic mask for images."
+//
+#define QT_FEATURE_image_heuristic_mask 1
+#if !QT_CONFIG(image_heuristic_mask)
+#  define QT_NO_IMAGE_HEURISTIC_MASK 1
+#endif
+
+// "Supports image file text strings."
+//
+#define QT_FEATURE_image_text 1
+#if !QT_CONFIG(image_text)
+#  define QT_NO_IMAGE_TEXT 1
+#endif
+
+// "Image Text section loading".
+//
+// #define QT_FEATURE_imageio_text_loading 1 // Moved from private header.
+// #if !QT_CONFIG(imageio_text_loading)
+// #  define QT_NO_IMAGEIO_TEXT_LOADING 1 // QT_FEATURE_imageio_text_loading
+// #endif
+
+// "Supports animated images."
+//
+#define QT_FEATURE_movie 1
+#if !QT_CONFIG(movie)
+#  define QT_NO_MOVIE 1
+#endif
+
+#define QT_FEATURE_pdf 1
+#if !QT_CONFIG(pdf)
+#  define QT_NO_PDF 1
+#endif
+
+// "Supports recording and replaying QPainter commands."
+//
+#define QT_FEATURE_picture 1
+#if !QT_CONFIG(picture)
+#  define QT_NO_PICTURE 1
+#endif
+
+// "Provides an interface to the windowing system's session management."
+// Enabled unconditionally upstream.
+//
+#define QT_FEATURE_sessionmanager 1
+#if !QT_CONFIG(sessionmanager)
+#  define QT_NO_SESSIONMANAGER 1
+#endif
+
+// "Provides a generic model for storing custom data."
+//
+#define QT_FEATURE_standarditemmodel 1
+#if !QT_CONFIG(standarditemmodel)
+#  define QT_NO_STANDARDITEMMODEL 1
+#endif
+
+// "Provides a Markdown (CommonMark and GitHub) reader"
+//
+#define QT_FEATURE_textmarkdownreader 1
+
+// Markdown parser (libmd4c; build2-packaged).
+//
+#define QT_FEATURE_system_textmarkdownreader 1
+
+// "Provides a Markdown (CommonMark) writer".
+//
+// Note: does not use libmd4c (Qt has its own writer implementation).
+//
+#define QT_FEATURE_textmarkdownwriter 1
+
+// "Provides an ODF writer."
+//
+#define QT_FEATURE_textodfwriter 1
+#if !QT_CONFIG(textodfwriter)
+#  define QT_NO_TEXTODFWRITER 1
+#endif
+
+// "Provides an icon for an application in the system tray."
+//
+#define QT_FEATURE_systemtrayicon 1
+#if !QT_CONFIG(systemtrayicon)
+#  define QT_NO_SYSTEMTRAYICON 1
+#endif
+
+// "Provides complex input methods."
+//
+#if QT_CONFIG(library)
+#  define QT_FEATURE_im 1
+#else
+#  define QT_FEATURE_im -1
+#  define QT_NO_IM       1
+#endif
+
+// "Supports tablet events."
+//
+#define QT_FEATURE_tabletevent  1
+#if !QT_CONFIG(tabletevent)
+#  define QT_NO_TABLETEVENT 1
+#endif
+
+// "Provides a parser for HTML."
+//
+#define QT_FEATURE_texthtmlparser 1
+#if !QT_CONFIG(texthtmlparser)
+#  define QT_NO_TEXTHTMLPARSER 1
+#endif
+
+// "Applies (redo or) undo of a single change in a document."
+//
+#define QT_FEATURE_undocommand 1
+#if !QT_CONFIG(undocommand)
+#  define QT_NO_UNDOCOMMAND 1
+#endif
+
+// "Provides the ability to cluster QUndoCommands."
+//
+#define QT_FEATURE_undogroup 1
+#if !QT_CONFIG(undogroup)
+#  define QT_NO_UNDOGROUP 1
+#endif
+
+// "Provides the ability to (redo or) undo a list of changes in a document."
+//
+#define QT_FEATURE_undostack 1
+#if !QT_CONFIG(undostack)
+#  define QT_NO_UNDOSTACK 1
+#endif
+
+// "Supports validation of input text."
+//
+#define QT_FEATURE_validator 1
+#if !QT_CONFIG(validator)
+#  define QT_NO_VALIDATOR 1
+#endif
+
+// "Supports displaying \"What's this\" help."
+//
+#define QT_FEATURE_whatsthis 1
+#if !QT_CONFIG(whatsthis)
+#  define QT_NO_WHATSTHIS 1
+#endif
+
+// "Supports wheel events."
+//
+#define QT_FEATURE_wheelevent 1
+#if !QT_CONFIG(wheelevent)
+#  define QT_NO_WHEELEVENT 1
+#endif
+
+// "Provides a data model for the local filesystem."
+//
+#define QT_FEATURE_filesystemmodel 1
+#if !QT_CONFIG(filesystemmodel)
+#  define QT_NO_FILESYSTEMMODEL 1
+#endif
+
+#define QT_FEATURE_ico 1
+#if !QT_CONFIG(ico)
+#  define QT_NO_ICO 1
+#endif
+
+// "Provides a base for writing a image format plugins."
+//
+#define QT_FEATURE_imageformatplugin 1
+#if !QT_CONFIG(imageformatplugin)
+#  define QT_NO_IMAGEFORMATPLUGIN 1
+#endif
+
+// Note: QT_FEATURE_imageformat_foo does not affect the private
+//       QT_FEATURE_foo. The former is a user-level option while the latter is
+//       used internally in qmake build files.
+
+// Image formats with built-in support (so always enable).
+//
+#define QT_FEATURE_imageformat_bmp 1
+#if !QT_CONFIG(imageformat_bmp)
+#  define QT_NO_IMAGEFORMAT_BMP 1
+#endif
+#define QT_FEATURE_imageformat_ppm 1
+#if !QT_CONFIG(imageformat_ppm)
+#  define QT_NO_IMAGEFORMAT_PPM 1
+#endif
+#define QT_FEATURE_imageformat_xbm 1
+#if !QT_CONFIG(imageformat_xbm)
+#  define QT_NO_IMAGEFORMAT_XBM 1
+#endif
+#define QT_FEATURE_imageformat_xpm 1
+#if !QT_CONFIG(imageformat_xpm)
+#  define QT_NO_IMAGEFORMAT_XPM 1
+#endif
+
+// Image formats supported by build2-packaged libraries.
+//
+#define QT_FEATURE_imageformat_jpeg 1
+#define QT_FEATURE_imageformat_png 1
+// Note: there is no QT_FEATURE_imageformat_gif.
+
+// Image formats.
+//
+// Note that none of these are affected by the public QT_FEATURE_imageformat_
+// macros. While the public QT_FEATURE_imageformat_ macros are referenced in
+// Qt code, these below are only used internally in qmake buildfiles, for
+// example to decide whether the corresponding plugin should be built or
+// whether to use the bundled 3rdparty implementations or the system-installed
+// ones.
+//
+#define QT_FEATURE_jpeg 1 // Moved from private
+#if !QT_CONFIG(jpeg) || !QT_CONFIG(imageformat_jpeg)
+#  define QT_NO_IMAGEFORMAT_JPEG 1
+#endif
+
+#define QT_FEATURE_png 1 // Moved from private
+#if !QT_CONFIG(png) || !QT_CONFIG(imageformat_png)
+#  define QT_NO_IMAGEFORMAT_PNG 1
+#endif
+
+#define QT_FEATURE_gif 1 // Moved from private
+#if !QT_CONFIG(gif) // Note: there is no QT_FEATURE_imageformat_gif.
+#  define QT_NO_IMAGEFORMAT_GIF 1
+#endif
+
+#if defined(__GLIBC__)   || \
+    defined(__FreeBSD__) || \
+    defined(__OpenBSD_)  || \
+    defined(__NetBSD__)
+#define QT_FEATURE_xcb 1
+#define QT_FEATURE_xcb_glx_plugin -1
+#else
+
+#define QT_FEATURE_xcb -1
+#define QT_FEATURE_xcb_glx_plugin -1
+#endif
+
+// Disable OpenGL and Vulkan.
+//
+#define QT_FEATURE_dynamicgl -1
+#if QT_CONFIG(dynamicgl)
+#  define QT_OPENGL_DYNAMIC
+#endif
+
+#define QT_FEATURE_egl -1
+#if !QT_CONFIG(egl)
+#  define QT_NO_EGL 1
+#endif
+
+#define QT_FEATURE_opengl -1
+#if !QT_CONFIG(opengl)
+#  define QT_NO_OPENGL 1
+#endif
+
+#define QT_FEATURE_opengles2 -1
+#define QT_FEATURE_opengles3 -1
+#define QT_FEATURE_opengles31 -1
+#define QT_FEATURE_opengles32 -1
+#define QT_FEATURE_openvg -1
+#define QT_FEATURE_vulkan -1
+
+#ifndef BUILD2_AUTOCONF_MACOS
+#  define QT_FEATURE_fontconfig 1 // Referenced by plugins only.
+#else
+#  define QT_FEATURE_fontconfig -1
+#  define QT_NO_FONTCONFIG 1
+#endif
+
+#define QT_FEATURE_freetype 1
+#if !QT_CONFIG(freetype)
+#  define QT_NO_FREETYPE 1
+#endif
+
+#define QT_FEATURE_harfbuzz 1
+#if !QT_CONFIG(harfbuzz)
+#  define QT_NO_HARFBUZZ 1
+#endif

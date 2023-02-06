@@ -1046,10 +1046,14 @@ lib{Qt6Core}:
 {
   cxx.export.poptions = "-I$out_root" "-I$src_root"                     \
                         "-I$out_root/QtCore" "-I$src_root/QtCore"       \
-                        -DQT_CORE_LIB                                   \
-                        -DQT_NO_VERSION_TAGGING
+                        -DQT_CORE_LIB
   cxx.export.libs = $intf_libs
 }
+
+# QT_NO_VERSION_TAGGING is automatically defined for static builds (see
+# qversiontagging.h).
+#
+libs{Qt6Core}: cxx.export.poptions += -DQT_NO_VERSION_TAGGING
 
 if $windows
 {

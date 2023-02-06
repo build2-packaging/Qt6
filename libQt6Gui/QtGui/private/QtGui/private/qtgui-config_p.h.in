@@ -1,0 +1,129 @@
+#include <QtGui/qtgui-config.h>
+
+// #define QT_FEATURE_imageio_text_loading 1 // Moved to public
+// #define QT_FEATURE_gif 1 // Moved to public
+// #define QT_FEATURE_jpeg 1 // Moved to public
+// #define QT_FEATURE_png 1 // Moved to public
+
+#define QT_FEATURE_system_jpeg 1
+#define QT_FEATURE_system_png 1
+
+// "Provides support for detecting the desktop environment, launching external
+// processes and opening URLs."
+//
+#define QT_FEATURE_multiprocess 1
+
+// "Internal painting support for 64 bit (16 bpc) rasterization." (QPainter).
+//
+#define QT_FEATURE_raster_64bit 1
+
+// "QPainter - floating point raster".
+//
+#define QT_FEATURE_raster_fp 1
+
+#define QT_FEATURE_vnc -1
+#define QT_FEATURE_directfb -1
+#define QT_FEATURE_linuxfb -1
+
+#if defined(__GLIBC__)   || \
+    defined(__FreeBSD__) || \
+    defined(__OpenBSD_)  || \
+    defined(__NetBSD__)
+#  define QT_FEATURE_xrender 1
+#  define QT_FEATURE_xcb_xlib 1
+#  define QT_FEATURE_xcb_sm 1
+#  define QT_FEATURE_system_xcb_xinput 1
+#  define QT_FEATURE_xkbcommon 1
+#  define QT_FEATURE_xkbcommon_x11 1
+#  define QT_FEATURE_xlib 1
+#  define QT_FEATURE_drm_atomic 1
+#else
+#  define QT_FEATURE_xrender -1
+#  define QT_FEATURE_xcb_xlib -1
+#  define QT_FEATURE_xcb_sm -1
+#  define QT_FEATURE_system_xcb_xinput -1
+#  define QT_FEATURE_xkbcommon -1
+#  define QT_FEATURE_xkbcommon_x11 -1
+#  define QT_FEATURE_xlib -1
+#  define QT_FEATURE_drm_atomic -1
+#endif
+
+// From https://doc.qt.io/qt-6/inputs-linux-device.html: "On your Embedded
+// Linux device, when there's no windowing system present, the mouse,
+// keyboard, and touch input are read directly via evdev or using helper
+// libraries such as libinput or tslib."
+//
+// Unlike the major platform plugins (libqxcb/libqcocoa/libwindows), the evdev
+// plugins are not loaded automatically but have to be requested via
+// QT_QPA_GENERIC_PLUGINS or the -plugin command-line option.
+//
+#define QT_FEATURE_evdev -1 // Referenced by plugins only.
+
+#define QT_FEATURE_qqnx_imf -1
+#define QT_FEATURE_integrityfb -1
+#define QT_FEATURE_integrityhid -1
+
+// Disable DirectX.
+//
+#define QT_FEATURE_directwrite -1
+#define QT_FEATURE_directwrite3 -1
+#define QT_FEATURE_direct2d -1
+#define QT_FEATURE_direct2d1_1 -1
+
+// Disable EGL/EGLFS.
+//
+#define QT_FEATURE_egl_x11 -1
+#define QT_FEATURE_eglfs -1
+#define QT_FEATURE_eglfs_brcm -1
+#define QT_FEATURE_eglfs_egldevice -1
+#define QT_FEATURE_eglfs_gbm -1
+#define QT_FEATURE_eglfs_mali -1
+#define QT_FEATURE_eglfs_viv -1
+#define QT_FEATURE_eglfs_rcar -1
+#define QT_FEATURE_eglfs_viv_wl -1
+#define QT_FEATURE_eglfs_openwfd -1
+#define QT_FEATURE_eglfs_x11 -1
+
+#define QT_FEATURE_xcb_glx -1
+#define QT_FEATURE_xcb_egl_plugin -1
+
+// "XCB Native painting (experimental)". Always disable.
+//
+#define QT_FEATURE_xcb_native_painting -1
+
+// Disable Vulkan.
+//
+#define QT_FEATURE_vkgen -1 // Qt's own Vulkan header generator.
+#define QT_FEATURE_vkkhrdisplay -1
+
+// Disable features required only by EGL/EGLFS and/or linuxfb.
+//
+// VSP2 is a video signal processor IC and this feature is required by EGLFS
+// (only, apparently).
+//
+#define QT_FEATURE_vsp2       -1
+#define QT_FEATURE_eglfs_vsp2 -1
+#define QT_FEATURE_mtdev      -1 // Multitouch events.
+#define QT_FEATURE_tslib      -1 // Touchscreens.
+#define QT_FEATURE_kms        -1 // Kernel Mode Setting (X11/DRM).
+
+// @@ TODO https://www.tuio.org/: "TUIO is an open framework that defines a
+//         common protocol and API for tangible multitouch surfaces."
+//
+//         Seems to be quite widely used and has no dependencies so seems best
+//         to enable it.
+//
+#define QT_FEATURE_tuiotouch 1 // "Provides the TuioTouch input plugin."
+
+#define QT_FEATURE_system_freetype 1
+#define QT_FEATURE_system_harfbuzz 1
+
+#if QT_CONFIG(libudev)
+#  define QT_FEATURE_libinput          1
+#  define QT_FEATURE_libinput_axis_api 1 // Depends on libinput.
+#  define QT_FEATURE_libinput_hires_wheel_support 1 // "HiRes wheel support in libinput"
+#else
+#  define QT_FEATURE_libinput          -1
+#  define QT_FEATURE_libinput_axis_api -1
+#  define QT_FEATURE_libinput_hires_wheel_support -1
+#endif

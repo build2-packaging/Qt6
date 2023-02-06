@@ -1,6 +1,6 @@
 switch $name($import.target)
 {
-  case 'Qt5Gui' | 'Qt5GuiPrivate'
+  case 'Qt6Gui' | 'Qt6GuiPrivate'
   {
     $out_root/
     {
@@ -14,13 +14,13 @@ switch $name($import.target)
     {
       include QtGuiPlugins/
     }
-    switch $trg_name
+    switch $name($import.target)
     {
-      case lib{qxcb}
+      case 'qxcb'
 	export $out_root/QtGuiPlugins/platforms/$import.target
-      case lib{qgif} | lib{qico} | lib{qjpeg}
+      case 'qgif' | 'qico' | 'qjpeg'
 	export $out_root/QtGuiPlugins/imageformats/$import.target
-      case lib{composeplatforminputcontextplugin}
+      case 'composeplatforminputcontextplugin'
 	export $out_root/QtGuiPlugins/platforminputcontexts/$import.target
     }
   }
