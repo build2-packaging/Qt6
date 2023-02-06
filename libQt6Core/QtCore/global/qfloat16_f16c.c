@@ -1,1 +1,0 @@
-../../../upstream/qtbase/src/corelib/global/qfloat16_f16c.c

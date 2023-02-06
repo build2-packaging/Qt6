@@ -1,0 +1,1 @@
+../../downstream/qtbase/src/tools/uic/main.cpp

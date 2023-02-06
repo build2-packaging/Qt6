@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/widgets/kernel/qshortcut_widgets.cpp

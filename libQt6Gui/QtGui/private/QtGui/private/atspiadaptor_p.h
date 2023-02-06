@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/accessible/linux/atspiadaptor_p.h

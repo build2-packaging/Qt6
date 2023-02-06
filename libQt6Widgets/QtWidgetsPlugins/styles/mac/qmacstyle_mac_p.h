@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/plugins/styles/mac/qmacstyle_mac_p.h

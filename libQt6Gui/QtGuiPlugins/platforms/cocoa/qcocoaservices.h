@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/plugins/platforms/cocoa/qcocoaservices.h

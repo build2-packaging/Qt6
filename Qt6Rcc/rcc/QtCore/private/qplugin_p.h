@@ -1,1 +1,0 @@
-../../../../upstream/qtbase/src/corelib/plugin/qplugin_p.h

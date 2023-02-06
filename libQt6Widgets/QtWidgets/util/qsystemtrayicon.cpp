@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/widgets/util/qsystemtrayicon.cpp

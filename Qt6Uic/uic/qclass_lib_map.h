@@ -1,0 +1,1 @@
+../../upstream/qtbase/src/tools/uic/qclass_lib_map.h

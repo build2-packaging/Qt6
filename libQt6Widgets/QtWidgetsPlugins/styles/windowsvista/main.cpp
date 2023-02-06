@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/plugins/styles/windowsvista/main.cpp

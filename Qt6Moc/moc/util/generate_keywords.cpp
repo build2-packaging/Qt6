@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/tools/moc/util/generate_keywords.cpp

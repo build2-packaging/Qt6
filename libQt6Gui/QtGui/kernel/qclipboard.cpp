@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/gui/kernel/qclipboard.cpp

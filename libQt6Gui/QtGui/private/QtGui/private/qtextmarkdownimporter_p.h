@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/text/qtextmarkdownimporter_p.h

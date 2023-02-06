@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/gui/platform/android/qandroidnativeinterface.cpp

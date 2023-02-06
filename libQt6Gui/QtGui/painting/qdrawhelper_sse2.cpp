@@ -1,0 +1,1 @@
+../../../upstream/qtbase/src/gui/painting/qdrawhelper_sse2.cpp

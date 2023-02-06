@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/gui/text/freetype/qfontengine_ft.cpp
