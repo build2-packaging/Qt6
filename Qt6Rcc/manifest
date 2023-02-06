@@ -1,6 +1,6 @@
 : 1
 name: Qt6Rcc
-version: 6.2.2-a.0.z
+version: 6.4.2-a.0.z
 project: Qt6
 summary: Qt resource compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
@@ -14,7 +14,7 @@ package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: host : &default
 builds: -( +macos &gcc ) ; See README-DEV.
-depends: * build2 >= 0.15.0-
-depends: * bpkg >= 0.15.0-
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: libpcre2 ^10.38.0
 depends: libz ^1.2.1100
