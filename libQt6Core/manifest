@@ -1,10 +1,11 @@
 : 1
 name: libQt6Core
-version: 6.2.2-a.0.z
+version: 6.4.2-a.0.z
 project: Qt6
 summary: Qt6 core library
 license: LGPL-3.0-only
-license: GPL-2.0-or-later
+license: GPL-2.0-only
+license: GPL-3.0-only
 license: other: available source
 description-file: README.md
 url: https://www.qt.io/
@@ -15,8 +16,8 @@ package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
-depends: * build2 >= 0.15.0-
-depends: * bpkg >= 0.15.0-
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: * Qt6Moc == $
 depends: * xxd >= 8.2.0
 depends: libdouble-conversion ^3.2.0
