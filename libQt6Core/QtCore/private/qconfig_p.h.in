@@ -1,32 +1,24 @@
-// NOTE regarding commented-out QT_FEATURE_* lines: if the build succeeds then
-// these features are not referenced in the code (see QT_CONFIG() in
-// qglobal.h) so leave as many as possible commented-out until we've packaged
-// all Qt libraries, at which point the remaining commented-out lines can be
-// deleted.
+#include <QtCore/qconfig.h>
 
-// This would require packaging QtDBus which we are not planning to do at this
-// time.
+// Qt modules.
 //
-// NOTE: If we decide to package QtDBus and set this to 1, remember to remove
-//       QT_NO_DBUS from qconfig.h.in.
-//
-#define QT_FEATURE_dbus -1
-// #define QT_FEATURE_dbus_linked 1
+// #define QT_FEATURE_gui 1
+// #define QT_FEATURE_widgets 1 // Moved to public
+// #define QT_FEATURE_printsupport 1
+// #define QT_FEATURE_network 1
+// #define QT_FEATURE_testlib 1
+// #define QT_FEATURE_sql 1
+// #define QT_FEATURE_xml 1
 
-#undef qconfig_p_HAVE_DLOPEN
-#ifdef qconfig_p_HAVE_DLOPEN
-# define QT_FEATURE_dlopen 1
+#if QT_CONFIG(dbus)
+#  define QT_FEATURE_dbus_linked 1
 #else
-# define QT_FEATURE_dlopen -1
+#  define QT_FEATURE_dbus_linked -1
 #endif
 
-// "support for split sections and linker garbage collection"
+// We use the build2-packaged version of zlib.
 //
-#define QT_FEATURE_gc_binaries -1
-
-// "Support for Intel Control-flow Enforcement Technology".
-//
-// #define QT_FEATURE_intelcet -1
+// #define QT_FEATURE_system_zlib 1
 
 // Udev is part of systemd so we can't assume anything even on Linux.
 //
@@ -36,12 +28,10 @@
 //
 #define QT_FEATURE_libudev -1
 
-#undef qconfig_p_HAVE_POSIX_FALLOCATE
-#ifdef qconfig_p_HAVE_POSIX_FALLOCATE
-#  define QT_FEATURE_posix_fallocate 1
-#else
-#  define QT_FEATURE_posix_fallocate -1
-#endif
+// #define QT_FEATURE_android_style_assets -1
+
+// Disable all features controlling or relating to the upstream build.
+//
 
 // "Enable the Qt installation to be relocated."
 //
@@ -53,60 +43,67 @@
 //
 #define QT_FEATURE_relocatable -1
 
-// Zstandard support.
-//
-// @@ TMP System only, not bundled with Qt.
-//
-//    Used to:
-//
-//    - decompress resources (QResource in qtbase/src/corelib/io/qresource.cpp
-//      and rcc, the resource compiler at qtbase/src/tools/rcc/)
-//
-//    - decompress the MIME database
-//      (qtbase/src/corelib/mimetypes/qmimeprovider.cpp)
-//
-//    So if disabled then MIME databases and resources compressed using zstd
-//    are not supported (but zlib-compressed ones are).
-//
-#define QT_FEATURE_zstd -1
+// #define QT_FEATURE_reduce_exports 1 // Moved to public
+// #define QT_FEATURE_debug -1
+// #define QT_FEATURE_developer_build -1 // Moved to public
+// #define QT_FEATURE_gc_binaries -1
+// #define QT_FEATURE_no_direct_extern_access -1 // Moved to public
+// #define QT_FEATURE_no_prefix -1
+// #define QT_FEATURE_private_tests -1
+// #define QT_FEATURE_stack_protector_strong -1
+// #define QT_FEATURE_stdlib_libcpp -1
+// #define QT_FEATURE_use_bfd_linker -1
+// #define QT_FEATURE_use_gold_linker -1
+// #define QT_FEATURE_use_lld_linker -1
+// #define QT_FEATURE_use_mold_linker -1
 
-// Features we definitely won't be needing. For example, most of these
-// are only referenced in qmake build files or only result in the addition
-// of compiler options we don't need, and some are even not referenced
-// anywhere.
-//
-// #define QT_FEATURE_sse2 1
+#undef qconfig_p_HAVE_DLOPEN
+#ifdef qconfig_p_HAVE_DLOPEN
+# define QT_FEATURE_dlopen 1
+#else
+# define QT_FEATURE_dlopen -1
+#endif
+
+#undef qconfig_p_HAVE_POSIX_FALLOCATE
+#ifdef qconfig_p_HAVE_POSIX_FALLOCATE
+#  define QT_FEATURE_posix_fallocate 1
+#else
+#  define QT_FEATURE_posix_fallocate -1
+#endif
+
 // #define QT_FEATURE_alloca_h 1
 // #define QT_FEATURE_alloca 1
 // #define QT_FEATURE_alloca_malloc_h -1
-// #define QT_FEATURE_avx2 1
 
-// We use the build2-packaged version of zlib.
+// "Support for Intel Control-flow Enforcement Technology".
 //
-// #define QT_FEATURE_system_zlib -1
+// #define QT_FEATURE_intelcet -1
 
-// #define QT_FEATURE_stack_protector_strong -1
-
-// These features indicate whether the corresponding Qt library is enabled.
-//
-// #define QT_FEATURE_gui 1
-// #define QT_FEATURE_widgets 1
-// #define QT_FEATURE_network 1
-// #define QT_FEATURE_testlib 1
-// #define QT_FEATURE_sql 1
-// #define QT_FEATURE_xml 1
-
-// #define QT_FEATURE_private_tests -1
-// #define QT_FEATURE_android_style_assets -1
-
-// Adds -fvisibility=hidden to the compiler command line.
-//
-//#define QT_FEATURE_reduce_exports -1
-
-// Adds -Bsymbolic-functions to the linker command line.
-//
-// #define QT_FEATURE_reduce_relocations -1
-
-// Whether or not to build tools in release mode.
-//
-//#define QT_FEATURE_release_tools -1
+// #define QT_FEATURE_aesni -1 // Moved to public
+// #define QT_FEATURE_shani 1 // Moved to public
+// #define QT_FEATURE_vaes 1 // Moved to public
+// #define QT_FEATURE_rdrnd 1 // Moved to public
+// #define QT_FEATURE_rdseed -1 // Moved to public
+// #define QT_FEATURE_mips_dsp -1 // Moved to public
+// #define QT_FEATURE_mips_dspr2 -1 // Moved to public
+// #define QT_FEATURE_neon -1 // // Moved to public
+// #define QT_FEATURE_sse2 1 // Moved to public
+// #define QT_FEATURE_sse3 1 // Moved to public
+// #define QT_FEATURE_ssse3 1 // Moved to public
+// #define QT_FEATURE_sse4_1 1 // Moved to public
+// #define QT_FEATURE_sse4_2 1 // Moved to public
+// #define QT_FEATURE_avx 1 // Moved to public
+// #define QT_FEATURE_avx2 1 // Moved to public
+// #define QT_FEATURE_avx512bw -1 // Moved to public
+// #define QT_FEATURE_avx512cd -1 // Moved to public
+// #define QT_FEATURE_avx512dq -1 // Moved to public
+// #define QT_FEATURE_avx512er -1 // Moved to public
+// #define QT_FEATURE_avx512f -1 // Moved to public
+// #define QT_FEATURE_avx512ifma -1 // Moved to public
+// #define QT_FEATURE_avx512pf -1 // Moved to public
+// #define QT_FEATURE_avx512vbmi -1 // Moved to public
+// #define QT_FEATURE_avx512vbmi2 -1 // Moved to public
+// #define QT_FEATURE_avx512vl -1 // Moved to public
+// #define QT_FEATURE_arm_crc32 -1 // Moved to public
+// #define QT_FEATURE_f16c 1 // Moved to public
+// #define QT_FEATURE_arm_crypto -1 // Moved to public

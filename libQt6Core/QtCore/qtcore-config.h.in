@@ -1,6 +1,4 @@
-// "Supports scripting Qt-based applications."
-//
-#define QT_FEATURE_properties 1
+#pragma once
 
 // "Provides easing curve" (animation, interpolation between 0 and 1).
 //
@@ -9,30 +7,16 @@
 // "Provides a framework for animations."
 //
 #define QT_FEATURE_animation 1
-
-// "Provides hierarchical finite state machines."
-//
-#define QT_FEATURE_statemachine 1
-
-// "QEventTransition class"
-//
-#define QT_FEATURE_qeventtransition 1
-
-// "Supports non-unicode text conversions."
-//
-#define QT_FEATURE_codecs 1
-
-// "Supports conversions between text encodings."
-//
-#define QT_FEATURE_textcodec 1
+#if !QT_CONFIG(animation)
+#  define QT_NO_ANIMATION 1
+#endif
 
 // "Provides MIME type handling."
 //
 #define QT_FEATURE_mimetype 1
-
-// "Supports big codecs, e.g. CJK."
-//
-#define QT_FEATURE_big_codecs 1
+#if !QT_CONFIG(mimetype)
+#  define QT_NO_MIMETYPE 1
+#endif
 
 // "CBOR stream reading and writing"
 //
@@ -46,56 +30,95 @@
 // "Provides the item model for item views"
 //
 #define QT_FEATURE_itemmodel 1
+#if !QT_CONFIG(itemmodel)
+#  define QT_NO_ITEMMODEL 1
+#endif
 
 // "Supports processing of data passed between another model and a view."
 //
 #define QT_FEATURE_proxymodel 1
+#if !QT_CONFIG(proxymodel)
+#  define QT_NO_PROXYMODEL 1
+#endif
 
 // "Supports concatenating source models."
 //
 #define QT_FEATURE_concatenatetablesproxymodel 1
+#if !QT_CONFIG(concatenatetablesproxymodel)
+#  define QT_NO_CONCATENATETABLESPROXYMODEL 1
+#endif
 
 // "Supports proxying a source model unmodified."
 //
 #define QT_FEATURE_identityproxymodel 1
+#if !QT_CONFIG(identityproxymodel)
+#  define QT_NO_IDENTITYPROXYMODEL 1
+#endif
 
 // "Supports sorting and filtering of data passed between another model and a
 // view."
 //
 #define QT_FEATURE_sortfilterproxymodel 1
+#if !QT_CONFIG(sortfilterproxymodel)
+#  define QT_NO_SORTFILTERPROXYMODEL 1
+#endif
 
 // "Provides a model that supplies strings to views."
 //
 #define QT_FEATURE_stringlistmodel 1
+#if !QT_CONFIG(stringlistmodel)
+#  define QT_NO_STRINGLISTMODEL 1
+#endif
 
 // "Provides a proxy to swap rows and columns of a model."
 //
 #define QT_FEATURE_transposeproxymodel 1
+#if !QT_CONFIG(transposeproxymodel)
+#  define QT_NO_TRANSPOSEPROXYMODEL 1
+#endif
 
 // "Supports month and day names in dates."
 //
 #define QT_FEATURE_textdate 1
+#if !QT_CONFIG(textdate)
+#  define QT_NO_TEXTDATE 1
+#endif
 
 // "Provides conversion between dates and strings."
 //
 #define QT_FEATURE_datestring 1
+#if !QT_CONFIG(datestring)
+#  define QT_NO_DATESTRING 1
+#endif
 
 // "Provides fast file system iteration."
 //
 #define QT_FEATURE_filesystemiterator 1
+#if !QT_CONFIG(filesystemiterator)
+#  define QT_NO_FILESYSTEMITERATOR 1
+#endif
 
 // "Provides an interface for monitoring files and directories for
 // modifications."
 //
 #define QT_FEATURE_filesystemwatcher 1
+#if !QT_CONFIG(filesystemwatcher)
+#  define QT_NO_FILESYSTEMWATCHER 1
+#endif
 
 // "Provides keyboard accelerators and shortcuts."
 //
 #define QT_FEATURE_shortcut 1
+#if !QT_CONFIG(shortcut)
+#  define QT_NO_SHORTCUT 1
+#endif
 
 // "Provides a framework for gestures."
 //
 #define QT_FEATURE_gestures 1
+#if !QT_CONFIG(gestures)
+#  define QT_NO_GESTURES 1
+#endif
 
 // "Support the Islamic Civil calendar"
 //
@@ -105,42 +128,50 @@
 //
 #define QT_FEATURE_jalalicalendar 1
 
-// (QLibrary) "Provides a wrapper for dynamically loaded libraries."
-//
-#undef qtcore_config_HAVE_DLOPEN
-#if defined(qtcore_config_HAVE_DLOPEN) || defined(_WIN32)
-#  define QT_FEATURE_library 1
-#else
-#  define QT_FEATURE_library -1
-#endif
-
 #define QT_FEATURE_regularexpression 1
+#if !QT_CONFIG(regularexpression)
+#  define QT_NO_REGULAREXPRESSION 1
+#endif
 
 // "Provides persistent application settings."
 //
 #define QT_FEATURE_settings 1
+#if !QT_CONFIG(settings)
+#  define QT_NO_SETTINGS 1
+#endif
 
 // "Provides an I/O device that operates on temporary files."
 //
 #define QT_FEATURE_temporaryfile 1
+#if !QT_CONFIG(temporaryfile)
+#  define QT_NO_TEMPORARYFILE 1
+#endif
 
 // "Provides support for time-zone handling."
 //
 #define QT_FEATURE_timezone 1
 
-// "Provides support for extracting the top level domain from URLs.
-//
-#define QT_FEATURE_topleveldomain 1
-
 // "Supports translations using QObject::tr()."
 //
 #define QT_FEATURE_translation 1
+#if !QT_CONFIG(translation)
+#  define QT_NO_TRANSLATION 1
+#endif
 
 // "Provides a simple streaming API for XML."
 //
 #define QT_FEATURE_xmlstream 1
+#if !QT_CONFIG(xmlstream)
+#  define QT_NO_XMLSTREAM 1
+#endif
 #define QT_FEATURE_xmlstreamreader 1
+#if !QT_CONFIG(xmlstreamreader)
+#  define QT_NO_XMLSTREAMREADER 1
+#endif
 #define QT_FEATURE_xmlstreamwriter 1
+#if !QT_CONFIG(xmlstreamwriter)
+#  define QT_NO_XMLSTREAMWRITER 1
+#endif
 
 // "Provides a higher-level abstraction of environment variables."
 //
@@ -149,26 +180,105 @@
 // "Supports external process invocation."
 //
 #define QT_FEATURE_process 1
+#if !QT_CONFIG(process)
+#  define QT_NO_PROCESS 1
+#endif
 
 #define QT_FEATURE_sharedmemory 1
+#if !QT_CONFIG(sharedmemory)
+#  define QT_NO_SHAREDMEMORY 1
+#endif
+
 #define QT_FEATURE_systemsemaphore 1
+#if !QT_CONFIG(systemsemaphore)
+#  define QT_NO_SYSTEMSEMAPHORE 1
+#endif
+
+#define QT_FEATURE_glib -1
+#if !QT_CONFIG(glib)
+#  define QT_NO_GLIB 1
+#endif
+
+// This library provides routines to convert IEEE single and double floats to
+// and from string representations. Qt bundles their own copy under 3rdparty/
+// but we use the build2 package.
+//
+// Note: leave enabled if uncommenting.
+//
+// #define QT_FEATURE_doubleconversion 1
+// #if !QT_CONFIG(doubleconversion)
+// #  define QT_NO_DOUBLECONVERSION 1
+// #endif
+
+// Use POSIX IPC instead of System V IPC (the preferred default) . System V
+// IPC is supported on all non-Windows, non-Apple platforms.
+//
+#if defined(BUILD2_AUTOCONF_MACOS) && QT_CONFIG(appstore_compliant)
+#  define QT_POSIX_IPC
+#endif
+
+// Define QT_NO_NATIVE_POLL if QT_FEATURE_poll_select is enabled (the latter
+// is done in qtcore-config_p.h.in -- look for the HAVE_*POLL* checks).
+//
+// We can't check QT_FEATURE_poll_select directly because private features are
+// not visible in the public module config headers.
+//
+#undef qtcore_config_HAVE_PPOLL
+#ifndef qtcore_config_HAVE_PPOLL
+#  undef qtcore_config_HAVE_POLLTS
+#  ifndef qtcore_config_HAVE_POLLTS
+#    undef qtcore_config_HAVE_POLL
+#    ifndef qtcore_config_HAVE_POLL
+#      ifndef _WIN32
+#        define QT_NO_NATIVE_POLL 1
+#      endif
+#    endif
+#  endif
+#endif
+
+#undef qtcore_config_HAVE_POSIX_MONOTONIC
+#ifdef qtcore_config_HAVE_POSIX_MONOTONIC
+#  define QT_FEATURE_clock_monotonic 1
+#else
+#  define QT_FEATURE_clock_monotonic -1
+#  define QT_NO_CLOCK_MONOTONIC 1
+#endif
+
+#undef qtcore_config_HAVE_INOTIFY
+#ifdef qtcore_config_HAVE_INOTIFY
+#  define QT_FEATURE_inotify 1
+#else
+#  define QT_FEATURE_inotify -1
+#  define QT_NO_INOTIFY 1
+#endif
+
+// (QLibrary) "Provides a wrapper for dynamically loaded libraries."
+//
+#undef qtcore_config_HAVE_DLOPEN
+#if defined(qtcore_config_HAVE_DLOPEN) || defined(_WIN32)
+#  define QT_FEATURE_library 1
+#else
+#  define QT_FEATURE_library -1
+#  define QT_NO_LIBRARY 1
+#endif
 
 #undef qtcore_config_HAVE_EVENTFD
-#ifndef qtcore_config_HAVE_EVENTFD
-#  define QT_NO_EVENTFD
+#ifdef qtcore_config_HAVE_EVENTFD
+#  define QT_FEATURE_eventfd 1
+#else
+#  define QT_FEATURE_eventfd -1
+#  define QT_NO_EVENTFD 1
 #endif
 
 #undef qtcore_config_HAVE_THREADSAFE_CLOEXEC
 #ifdef qtcore_config_HAVE_THREADSAFE_CLOEXEC
-#  define QT_THREADSAFE_CLOEXEC
+#  define QT_THREADSAFE_CLOEXEC 1
 #endif
 
 #define QT_FEATURE_std_atomic64 1
 #define QT_FEATURE_cxx11_future 1
 #define QT_FEATURE_cxx17_filesystem 1
 
-// Needs to be defined if ICU is used (which it is).
+// "basic cpp/winrt language projection support"
 //
-// NOTE: remember QT_FEATURE_iconv in qtcore-config_p.h.in.
-//
-#define QT_NO_ICONV
+#define QT_FEATURE_cpp_winrt -1
