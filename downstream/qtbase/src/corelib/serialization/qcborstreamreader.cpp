@@ -1,41 +1,5 @@
-/****************************************************************************
-**
-** Copyright (C) 2020 Intel Corporation.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the QtCore module of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:LGPL$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPL3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl-3.0.html.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or (at your option) the GNU General
-** Public license version 3 or any later version approved by the KDE Free
-** Qt Foundation. The licenses are as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL2 and LICENSE.GPL3
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-2.0.html and
-** https://www.gnu.org/licenses/gpl-3.0.html.
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
+// Copyright (C) 2020 Intel Corporation.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 
 #include "qcborstreamreader.h"
 
@@ -58,11 +22,11 @@ static void qt_cbor_decoder_advance(void *token, size_t len);
 static void *qt_cbor_decoder_read(void *token, void *userptr, size_t offset, size_t len);
 static CborError qt_cbor_decoder_transfer_string(void *token, const void **userptr, size_t offset, size_t len);
 
-#define CBOR_PARSER_READER_CONTROL              1
-#define CBOR_PARSER_CAN_READ_BYTES_FUNCTION     qt_cbor_decoder_can_read
-#define CBOR_PARSER_ADVANCE_BYTES_FUNCTION      qt_cbor_decoder_advance
-#define CBOR_PARSER_TRANSFER_STRING_FUNCTION    qt_cbor_decoder_transfer_string
-#define CBOR_PARSER_READ_BYTES_FUNCTION         qt_cbor_decoder_read
+static const CborParserOperations parser_ops {
+    &qt_cbor_decoder_can_read,
+    &qt_cbor_decoder_read,
+    &qt_cbor_decoder_advance,
+    &qt_cbor_decoder_transfer_string};
 
 // confirm our constants match TinyCBOR's
 static_assert(int(QCborStreamReader::UnsignedInteger) == CborIntegerType);
@@ -92,7 +56,7 @@ static_assert(int(QCborStreamReader::Invalid) == CborInvalidType);
    Representation, a very compact form of binary data encoding that is
    compatible with JSON. It was created by the IETF Constrained RESTful
    Environments (CoRE) WG, which has used it in many new RFCs. It is meant to
-   be used alongside the \l{https://tools.ietf.org/html/rfc7252}{CoAP
+   be used alongside the \l{RFC 7252}{CoAP
    protocol}.
 
    QCborStreamReader provides a StAX-like API, similar to that of
@@ -170,7 +134,8 @@ static_assert(int(QCborStreamReader::Invalid) == CborInvalidType);
    parsing from a QByteArray, or reparse(), if it is instead reading directly
    a the QIDOevice that now has more data available (see setDevice()).
 
-   \sa QCborStreamWriter, QCborValue, QXmlStreamReader
+   \sa QCborStreamWriter, QCborValue, QXmlStreamReader, {Cbordump Example}
+   \sa {Convert Example}, {JSON Save Game Example}
  */
 
 /*!
@@ -548,7 +513,7 @@ public:
     CborValue currentElement;
     QCborError lastError = {};
 
-    QByteArray::size_type bufferStart;
+    QByteArray::size_type bufferStart = 0;
     bool corrupt = false;
 
     QCborStreamReaderPrivate(const QByteArray &data)
@@ -583,7 +548,7 @@ public:
         }
 
         preread();
-        if (CborError err = cbor_parser_init_reader(nullptr, &parser, &currentElement, this))
+        if (CborError err = cbor_parser_init_reader(&parser_ops, &parser, &currentElement, this))
             handleError(err);
         else
             lastError = { QCborError::NoError };
@@ -770,7 +735,7 @@ inline void QCborStreamReader::preparse()
    \sa addData(), isValid()
  */
 QCborStreamReader::QCborStreamReader()
-    : QCborStreamReader(QByteArray())
+    : d(new QCborStreamReaderPrivate({})), type_(Invalid)
 {
 }
 
@@ -813,7 +778,7 @@ QCborStreamReader::QCborStreamReader(const QByteArray &data)
 
    Creates a QCborStreamReader object that will parse the CBOR stream found by
    reading from \a device. QCborStreamReader does not take ownership of \a
-   device, so it must remain valid until this oject is destroyed.
+   device, so it must remain valid until this object is destroyed.
  */
 QCborStreamReader::QCborStreamReader(QIODevice *device)
     : d(new QCborStreamReaderPrivate(device))
@@ -988,7 +953,7 @@ QCborStreamReader::Type QCborStreamReader::parentContainerType() const
 {
     if (d->containerStack.isEmpty())
         return Invalid;
-    return Type(cbor_value_get_type(&qAsConst(d->containerStack).top()));
+    return Type(cbor_value_get_type(&std::as_const(d->containerStack).top()));
 }
 
 /*!
@@ -1327,7 +1292,7 @@ QCborStreamReader::StringResult<QString> QCborStreamReader::_readString_helper()
     if (r.status == Error) {
         result.data.clear();
     } else {
-        Q_ASSERT(r.data == result.data.length());
+        Q_ASSERT(r.data == result.data.size());
         if (r.status == EndOfString && lastError() == QCborError::NoError)
             preparse();
     }
@@ -1359,7 +1324,7 @@ QCborStreamReader::StringResult<QByteArray> QCborStreamReader::_readByteArray_he
     if (r.status == Error) {
         result.data.clear();
     } else {
-        Q_ASSERT(r.data == result.data.length());
+        Q_ASSERT(r.data == result.data.size());
         if (r.status == EndOfString && lastError() == QCborError::NoError)
             preparse();
     }
