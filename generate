@@ -101,14 +101,13 @@ mkdir -p Qt6Rcc/rcc/QtCore/private/QtCore/private
 mkdir -p Qt6Uic/uic/QtCore/private/QtCore/private
 
 mkdir    libQt6Core/3rdparty
+# Directory for the MIME type database source XML file.
+#
+mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 
 mkdir libQt6Gui/3rdparty
 mkdir libQt6Gui/QtGui/qpa
 mkdir libQt6Gui/QtGui/private/QtGui/qpa
-
-# Directory for the MIME type database source XML file.
-#
-mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 
 # Create a symlink to one or more upstream directories and set the
 # `symlink=dir` attribute on each in the containing directory's
@@ -119,8 +118,6 @@ mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 #
 # Recreates .gitattributes from scratch so invoke this function only once for
 # each containing directory.
-#
-# @@ TODO Do this for Qt5 as well.
 #
 function symlink_dirs ()
   # <target-dir-path> [<target-dir-path>..] <symlink-dir-path>
@@ -285,8 +282,6 @@ function symlink_non_module () # <source-directory> <destination-directory>
   done
 }
 
-# @@ TODO Make Qt5 version look like this.
-#
 # Symlink all of the sources and other files of interest in the upstream Qt
 # module subdirectory <subdir> into <output-path-prefix>/<module-name>/,
 # preserving subdirectories.
@@ -446,12 +441,6 @@ ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Uic/uic/QtCore/qtcoreexports.h.in
 ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
       libQt6Core/QtCore/qtcoreexports.h.in
-
-# Symlink the upstream MIME type database source XML file.
-#
-ln -sf ../../../../../\
-upstream/qtbase/src/corelib/mimetypes/mime/packages/freedesktop.org.xml \
-       libQt6Core/QtCore/mimetypes/mime/packages/
 
 # Symlink the upstream QtGui sources into libQt6Gui/.
 #
