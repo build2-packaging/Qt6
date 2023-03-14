@@ -1,13 +1,5 @@
 #include <QtGui/qtgui-config.h>
 
-// #define QT_FEATURE_imageio_text_loading 1 // Moved to public
-// #define QT_FEATURE_gif 1 // Moved to public
-// #define QT_FEATURE_jpeg 1 // Moved to public
-// #define QT_FEATURE_png 1 // Moved to public
-
-#define QT_FEATURE_system_jpeg 1
-#define QT_FEATURE_system_png 1
-
 // "Provides support for detecting the desktop environment, launching external
 // processes and opening URLs."
 //
@@ -20,6 +12,27 @@
 // "QPainter - floating point raster".
 //
 #define QT_FEATURE_raster_fp 1
+
+// #define QT_FEATURE_imageio_text_loading 1 // Moved to public
+// #define QT_FEATURE_gif 1 // Moved to public
+// #define QT_FEATURE_jpeg 1 // Moved to public
+// #define QT_FEATURE_png 1 // Moved to public
+
+// Use build2 libjpeg package.
+//
+#if QT_CONFIG(jpeg)
+#  define QT_FEATURE_system_jpeg 1
+#else
+#  define QT_FEATURE_system_jpeg -1
+#endif
+
+// Use build2 libpng package.
+//
+#if QT_CONFIG(png)
+#  define QT_FEATURE_system_png 1
+#else
+#  define QT_FEATURE_system_png -1
+#endif
 
 #define QT_FEATURE_vnc -1
 #define QT_FEATURE_directfb -1

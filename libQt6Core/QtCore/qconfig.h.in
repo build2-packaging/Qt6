@@ -115,22 +115,13 @@
 // #  define QT_REDUCE_RELOCATIONS
 // #endif
 
-// "Reduce amount of exported symbols".
-//
-// See below for the effects of enabling this.
-//
-// Note that although this feature is not referenced by upstream code we
-// define and enable it (as opposed to commented out) to cause
-// QT_VISIBILITY_AVAILABLE to be defined below.
+// QT_VISIBILITY_AVAILABLE: If true and on a non-Windows platform, sets the
+// values of the Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to
+// "default", "default", and "hidden", respectively (values of the GCC
+// `visibility` attribute), otherwise they are left undefined. On Windows this
+// macro is ignored.
 //
 #define QT_FEATURE_reduce_exports 1 // Moved from private
-
-// If true and on a non-Windows platform, sets the values of the
-// Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to "default",
-// "default", and "hidden", respectively (values of the GCC `visibility`
-// attribute), otherwise they are left undefined. On Windows this macro is
-// ignored.
-//
 #if QT_CONFIG(reduce_exports)
 #  define QT_VISIBILITY_AVAILABLE true
 #endif

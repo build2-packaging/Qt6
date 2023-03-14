@@ -87,10 +87,10 @@
 
 // "Image Text section loading".
 //
-// #define QT_FEATURE_imageio_text_loading 1 // Moved from private header.
-// #if !QT_CONFIG(imageio_text_loading)
-// #  define QT_NO_IMAGEIO_TEXT_LOADING 1 // QT_FEATURE_imageio_text_loading
-// #endif
+#define QT_FEATURE_imageio_text_loading 1 // Moved from private.
+#if !QT_CONFIG(imageio_text_loading)
+#  define QT_NO_IMAGEIO_TEXT_LOADING 1 // QT_FEATURE_imageio_text_loading
+#endif
 
 // "Supports animated images."
 //
@@ -226,69 +226,111 @@
 #  define QT_NO_FILESYSTEMMODEL 1
 #endif
 
-#define QT_FEATURE_ico 1
-#if !QT_CONFIG(ico)
-#  define QT_NO_ICO 1
-#endif
+// Image formats.
+//
+// Enable all image formats because we have build2 packages for those that do
+// not have built-in implementations (that is, no associated
+// QT_FEATURE_system_foo).
+//
+// Note that there is a lot of inconsistency across these image-related
+// features and their associated macros, as can be seen in the following
+// synopsis (note: all extant features/macros are included):
+//
+//   QT_FEATURE_jpeg             -1 -> define QT_NO_IMAGEFORMAT_JPEG
+//   QT_FEATURE_imageformat_jpeg -1 -> define QT_NO_IMAGEFORMAT_JPEG
+//
+//   QT_FEATURE_png              -1 -> define QT_NO_IMAGEFORMAT_PNG
+//   QT_FEATURE_imageformat_png  -1 -> define QT_NO_IMAGEFORMAT_PNG
+//
+//   QT_FEATURE_ico              -1 -> define QT_NO_ICO
+//
+//   QT_FEATURE_gif              -1 -> define QT_NO_IMAGEFORMAT_GIF
+//
+//   QT_FEATURE_imageformat_bmp  -1 -> define QT_NO_IMAGEFORMAT_BMP
+//   QT_FEATURE_imageformat_ppm  -1 -> define QT_NO_IMAGEFORMAT_PPM
+//   QT_FEATURE_imageformat_xbm  -1 -> define QT_NO_IMAGEFORMAT_XBM
+//   QT_FEATURE_imageformat_xpm  -1 -> define QT_NO_IMAGEFORMAT_XPM
+//
+// QT_FEATURE_imageformat_* are user-visible features used to conditionally
+// include or exclude source code.
+//
+// QT_FEATURE_{gif,ico,jpeg,png} are private features that are only used in
+// the upstream build files (for example, controlling whether or not the
+// corresponding plugins are built).
+//
+// QT_FEATURE_foo and QT_FEATURE_imageformat_foo are mostly unrelated in that
+// one can be enabled and the other disabled, and they affect different parts
+// of the build. QT_FEATURE_imageformat_foo does not disable QT_FEATURE_foo as
+// one might expect.
+//
+// QT_NO_IMAGEFORMAT_{PNG,BMP,PPM,XBM,XPM} are also used to conditionally
+// include or exclude source code.
+//
+// QT_NO_IMAGEFORMAT_{JPEG,GIF} are ignored everywhere upstream (they are
+// actually #undef'd if defined).
+//
 
 // "Provides a base for writing a image format plugins."
 //
 #define QT_FEATURE_imageformatplugin 1
-#if !QT_CONFIG(imageformatplugin)
-#  define QT_NO_IMAGEFORMATPLUGIN 1
+
+#if QT_CONFIG(imageformatplugin)
+#  define QT_FEATURE_gif         1 // Moved from private.
+#  define QT_FEATURE_ico         1
+#  define QT_FEATURE_jpeg        1 // Moved from private.
+#else
+#  define QT_NO_IMAGEFORMATPLUGIN
+#  define QT_FEATURE_gif         -1 // Moved from private.
+#  define QT_FEATURE_ico         -1
+#  define QT_FEATURE_jpeg        -1 // Moved from private.
 #endif
 
-// Note: QT_FEATURE_imageformat_foo does not affect the private
-//       QT_FEATURE_foo. The former is a user-level option while the latter is
-//       used internally in qmake build files.
+// GIF
+//
+#if !QT_CONFIG(gif)
+#  define QT_NO_IMAGEFORMAT_GIF
+#endif
 
-// Image formats with built-in support (so always enable).
+// ICO
+//
+#if !QT_CONFIG(ico)
+#  define QT_NO_ICO
+#endif
+
+// JPEG
+//
+#define QT_FEATURE_imageformat_jpeg 1
+
+#if !QT_CONFIG(jpeg) || !QT_CONFIG(imageformat_jpeg)
+#  define QT_NO_IMAGEFORMAT_JPEG
+#endif
+
+// PNG
+//
+#define QT_FEATURE_imageformat_png  1
+#define QT_FEATURE_png              1 // Moved from private.
+
+#if !QT_CONFIG(png) || !QT_CONFIG(imageformat_png)
+#  define QT_NO_IMAGEFORMAT_PNG
+#endif
+
+// BMP, PPM, XBM, XPM
 //
 #define QT_FEATURE_imageformat_bmp 1
 #if !QT_CONFIG(imageformat_bmp)
-#  define QT_NO_IMAGEFORMAT_BMP 1
+#  define QT_NO_IMAGEFORMAT_BMP
 #endif
 #define QT_FEATURE_imageformat_ppm 1
 #if !QT_CONFIG(imageformat_ppm)
-#  define QT_NO_IMAGEFORMAT_PPM 1
+#  define QT_NO_IMAGEFORMAT_PPM
 #endif
 #define QT_FEATURE_imageformat_xbm 1
 #if !QT_CONFIG(imageformat_xbm)
-#  define QT_NO_IMAGEFORMAT_XBM 1
+#  define QT_NO_IMAGEFORMAT_XBM
 #endif
 #define QT_FEATURE_imageformat_xpm 1
 #if !QT_CONFIG(imageformat_xpm)
-#  define QT_NO_IMAGEFORMAT_XPM 1
-#endif
-
-// Image formats supported by build2-packaged libraries.
-//
-#define QT_FEATURE_imageformat_jpeg 1
-#define QT_FEATURE_imageformat_png 1
-// Note: there is no QT_FEATURE_imageformat_gif.
-
-// Image formats.
-//
-// Note that none of these are affected by the public QT_FEATURE_imageformat_
-// macros. While the public QT_FEATURE_imageformat_ macros are referenced in
-// Qt code, these below are only used internally in qmake buildfiles, for
-// example to decide whether the corresponding plugin should be built or
-// whether to use the bundled 3rdparty implementations or the system-installed
-// ones.
-//
-#define QT_FEATURE_jpeg 1 // Moved from private
-#if !QT_CONFIG(jpeg) || !QT_CONFIG(imageformat_jpeg)
-#  define QT_NO_IMAGEFORMAT_JPEG 1
-#endif
-
-#define QT_FEATURE_png 1 // Moved from private
-#if !QT_CONFIG(png) || !QT_CONFIG(imageformat_png)
-#  define QT_NO_IMAGEFORMAT_PNG 1
-#endif
-
-#define QT_FEATURE_gif 1 // Moved from private
-#if !QT_CONFIG(gif) // Note: there is no QT_FEATURE_imageformat_gif.
-#  define QT_NO_IMAGEFORMAT_GIF 1
+#  define QT_NO_IMAGEFORMAT_XPM
 #endif
 
 #if defined(__GLIBC__)   || \
