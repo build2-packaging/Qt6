@@ -1087,7 +1087,8 @@ else
 # /usr/include/. Note that headers are included as <QtCore/*>.
 #
 {h hxx}{../3rdparty/* private/* testlib/*}: install = false
-{hxx h}{*}: install = include/qt6/QtCore/
+{hxx h}{*}:               install = include/qt6/QtCore/
+h{qconfig qtcore-config}: install = include_arch/qt6/QtCore/
 
 lib{Qt6Core}: cxx.pkgconfig.include = include/qt6 include/qt6/QtCore
 
@@ -1100,6 +1101,9 @@ lib{Qt6Core}: cxx.pkgconfig.include = include/qt6 include/qt6/QtCore
   install = include/qt6/QtCore/private/
   install.subdirs = true
 }
+
+private/QtCore/private/h{qconfig_p qtcore-config_p}: \
+  install = include_arch/qt6/QtCore/private/
 
 lib{Qt6CorePrivate}:                                            \
  cxx.pkgconfig.include = include/qt6/QtCore/private             \

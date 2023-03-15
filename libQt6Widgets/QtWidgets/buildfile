@@ -431,21 +431,29 @@ else
 # /usr/include/. Note that headers may be included with or without the
 # `QtWidgets/` prefix.
 #
-{hxx}{* Q*.}: install = include/qt6/QtWidgets/
+hxx{*}:                   install = include/qt6/QtWidgets/
+hxx{qtwidgets-config}@./: install = include_arch/qt6/QtWidgets/
 
-lib{Qt6Widgets}: cxx.pkgconfig.include = include/qt6/ include/qt6/QtWidgets
+lib{Qt6Widgets}:                                                        \
+  cxx.pkgconfig.include = include_arch/qt6/ include_arch/qt6/QtWidgets  \
+                          include/qt6/      include/qt6/QtWidgets
 
 # Install private headers into the qt6/QtWidgets/private/ subdirectory of,
 # say, /usr/include/, recreating subdirectories. Note that private headers may
 # be included prefixed with `QtWidgets/private/`, `private/`, or without a
 # prefix.
 #
-{hxx}{private/*}:
+hxx{private/*}:
 {
   install = include/qt6/QtWidgets/private/
   install.subdirs = true
 }
 
-lib{Qt6WidgetsPrivate}:                                 \
-  cxx.pkgconfig.include = include/qt6/QtWidgets/private \
+private/QtWidgets/private/hxx{qtwidgets-config_p}: \
+  install = include_arch/qt6/QtWidgets/private/
+
+lib{Qt6WidgetsPrivate}:                                                 \
+  cxx.pkgconfig.include = include_arch/qt6/QtWidgets/private            \
+                          include_arch/qt6/QtWidgets/private/QtWidgets  \
+                          include/qt6/QtWidgets/private                 \
                           include/qt6/QtWidgets/private/QtWidgets
