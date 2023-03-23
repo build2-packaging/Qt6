@@ -1,9 +1,9 @@
-./: */ alias{Qt6WidgetsPlugins}
-
 include styles/
 
-alias{Qt6WidgetsPlugins}: styles/libs{qmacstyle}: \
-  include = ($macos ? adhoc : false)
+./: styles/
 
-alias{Qt6WidgetsPlugins}: styles/libs{qwindowsvistastyle}: \
-  include = ($windows ? adhoc : false)
+# This alias presents a single target that depends on all of the plugins
+# loaded by libs{Qt6Widgets} for a specific platform.
+#
+alias{Qt6WidgetsPlugins}: styles/libs{qmacstyle}: include = $macos
+alias{Qt6WidgetsPlugins}: styles/libs{qwindowsvistastyle}: include = $windows

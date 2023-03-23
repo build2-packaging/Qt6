@@ -2,13 +2,10 @@ include imageformats/
 include platforminputcontexts/
 include platforms/
 
-# Pull plugin subdirectories in case we have optional plugins that are
-# not loaded by default.
-#
-./: platforms/ platforminputcontexts/ imageformats/ alias{Qt6GuiPlugins}
+./: platforms/ platforminputcontexts/ imageformats/
 
 # This alias presents a single target that depends on all of the plugins
-# loaded by libQt6Gui for a specific platform.
+# loaded by libs{Qt6Gui} for a specific platform.
 #
 alias{Qt6GuiPlugins}: imageformats/libs{qgif qico qjpeg}
 

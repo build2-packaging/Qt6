@@ -1,3 +1,7 @@
 import libs = libQt6Gui%lib{Qt6Gui}
 
+# Static linking of plugins requires extra steps, which are still TODO.
+#
+./: exe{driver}: include = ($bin.lib != 'static')
+
 exe{driver}: cxx{driver} $libs

@@ -2,6 +2,10 @@ import libs = libQt6Widgets%lib{Qt6Widgets}
 
 import! [metadata] moc = Qt6Moc%exe{qt6moc}
 
+# Static linking of plugins requires extra steps, which are still TODO.
+#
+./: exe{widgets-app}: include = ($bin.lib != 'static')
+
 exe{widgets-app}: hxx{window} cxx{widgets-app window} $libs
 {
   # Close the window automatically after a few seconds.
