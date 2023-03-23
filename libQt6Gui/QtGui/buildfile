@@ -37,7 +37,6 @@ src = accessible/qaccessible                    \
       image/qiconloader                         \
       image/qimage                              \
       image/qimage_conversions                  \
-      image/qimage_ssse3                        \
       image/qimageiohandler                     \
       image/qimagepixmapcleanuphooks            \
       image/qimagereader                        \
@@ -138,14 +137,9 @@ src = accessible/qaccessible                    \
       painting/qcosmeticstroker                 \
       painting/qcssutil                         \
       painting/qdrawhelper                      \
-      painting/qdrawhelper_avx2                 \
-      painting/qdrawhelper_sse2                 \
-      painting/qdrawhelper_sse4                 \
-      painting/qdrawhelper_ssse3                \
       painting/qemulationpaintengine            \
       painting/qicc                             \
       painting/qimagescale                      \
-      painting/qimagescale_sse4                 \
       painting/qmemrotate                       \
       painting/qoutlinemapper                   \
       painting/qpagedpaintdevice                \
@@ -379,7 +373,23 @@ gen_hdr = qtgui-config private/QtGui/private/qtgui-config_p     \
 lib{Qt6Gui}: ../mkspecs/hxx{**} hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr}  \
              cxx{$src} c{**}
 
-# Make sure plugins are built if the shared Qt6Gui library is built.
+# Platform-specific source files.
+#
+lib{Qt6Gui}: painting/cxx{qdrawhelper_avx2      \
+                          qdrawhelper_sse2      \
+                          qdrawhelper_sse4      \
+                          qdrawhelper_ssse3     \
+                          qimagescale_sse4}     \
+             image/cxx{qimage_ssse3}:           \
+  include = ($cxx.target.cpu == 'x86_64' ||     \
+             $regex.match($cxx.target.cpu, 'i[3-6]86'))
+
+lib{Qt6Gui}: painting/cxx{qdrawhelper_neon      \
+                          qimagescale_neon}     \
+             image/cxx{qimage_neon}:            \
+  include = ($cxx.target.cpu == 'aarch64')
+
+# Make sure plugins are built if the Qt6Gui library is built.
 #
 libs{Qt6Gui}: ../QtGuiPlugins/alias{Qt6GuiPlugins}: include = posthoc
 
@@ -545,14 +555,13 @@ cc.poptions =+                                                                  
 # Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
 #       so need neither be defined again nor exported.
 #
-cc.poptions += -DENABLE_PIXMAN_DRAWHELPERS              \
-               -DQT_ASCII_CAST_WARNINGS                 \
-               -DQT_BUILDING_QT                         \
-               -DQT_BUILD_GUI_LIB                       \
-               -DQT_MOC_COMPAT                          \
-               -DQT_NO_CAST_TO_ASCII                    \
-               -DQT_NO_FOREACH                          \
-               -DQT_NO_USING_NAMESPACE                  \
+cc.poptions += -DQT_ASCII_CAST_WARNINGS \
+               -DQT_BUILDING_QT         \
+               -DQT_BUILD_GUI_LIB       \
+               -DQT_MOC_COMPAT          \
+               -DQT_NO_CAST_TO_ASCII    \
+               -DQT_NO_FOREACH          \
+               -DQT_NO_USING_NAMESPACE  \
                -DQT_USE_QSTRINGBUILDER
 
 # Add platform-specific header directories, libraries, compilation options,

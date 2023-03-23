@@ -272,6 +272,14 @@
 // #  define QT_FEATURE_avx2 -1 // Moved from private
 #endif
 
+#undef qconfig_HAVE_NEON
+#ifdef qconfig_HAVE_NEON
+// #define QT_FEATURE_neon 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_NEON 1
+#else
+// #define QT_FEATURE_neon -1 // Moved from private
+#endif
+
 // #define QT_FEATURE_avx512f -1 // Moved from private
 // #if QT_CONFIG(avx512f)
 // #  define QT_COMPILER_SUPPORTS_AVX512F 1
@@ -339,10 +347,6 @@
 
 // @@ TODO Handle like the various SSE, AVX features.
 //
-// #define QT_FEATURE_neon -1 // Moved from private
-// #if QT_CONFIG(neon)
-// #  define QT_COMPILER_SUPPORTS_NEON 1
-// #endif
 
 // #define QT_FEATURE_vaes 1 // Moved from private
 // #if QT_CONFIG(vaes)
