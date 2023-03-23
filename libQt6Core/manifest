@@ -15,7 +15,8 @@ email: interest@qt-project.org      ; Mailing list for developers using Qt.
 package-email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: default
-builds: -( +macos &gcc ) ; See README-DEV.
+builds: -( +macos &gcc )  ; Not supported by upstream.
+builds: -wasm             ; Not supported.
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 depends: * Qt6Moc == $

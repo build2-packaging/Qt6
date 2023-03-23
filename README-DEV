@@ -278,3 +278,15 @@ upstream and downstream, so this list will include features and macros added
 or removed by the upstream upgrade. Update the downstream module config
 headers indicated by the module and visibility options passed as required (see
 the script itself for the list of headers).
+
+3. Platform/compiler support issues
+
+Mac OS with GCC is not supported because certain system headers make use of
+Objective-C blocks
+(https://en.wikipedia.org/wiki/Blocks_(C_language_extension)) which are not
+supported by GNU gcc/g++. There is an open issue to add support
+(https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78352) but it's stalled for what
+looks like licensing reasons (see comment 16).
+
+libQt6Gui and libQt6Widgets are not supported on FreeBSD because those CI VMs
+do not have the X Window System installed.
