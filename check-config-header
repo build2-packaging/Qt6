@@ -27,7 +27,7 @@
 #
 # Options:
 #
-# --module|-m The Qt module name: global|core|gui|widgets
+# --mod|-m The Qt module name: global|core|gui|widgets
 #
 # --visibility|-v The feature/macro visibility level: pub|priv
 #

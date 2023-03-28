@@ -1,6 +1,6 @@
 : 1
 name: Qt6Uic
-version: 6.4.2-a.0.z
+version: 6.4.3-a.0.z
 project: Qt6
 summary: Qt user interface compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
