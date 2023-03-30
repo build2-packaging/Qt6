@@ -46,6 +46,9 @@ if ($build.mode != 'skeleton')
   # libul{*Meta}, declared as appropriate in the various buildfiles) because
   # some code will be skipped by MOC unless certain Qt features are enabled.
   #
+  # Pass --no-notes to suppress "No relevant classes found. No output
+  # generated" messages.
+  #
   cxx{~'/moc_(.+)/'}: hxx{~'/\1/'} libul{~'/.+Meta/'} $moc
   {{
     o = $path($>[0])
@@ -67,9 +70,10 @@ if ($build.mode != 'skeleton')
 
     sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-    $moc --include $moc_predefs_path                    \
-      $cc.poptions $cxx.poptions $dep_incl $sys_incl    \
-      -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
+    $moc --no-notes                                     \
+         --include $moc_predefs_path                    \
+         $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+         -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
   }}
 
   # Rule to run moc on a source file (foo.cpp -> foo.moc).
@@ -92,9 +96,10 @@ if ($build.mode != 'skeleton')
 
     sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-    $moc --include $moc_predefs_path                    \
-      $cc.poptions $cxx.poptions $dep_incl $sys_incl    \
-      --output-dep-file --dep-file-path $t -o $o $s
+    $moc --no-notes                                     \
+         --include $moc_predefs_path                    \
+         $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+         --output-dep-file --dep-file-path $t -o $o $s
   }}
 
   # Rule to run moc on an Objective-C++ source file (foo.mm -> foo.moc).
@@ -117,9 +122,10 @@ if ($build.mode != 'skeleton')
 
     sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-    $moc --include $moc_predefs_path                    \
-      $cc.poptions $cxx.poptions $dep_incl $sys_incl    \
-      --output-dep-file --dep-file-path $t -o $o $s
+    $moc --no-notes                                     \
+         --include $moc_predefs_path                    \
+         $cc.poptions $cxx.poptions $dep_incl $sys_incl \
+         --output-dep-file --dep-file-path $t -o $o $s
   }}
 
   # Define the Qt resource collection file type.

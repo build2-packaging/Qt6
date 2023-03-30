@@ -617,6 +617,9 @@ for s: cxx{$win_moc_src_adhoc}
 #
 # Note that hxx{moc_predefs} must always be in position 1.
 #
+# Pass --no-notes to suppress "No relevant classes found. No output generated"
+# messages.
+#
 cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 {{
   o = $path($>[0])
@@ -629,8 +632,9 @@ cxx{~'/moc_(.*)/'}: hxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 
   sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
-    -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
+  $moc --no-notes                                                       \
+       --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl      \
+       -f $leaf($s) --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Rule to run moc on a source file (foo.cpp -> foo.moc).
@@ -649,8 +653,9 @@ moc{~'/(.*)/'}: cxx{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 
   sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
-    --output-dep-file --dep-file-path $t -o $o $s
+  $moc --no-notes                                                       \
+       --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl      \
+       --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 # Rule to run moc on an Objective-C++ source file (foo.mm -> foo.moc).
@@ -669,8 +674,9 @@ moc{~'/(.*)/'}: mm{~'/\1/'} hxx{$moc_predefs} h{$gen_hdr} $moc
 
   sys_incl = $regex.apply($cxx.sys_hdr_dirs, '(.+)', '-I\1')
 
-  $moc --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl \
-    --output-dep-file --dep-file-path $t -o $o $s
+  $moc --no-notes                                                       \
+       --include $path($<[1]) $cc.poptions $cxx.poptions $sys_incl      \
+       --output-dep-file --dep-file-path $t -o $o $s
 }}
 
 lib{Qt6Core}: $impl_libs $intf_libs
