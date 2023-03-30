@@ -474,8 +474,6 @@ lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
                   time/qtimezoneprivate_icu     \
                   time/qtimezoneprivate_tz}: include = ($unix && !$macos)
 
-lib{Qt6Core}: cxx{thread/qmutex_unix}: include = ($unix && !$linux && !$macos)
-
 # Rule to generate a header with C++ compiler's predefined macros. It is used
 # to make them available to moc.
 #
