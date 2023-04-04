@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/corelib/global/qlibraryinfo.cpp
+../../../../downstream/qtbase/src/corelib/global/qlibraryinfo.cpp
