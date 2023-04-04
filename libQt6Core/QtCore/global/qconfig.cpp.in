@@ -3,10 +3,10 @@
 
 #include "global/qconfig.cpp"
 
-// Used 1) by QLibraryInfo::location() to make absolute the paths in
-// qt_configure_strs, but only in the shared build if no equivalent of
-// dladdr(3) is available, so rarely; and 2) on Linux and GNU Hurd, printed as
-// part of the "version/copyright/contact" preamble at program startup.
+// Used only if QT_FEATURE_relocatable is disabled and any of the paths
+// requested from qt_configure_strs (via QLibraryInfo::location()) are
+// relative, and -- on Linux and GNU Hurd -- printed as part of the
+// "version/copyright/contact" preamble at program startup.
 //
 extern const char qt_configure_prefix_path_str[12 + 256] =
     "qt_prfxpath=$prefix$";

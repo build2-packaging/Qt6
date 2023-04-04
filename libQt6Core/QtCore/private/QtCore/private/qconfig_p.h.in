@@ -35,13 +35,9 @@
 
 // "Enable the Qt installation to be relocated."
 //
-// Only used in qlibraryinfo.cpp. If enabled, used to find the directory
-// containing the library (using dladdr(), for example) in order to handle
-// calls to QLibraryInfo::location(QLibraryInfo::PrefixPath). If disabled the
-// hardcoded path in qt_configure_prefix_path_str in qconfig.cpp.in is used
-// (which we currently set to build2's install_prefix).
+// See cxx{qconfig-install} in the main buildfile for details.
 //
-#define QT_FEATURE_relocatable -1
+#define QT_FEATURE_relocatable $QT_FEATURE_relocatable$
 
 // #define QT_FEATURE_reduce_exports 1 // Moved to public
 // #define QT_FEATURE_debug -1

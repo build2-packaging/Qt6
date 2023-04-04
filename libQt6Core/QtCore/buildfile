@@ -691,7 +691,9 @@ h{qtcoreexports}: in{qtcoreexports}
   module_define_infix    = CORE
 }
 
-h{qconfig} global/cxx{qconfig-install qconfig-develop}: in.symbol = '$'
+h{qconfig} private/QtCore/private/h{qconfig_p}  \
+global/cxx{qconfig-install qconfig-develop}:    \
+  in.symbol = '$'
 
 # All-Qt public configuration header. Included by other Qt libraries via
 # QtCore/qglobal.h.
@@ -716,6 +718,11 @@ h{qconfig}: in{qconfig}
 private/QtCore/private/h{qconfig_p}: private/QtCore/private/in{qconfig_p}
 {
   autoconf.prefix = qconfig_p_
+
+  # Enable to make Qt relocatable. See the comments on the
+  # cxx{qconfig-install} target for more information.
+  #
+  QT_FEATURE_relocatable = ($install.relocatable ? 1 : -1)
 }
 
 # Public QtCore library configuration (mostly high-level features). Included
@@ -759,6 +766,11 @@ private/QtCore/private/h{qtcore-config_p}: private/QtCore/private/in{qtcore-conf
 # Installed case: Here the installation prefix is an absolute path and the
 # other paths are all relative (to the prefix).
 #
+# In a relocatable installation the prefix below is not used. Instead Qt
+# derives the prefix from the location of the libQt6Core shared library using
+# the platform equivalent of dlopen, or the location of the executable in the
+# case of static builds.
+#
 # Note that while this object file should only be linked when we are
 # installing, it will be compiled even in the uninstalled case where we may
 # have no install.root.
@@ -770,29 +782,32 @@ global/cxx{qconfig-install}:
   # Values of the installation paths. Make the $install.* paths relative to
   # $install.root.
   #
-  prefix       = [dir_path] ($i ? $install.root : .)
-  doc          = [dir_path] ($i ? $leaf($install.resolve($install.doc), $prefix) : .)
-  incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $prefix) : .)
-  lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $prefix) : .)
-  bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $prefix) : .)
-  libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $prefix) : .)
+  # Set an empty prefix in case of a relocatable installation to ensure no
+  # hardcoded paths are used inadvertently.
+  #
+  prefix       = [dir_path] ($i ? ($install.relocatable ? '' : $install.root) : .)
+  doc          = [dir_path] ($i ? $leaf($install.resolve($install.doc), $install.root) : .)
+  incl         = [dir_path] ($i ? $leaf($install.resolve($install.include), $install.root) : .)
+  lib          = [dir_path] ($i ? $leaf($install.resolve($install.lib), $install.root) : .)
+  bin          = [dir_path] ($i ? $leaf($install.resolve($install.bin), $install.root) : .)
+  libexec      = [dir_path] ($i ? $leaf($install.resolve($windows ? $install.bin : $install.libexec), $install.root) : .)
   plugins      = [dir_path] $lib/qt6/plugins
   qml_imports  = [dir_path] $lib
   qml          = [dir_path] $lib
-  data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $prefix) : .)
+  data         = [dir_path] ($i ? $leaf($install.resolve($install.data), $install.root) : .)
   arch_data    = [dir_path] $data
   translations = [dir_path] translations
   examples     = [dir_path] examples
   tests        = [dir_path] tests
 
   # A path appended to the path of the directory containing the installed
-  # QtCore library to get to the prefix path.
+  # QtCore library to get to the prefix path. (Not used in static builds.)
   #
   # For example, if the prefix is /usr/local and the library is installed in
   # /usr/local/lib, upstream would do "/usr/local/lib" + "/" + "../" to get
   # "/usr/local".
   #
-  lib_to_prefix = [dir_path] ($i ? $relative($prefix, $install.resolve($install.lib)) : .)
+  lib_to_prefix = [dir_path] ($i ? $relative($install.root, $install.resolve($install.lib)) : .)
 }
 
 # Uninstalled case: Here the installation prefix is the filesystem root and
