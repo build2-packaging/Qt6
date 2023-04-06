@@ -85,14 +85,16 @@
 // #  define QT_FEATURE_static -1
 // #endif
 
-// Mac OS frameworks. Depends on QT_FEATURE_shared upstream but we use
-// QT_SHARED (defined by build2 when building the shared library).
+// "Build Apple Frameworks".
 //
-#if defined(__APPLE__) && defined(QT_SHARED)
-#  define QT_FEATURE_framework 1
+// Always disable because we don't build frameworks.
+//
+// #if defined(__APPLE__) && defined(QT_SHARED)
+//
+#define QT_FEATURE_framework -1
+
+#if QT_CONFIG(framework)
 #  define QT_MAC_FRAMEWORK_BUILD
-#else
-#  define QT_FEATURE_framework -1
 #endif
 
 // #define QT_FEATURE_simulator_and_device -1
