@@ -137,9 +137,17 @@ if ($build.mode != 'skeleton')
 
   # Rule to run rcc on a Qt resource collection file (foo.qrc -> qrc_foo.cpp).
   #
+  # Extract the dependencies of the .qrc file on the resource files it
+  # declares using rcc's --depfile option.
+  #
   cxx{~'/qrc_(.*)/'}: qrc{~'/.*\1/'} $rcc
   {{
-    $rcc -name $name($<[0]) -o $path($>[0]) $path($<[0])
+    o = $path($>[0])
+    t = $(o).t
+
+    depdb dyndep --byproduct --file $t
+
+    $rcc -name $name($<[0]) --depfile $t -o $path($>[0]) $path($<[0])
   }}
 
   # Define the QtWidgets user interface definition file type.
