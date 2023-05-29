@@ -74,7 +74,7 @@ moc_gen_obj = $regex.apply($moc_hdr, '(.+/)?(.+)', '\1moc_\2')
 # The XCB implementation, shared between lib{qxcb}, lib{qxcb-egl-integration},
 # and lib{qxcb-glx-integration} (@@ the latter two not being built yet).
 #
-../lib{Qt6XcbQpa}: ../../../mkspecs/hxx{**} hxx{**} cxx{$src} \
+../lib{Qt6XcbQpa}: ../../../mkspecs/hxx{**} hxx{** -qt_xlib_wrapper} cxx{$src} \
                    {h c}{qt_xlib_wrapper}
 
 # The "metadata library": its purpose is to make sure all the imported
