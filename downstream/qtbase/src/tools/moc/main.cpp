@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <errno.h>
+#include <string.h> // strncmp()
 
 #include <qcoreapplication.h>
 #include <qcommandlineoption.h>

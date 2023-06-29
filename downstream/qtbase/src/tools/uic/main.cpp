@@ -14,6 +14,8 @@
 #include <qcommandlineoption.h>
 #include <qcommandlineparser.h>
 
+#include <string.h> // strncmp()
+
 QT_BEGIN_NAMESPACE
 
 using namespace Qt::StringLiterals;
