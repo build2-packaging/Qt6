@@ -22,11 +22,11 @@ static void qt_cbor_decoder_advance(void *token, size_t len);
 static void *qt_cbor_decoder_read(void *token, void *userptr, size_t offset, size_t len);
 static CborError qt_cbor_decoder_transfer_string(void *token, const void **userptr, size_t offset, size_t len);
 
-#define CBOR_PARSER_READER_CONTROL              1
-#define CBOR_PARSER_CAN_READ_BYTES_FUNCTION     qt_cbor_decoder_can_read
-#define CBOR_PARSER_ADVANCE_BYTES_FUNCTION      qt_cbor_decoder_advance
-#define CBOR_PARSER_TRANSFER_STRING_FUNCTION    qt_cbor_decoder_transfer_string
-#define CBOR_PARSER_READ_BYTES_FUNCTION         qt_cbor_decoder_read
+static const CborParserOperations parser_ops {
+    &qt_cbor_decoder_can_read,
+    &qt_cbor_decoder_read,
+    &qt_cbor_decoder_advance,
+    &qt_cbor_decoder_transfer_string};
 
 // confirm our constants match TinyCBOR's
 static_assert(int(QCborStreamReader::UnsignedInteger) == CborIntegerType);
@@ -549,7 +549,7 @@ public:
         }
 
         preread();
-        if (CborError err = cbor_parser_init_reader(nullptr, &parser, &currentElement, this))
+        if (CborError err = cbor_parser_init_reader(&parser_ops, &parser, &currentElement, this))
             handleError(err);
         else
             lastError = { QCborError::NoError };
