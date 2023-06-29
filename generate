@@ -160,17 +160,17 @@ function symlink_dirs ()
 symlink_dirs upstream/qtbase/mkspecs          \
              upstream/qtbase/src/tools/shared \
              Qt6Moc/moc/
-symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
              Qt6Moc/moc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Rcc/rcc/
-symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
              Qt6Rcc/rcc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Uic/uic/
-symlink_dirs upstream/qtbase/src/3rdparty/sha1 \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
              Qt6Uic/uic/3rdparty/
 
 # The testlib/ symlink is made necessary by the inclusion of
@@ -195,9 +195,9 @@ symlink_dirs upstream/qtbase/mkspecs libQt6Widgets/
 
 # Symlink an upstream source file into our project directory structure.
 #
-# If there is a downstream version of the source file, its symlink gets the
-# upstream filename while the upstream original's symlink gets the upstream
-# filename with a ".orig" extension.
+# If there is a downstream version of the source file (which may have a .in
+# extension), its symlink gets the upstream filename while the upstream
+# original's symlink gets the upstream filename with a ".orig" extension.
 #
 # <symlink-target-path>: path to the symlink's upstream target, relative to
 #                        the destination directory (so will contain some
@@ -225,9 +225,21 @@ function symlink_source_file () # <symlink-target-path> <destination-dir-path>
   #
   local dt="${ut/upstream/downstream}" # Downstream symlink target path.
 
+  # Skip QtGui's QPA headers (they get special treatment later).
+  #
+  if [[ "$ut" == */gui/*/qplatform*.h ]]; then
+    return
+  fi
+
+  # If a downstream version was not found, try again with a .in extension.
+  #
+  if [[ ! -f "$d/$dt" ]]; then
+    dt="$dt.in"
+  fi
+
   if [[ -f "$d/$dt" ]]; then
     ln -sf "$ut" "$d/$fn.orig"
-    ln -sf "$dt" "$d/$fn"
+    ln -sf "$dt" "$d/"
   else
     ln -sf "$ut" "$d/$fn"
   fi
@@ -433,6 +445,8 @@ for d in upstream/qtbase/src/corelib/*/; do
   symlink_module_subdir libQt6Core QtCore "$d"
 done
 
+ln -s ../../upstream/qtbase/.cmake.conf \
+      libQt6Core/QtCore/cmake.conf
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Moc/moc/QtCore/qtcoreexports.h.in
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
@@ -483,14 +497,16 @@ symlink_non_module \
 symlink_dirs upstream/qtbase/src/plugins/imageformats/{gif,ico,jpeg} \
              libQt6Gui/QtGuiPlugins/imageformats/
 
-# Remove the QPA headers because they belong under qpa/ (and will be moved
-# there below, as per the upstream build).
+# qguiapplication-{develop,install}.cpp: see libQt6Gui/QtGui/buildfile for
+# details.
 #
-rm libQt6Gui/QtGui/qplatform*.h
-rm libQt6Gui/QtGui/private/QtGui/private/qplatform*_p.h
+mv libQt6Gui/QtGui/kernel/qguiapplication.cpp.in \
+   libQt6Gui/QtGui/kernel/qguiapplication-develop.cpp.in
+mv libQt6Gui/QtGui/kernel/qguiapplication.cpp.orig \
+   libQt6Gui/QtGui/kernel/qguiapplication-develop.cpp.orig
 
-mv libQt6Gui/QtGui/kernel/qguiapplication.cpp \
-   libQt6Gui/QtGui/kernel/qguiapplication-install.cpp
+ln -s ../../../upstream/qtbase/src/gui/kernel/qguiapplication.cpp \
+      libQt6Gui/QtGui/kernel/qguiapplication-install.cpp
 
 # Symlink the upstream QtWidgets sources into libQt6Widgets/.
 #
@@ -504,8 +520,16 @@ done
 ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
       libQt6Widgets/QtWidgets/qtwidgetsexports.h.in
 
-mv libQt6Widgets/QtWidgets/kernel/qapplication.cpp \
-   libQt6Widgets/QtWidgets/kernel/qapplication-install.cpp
+# qapplication-{develop,install}.cpp: see libQt6Widgets/QtWidgets/buildfile
+# for details.
+#
+mv libQt6Widgets/QtWidgets/kernel/qapplication.cpp.in \
+   libQt6Widgets/QtWidgets/kernel/qapplication-develop.cpp.in
+mv libQt6Widgets/QtWidgets/kernel/qapplication.cpp.orig \
+   libQt6Widgets/QtWidgets/kernel/qapplication-develop.cpp.orig
+
+ln -s ../../../upstream/qtbase/src/widgets/kernel/qapplication.cpp \
+      libQt6Widgets/QtWidgets/kernel/qapplication-install.cpp
 
 # Symlink upstream Qt resources collection files and their associated
 # resources into libQt6Widgets/.
@@ -534,6 +558,7 @@ echo '#include "qfile.h"' > Qt6Moc/moc/QtCore/QFile
 echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
 echo '#include "qbytearrayview.h"' > Qt6Moc/moc/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Moc/moc/QtCore/QVarLengthArray
+echo '#include "qcoreapplication.h"' > Qt6Moc/moc/QtCore/QCoreApplication
 
 echo '#include "qbytearrayview.h"' > Qt6Rcc/rcc/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Rcc/rcc/QtCore/QVarLengthArray
@@ -631,20 +656,42 @@ tmpdir="$(gen_hdrs QtGui)"
 # their own subdirectory (unlike normal headers).
 #
 for p in "$tmpdir/include/QtGui/"*; do
-  f="$(basename "$p")"
+  f="$(basename "$p")" # Filename
 
   if [[ ("$f" == *.h && ! -e "libQt6Gui/QtGui/$f") || "$f" == Q* ]]; then
+    # We have a generated non-QPA header (qfoo_bar.h or QFooBar).
+    #
     cp "$p" libQt6Gui/QtGui/
   elif [[ "$f" == "$qt_version" ]]; then
-    for p2 in "$p/QtGui/qpa/"*; do
-      case "$p2" in
-        *_p.h)
-          cp "$p2" libQt6Gui/QtGui/private/QtGui/qpa/
-          ;;
-        *.h)
-          cp "$p2" libQt6Gui/QtGui/qpa/
-          ;;
+    for up in "$p/QtGui/qpa/"*; do # up: upstream file path
+      # We have a generated QPA header.
+      #
+      f="$(basename "$up")" # Filename
+
+      d=                    # Destination directory path
+      case "$up" in
+        *_p.h) d=libQt6Gui/QtGui/private/QtGui/qpa ;;
+          *.h) d=libQt6Gui/QtGui/qpa               ;;
       esac
+
+      # Downstream file path, if there is a patched version. The upstream
+      # build copies the QPA headers from various subdirectories of
+      # upstream/qtbase/src/gui/ so we have to run find.
+      #
+      dp="$(find downstream/qtbase/src/gui/ -name "$f")"
+
+      # If a downstream copy exists, copy it to the destination directory
+      # along with the original (generated by the upstream build) which gets a
+      # '.orig' suffix. Otherwise just copy the original (without
+      # suffix). NOTE: a similar scheme is implemented in
+      # symlink_source_file() above.
+      #
+      if [[ -n "$dp" ]]; then
+        cp "$dp" "$d/$f"
+        cp "$up" "$d/$f.orig"
+      else
+        cp "$up" "$d/$f"
+      fi
     done
   fi
 done
