@@ -116,6 +116,7 @@
 #if QT_CONFIG(undocommand)
 #include "qundostack.h"
 #endif
+#include "qutimimeconverter.h"
 #include "qvalidator.h"
 #include "qvector2d.h"
 #include "qvector3d.h"
@@ -123,5 +124,6 @@
 #include "qvectornd.h"
 #include "qwindow.h"
 #include "qwindowdefs.h"
+#include "qwindowsmimeconverter.h"
 #include "qtguiversion.h"
 #endif

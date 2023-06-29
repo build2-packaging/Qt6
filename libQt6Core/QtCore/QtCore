@@ -5,6 +5,7 @@
 #include "q20algorithm.h"
 #include "q20functional.h"
 #include "q20iterator.h"
+#include "q20memory.h"
 #include "q23functional.h"
 #if QT_CONFIG(animation)
 #include "qabstractanimation.h"
@@ -26,6 +27,7 @@
 #include "qarraydata.h"
 #include "qarraydataops.h"
 #include "qarraydatapointer.h"
+#include "qassert.h"
 #include "qassociativeiterable.h"
 #include "qatomic.h"
 #include "qbasictimer.h"
@@ -63,12 +65,14 @@
 #if QT_CONFIG(concatenatetablesproxymodel)
 #include "qconcatenatetablesproxymodel.h"
 #endif
+#include "qconstructormacros.h"
 #include "qcontainerfwd.h"
 #include "qcontainerinfo.h"
 #include "qcontiguouscache.h"
 #include "qcoreapplication.h"
 #include "qcoreevent.h"
 #include "qcryptographichash.h"
+#include "qdarwinhelpers.h"
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qdeadlinetimer.h"
@@ -84,6 +88,7 @@
 #if QT_CONFIG(future)
 #include "qexception.h"
 #endif
+#include "qexceptionhandling.h"
 #include "qfactoryinterface.h"
 #include "qfile.h"
 #include "qfiledevice.h"
@@ -94,6 +99,7 @@
 #endif
 #include "qflags.h"
 #include "qforeach.h"
+#include "qfunctionpointer.h"
 #if QT_CONFIG(future)
 #include "qfuture.h"
 #endif
@@ -127,6 +133,7 @@
 #include "qjsondocument.h"
 #include "qjsonobject.h"
 #include "qjsonvalue.h"
+#include "qlatin1stringmatcher.h"
 #if QT_CONFIG(library)
 #include "qlibrary.h"
 #endif
@@ -136,6 +143,7 @@
 #include "qlocale.h"
 #include "qlockfile.h"
 #include "qloggingcategory.h"
+#include "qmalloc.h"
 #include "qmap.h"
 #include "qmargins.h"
 #include "qmath.h"
@@ -150,6 +158,7 @@
 #if QT_CONFIG(mimetype)
 #include "qmimetype.h"
 #endif
+#include "qminmax.h"
 #include "qmutex.h"
 #include "qnamespace.h"
 #include "qnativeinterface.h"
@@ -158,12 +167,16 @@
 #include "qobjectcleanuphandler.h"
 #include "qobjectdefs.h"
 #include "qoperatingsystemversion.h"
+#include "qoverload.h"
 #include "qpair.h"
 #if QT_CONFIG(animation)
 #include "qparallelanimationgroup.h"
 #endif
 #if QT_CONFIG(animation)
 #include "qpauseanimation.h"
+#endif
+#if QT_CONFIG(permissions)
+#include "qpermissions.h"
 #endif
 #include "qplugin.h"
 #include "qpluginloader.h"
@@ -235,13 +248,17 @@
 #include "qstringmatcher.h"
 #include "qstringtokenizer.h"
 #include "qstringview.h"
+#include "qswap.h"
 #include "qsysinfo.h"
 #include "qsystemdetection.h"
 #include "qsystemsemaphore.h"
 #include "qtaggedpointer.h"
+#include "qtclasshelpermacros.h"
 #include "qtconfigmacros.h"
+#include "qtdeprecationmarkers.h"
 #include "qtemporarydir.h"
 #include "qtemporaryfile.h"
+#include "qtenvironmentvariables.h"
 #include "qtextboundaryfinder.h"
 #include "qtextstream.h"
 #include "qthread.h"
@@ -253,15 +270,21 @@
 #include "qtimeline.h"
 #endif
 #include "qtimer.h"
-#if QT_CONFIG(timezone)
 #include "qtimezone.h"
-#endif
 #include "qtmetamacros.h"
+#include "qtnoop.h"
+#include "qtpreprocessorsupport.h"
 #include "qtranslator.h"
 #if QT_CONFIG(transposeproxymodel)
 #include "qtransposeproxymodel.h"
 #endif
+#include "qtresource.h"
+#include "qttranslation.h"
+#include "qttypetraits.h"
+#include "qtversion.h"
+#include "qtversionchecks.h"
 #include "qtypeinfo.h"
+#include "qtypes.h"
 #include "qurl.h"
 #include "qurlquery.h"
 #include "qutf8stringview.h"
