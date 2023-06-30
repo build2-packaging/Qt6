@@ -21,6 +21,7 @@
 //
 #define QT_FEATURE_sha3_fast 1
 
+#define QT_FEATURE_ctf -1   // Event tracing (Platform-independent).
 #define QT_FEATURE_etw -1   // Event tracing (Windows).
 #define QT_FEATURE_lttng -1 // Event tracing (Linux).
 
@@ -72,20 +73,11 @@
 #  define QT_FEATURE_clock_gettime -1
 #endif
 
-// futimens() supercedes futimes() upstream.
- //
 #undef qtcore_config_p_HAVE_FUTIMENS
 #ifdef qtcore_config_p_HAVE_FUTIMENS
 #  define QT_FEATURE_futimens 1
-#  define QT_FEATURE_futimes -1
 #else
 #  define QT_FEATURE_futimens -1
-#  undef qtcore_config_p_HAVE_FUTIMES
-#  ifdef qtcore_config_p_HAVE_FUTIMES
-#    define QT_FEATURE_futimes 1
-#  else
-#    define QT_FEATURE_futimes -1
-#  endif
 #endif
 
 #undef qtcore_config_p_HAVE_GETAUXVAL
@@ -157,6 +149,12 @@
 #    endif
 #  endif
 #endif
+
+// "Exit on error instead of just printing the error code and continue."
+//
+// Disabled by default upstream.
+//
+#define QT_FEATURE_poll_exit_on_error -1
 
 // "CLONE_PIDFD support in forkfd"
 //

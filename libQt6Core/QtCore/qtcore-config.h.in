@@ -133,6 +133,15 @@
 #  define QT_NO_REGULAREXPRESSION 1
 #endif
 
+// "Provides support for requesting user permission to access restricted data
+// or APIs"
+//
+#if defined(__APPLE__)
+#  define QT_FEATURE_permissions 1
+#else
+#  define QT_FEATURE_permissions -1
+#endif
+
 // "Provides persistent application settings."
 //
 #define QT_FEATURE_settings 1
