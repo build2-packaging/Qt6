@@ -38,84 +38,96 @@ moc_src = collectjson  \
 # The QtCore source files required to build the moc executable. (These all go
 # into the bootstrap library in the upstream build.)
 #
-core_src = QtCore/global/qendian                  \
-           QtCore/global/qglobal                  \
-           QtCore/global/qlogging                 \
-           QtCore/global/qnumeric                 \
-           QtCore/global/qoperatingsystemversion  \
-           QtCore/global/qrandom                  \
-           QtCore/io/qabstractfileengine          \
-           QtCore/io/qbuffer                      \
-           QtCore/io/qdebug                       \
-           QtCore/io/qdir                         \
-           QtCore/io/qdiriterator                 \
-           QtCore/io/qfile                        \
-           QtCore/io/qfileinfo                    \
-           QtCore/io/qfilesystementry             \
-           QtCore/io/qfilesystemengine            \
-           QtCore/io/qfsfileengine                \
-           QtCore/io/qfsfileengine_iterator       \
-           QtCore/io/qloggingcategory             \
-           QtCore/io/qloggingregistry             \
-           QtCore/io/qiodevice                    \
-           QtCore/io/qipaddress                   \
-           QtCore/io/qfiledevice                  \
-           QtCore/io/qtemporaryfile               \
-           QtCore/io/qsavefile                    \
-           QtCore/io/qstandardpaths               \
-           QtCore/io/qurl                         \
-           QtCore/io/qurlidna                     \
-           QtCore/io/qurlquery                    \
-           QtCore/io/qurlrecode                   \
-           QtCore/kernel/qcoreapplication         \
-           QtCore/kernel/qcoreglobaldata          \
-           QtCore/kernel/qmetatype                \
-           QtCore/kernel/qvariant                 \
-           QtCore/kernel/qsystemerror             \
-           QtCore/plugin/quuid                    \
-           QtCore/serialization/qcborcommon       \
-           QtCore/serialization/qcborstreamwriter \
-           QtCore/serialization/qcborvalue        \
-           QtCore/serialization/qdatastream       \
-           QtCore/serialization/qjsoncbor         \
-           QtCore/serialization/qjsondocument     \
-           QtCore/serialization/qjsonobject       \
-           QtCore/serialization/qjsonarray        \
-           QtCore/serialization/qjsonvalue        \
-           QtCore/serialization/qjsonparser       \
-           QtCore/serialization/qjsonwriter       \
-           QtCore/serialization/qtextstream       \
-           QtCore/text/qbytearray                 \
-           QtCore/text/qbytearraylist             \
-           QtCore/text/qbytearraymatcher          \
-           QtCore/text/qlocale                    \
-           QtCore/text/qlocale_tools              \
-           QtCore/text/qregularexpression         \
-           QtCore/text/qstring                    \
-           QtCore/text/qstringconverter           \
-           QtCore/text/qstringlist                \
-           QtCore/text/qvsnprintf                 \
-           QtCore/time/qcalendar                  \
-           QtCore/time/qdatetime                  \
-           QtCore/time/qgregoriancalendar         \
-           QtCore/time/qlocaltime                 \
-           QtCore/time/qromancalendar             \
-           QtCore/tools/qarraydata                \
-           QtCore/tools/qbitarray                 \
-           QtCore/tools/qcommandlineoption        \
-           QtCore/tools/qcommandlineparser        \
-           QtCore/tools/qcryptographichash        \
-           QtCore/tools/qhash                     \
-           QtCore/tools/qringbuffer               \
+core_src = QtCore/global/qassert                        \
+           QtCore/global/qendian                        \
+           QtCore/global/qfloat16                       \
+           QtCore/global/qglobal                        \
+           QtCore/global/qlogging                       \
+           QtCore/global/qmalloc                        \
+           QtCore/global/qnumeric                       \
+           QtCore/global/qoperatingsystemversion        \
+           QtCore/global/qrandom                        \
+           QtCore/global/qtenvironmentvariables         \
+           QtCore/io/qabstractfileengine                \
+           QtCore/io/qbuffer                            \
+           QtCore/io/qdebug                             \
+           QtCore/io/qdir                               \
+           QtCore/io/qdiriterator                       \
+           QtCore/io/qfile                              \
+           QtCore/io/qfiledevice                        \
+           QtCore/io/qfileinfo                          \
+           QtCore/io/qfilesystemengine                  \
+           QtCore/io/qfilesystementry                   \
+           QtCore/io/qfsfileengine                      \
+           QtCore/io/qfsfileengine_iterator             \
+           QtCore/io/qiodevice                          \
+           QtCore/io/qipaddress                         \
+           QtCore/io/qloggingcategory                   \
+           QtCore/io/qloggingregistry                   \
+           QtCore/io/qresource                          \
+           QtCore/io/qsavefile                          \
+           QtCore/io/qstandardpaths                     \
+           QtCore/io/qtemporaryfile                     \
+           QtCore/io/qurl                               \
+           QtCore/io/qurlidna                           \
+           QtCore/io/qurlquery                          \
+           QtCore/io/qurlrecode                         \
+           QtCore/kernel/qcoreapplication               \
+           QtCore/kernel/qiterable                      \
+           QtCore/kernel/qmetacontainer                 \
+           QtCore/kernel/qmetatype                      \
+           QtCore/kernel/qsystemerror                   \
+           QtCore/kernel/qvariant                       \
+           QtCore/plugin/quuid                          \
+           QtCore/serialization/qcborcommon             \
+           QtCore/serialization/qcborstreamwriter       \
+           QtCore/serialization/qcborvalue              \
+           QtCore/serialization/qdatastream             \
+           QtCore/serialization/qjsonarray              \
+           QtCore/serialization/qjsoncbor               \
+           QtCore/serialization/qjsondocument           \
+           QtCore/serialization/qjsonobject             \
+           QtCore/serialization/qjsonparser             \
+           QtCore/serialization/qjsonvalue              \
+           QtCore/serialization/qjsonwriter             \
+           QtCore/serialization/qtextstream             \
+           QtCore/serialization/qxmlstream              \
+           QtCore/serialization/qxmlstreamgrammar       \
+           QtCore/serialization/qxmlutils               \
+           QtCore/text/qbytearray                       \
+           QtCore/text/qbytearraylist                   \
+           QtCore/text/qbytearraymatcher                \
+           QtCore/text/qlatin1stringmatcher             \
+           QtCore/text/qlocale                          \
+           QtCore/text/qlocale_tools                    \
+           QtCore/text/qregularexpression               \
+           QtCore/text/qstring                          \
+           QtCore/text/qstringbuilder                   \
+           QtCore/text/qstringconverter                 \
+           QtCore/text/qstringlist                      \
+           QtCore/text/qvsnprintf                       \
+           QtCore/time/qcalendar                        \
+           QtCore/time/qdatetime                        \
+           QtCore/time/qgregoriancalendar               \
+           QtCore/time/qlocaltime                       \
+           QtCore/time/qromancalendar                   \
+           QtCore/time/qtimezone                        \
+           QtCore/tools/qarraydata                      \
+           QtCore/tools/qbitarray                       \
+           QtCore/tools/qcommandlineoption              \
+           QtCore/tools/qcommandlineparser              \
+           QtCore/tools/qcryptographichash              \
+           QtCore/tools/qhash                           \
+           QtCore/tools/qringbuffer                     \
            QtCore/tools/qversionnumber
 
 # The UNIX-specific QtCore source files required to build moc. Note that
 # this includes Mac OS.
 #
-unix_core_src = QtCore/kernel/qcore_unix           \
-                QtCore/io/qfilesystemengine_unix   \
+unix_core_src = QtCore/io/qfilesystemengine_unix   \
                 QtCore/io/qfilesystemiterator_unix \
-                QtCore/io/qfsfileengine_unix
+                QtCore/io/qfsfileengine_unix       \
+                QtCore/kernel/qcore_unix
 
 # The Windows-specific QtCore source files required to build moc.
 #
@@ -125,6 +137,7 @@ win_core_src = QtCore/global/qoperatingsystemversion_win        \
                QtCore/io/qfsfileengine_win                      \
                QtCore/io/qstandardpaths_win                     \
                QtCore/kernel/qcoreapplication_win               \
+               QtCore/kernel/qfunctions_win                     \
                QtCore/kernel/qwinregistry                       \
                QtCore/plugin/qsystemlibrary
 
@@ -154,15 +167,14 @@ exe{qt6moc}: cxx{$win_core_src}:                 include = $windows
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
 #
-exe{qt6moc}: cxx{keywords                        \
-                 ppkeywords                      \
-                 3rdparty/sha1/sha1              \
-                 QtCore/global/archdetect        \
-                 QtCore/serialization/qcborarray \
-                 QtCore/serialization/qcbormap   \
-                 QtCore/text/qchar               \
-                 QtCore/text/qstringmatcher      \
-                 QtCore/text/qunicodetables}: include = adhoc
+exe{qt6moc}: cxx{keywords               \
+                 ppkeywords             \
+                 3rdparty/sha1/sha1}    \
+             cxx{** -{$moc_src          \
+                      $core_src         \
+                      $unix_core_src    \
+                      $win_core_src     \
+                      $macos_core_src}}: include = adhoc
 
 QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
 {
@@ -196,6 +208,7 @@ cxx.poptions =+                                                                 
 #
 cxx.poptions +=                                 \
   -DQT_BOOTSTRAPPED                             \
+  -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH    \
   -DQT_LEAN_HEADERS=1                           \
   -DQT_NO_CAST_FROM_ASCII                       \
   -DQT_NO_CAST_TO_ASCII                         \
