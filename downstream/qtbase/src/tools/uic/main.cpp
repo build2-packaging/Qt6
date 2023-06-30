@@ -56,7 +56,7 @@ int runUic(int argc, char *argv[])
     QHashSeed::setDeterministicGlobalSeed();
 
     QCoreApplication app(argc, argv);
-    const QString version = QString::fromLatin1(qVersion());
+    const QString version = QString::fromLatin1(QT_VERSION_STR);
     QCoreApplication::setApplicationVersion(version);
 
     Driver driver;
