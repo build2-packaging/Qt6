@@ -18,6 +18,7 @@ builds: -wasm             ; Not supported.
 depends: * build2 >= 0.16.0
 depends: * bpkg >= 0.16.0
 depends: libpcre2 ^10.38.0
+depends: libtinycbor ^0.6.0
 depends: libz ^1.2.1100
 
 # System package mapping.

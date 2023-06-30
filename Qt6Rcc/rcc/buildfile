@@ -1,4 +1,5 @@
 import libs  = libpcre2%lib{pcre2-16}
+import libs += libtinycbor%lib{tinycbor}
 import libs += libz%lib{z}
 
 # Target metadata, see also --build2-metadata in main.cpp.
@@ -27,45 +28,67 @@ macos   = ($cxx.target.class == 'macos')
 #
 rcc_src = rcc main
 
-# The QtCore source files required to build the rcc executable. (These all go
-# into the bootstrap library in the upstream build.)
+# The QtCore source files required to build the rcc executable.
 #
-core_src = QtCore/global/qendian                        \
+# Note that the upstream RCC is linked against the QtCore library proper but
+# we cannot do that because that library is/should not be in the host
+# configuration.
+#
+# The following set of sources is mostly based on the sources in the bootstrap
+# library's CMakeLists.txt.
+#
+core_src = QtCore/global/qassert                        \
+           QtCore/global/qendian                        \
+           QtCore/global/qfloat16                       \
            QtCore/global/qglobal                        \
            QtCore/global/qlogging                       \
+           QtCore/global/qmalloc                        \
            QtCore/global/qnumeric                       \
            QtCore/global/qoperatingsystemversion        \
            QtCore/global/qrandom                        \
+           QtCore/global/qtenvironmentvariables         \
            QtCore/io/qabstractfileengine                \
            QtCore/io/qbuffer                            \
            QtCore/io/qdebug                             \
            QtCore/io/qdir                               \
            QtCore/io/qdiriterator                       \
            QtCore/io/qfile                              \
+           QtCore/io/qfiledevice                        \
            QtCore/io/qfileinfo                          \
-           QtCore/io/qfilesystementry                   \
            QtCore/io/qfilesystemengine                  \
+           QtCore/io/qfilesystementry                   \
            QtCore/io/qfsfileengine                      \
            QtCore/io/qfsfileengine_iterator             \
            QtCore/io/qiodevice                          \
            QtCore/io/qipaddress                         \
-           QtCore/io/qfiledevice                        \
            QtCore/io/qloggingcategory                   \
            QtCore/io/qloggingregistry                   \
-           QtCore/io/qtemporaryfile                     \
+           QtCore/io/qresource                          \
            QtCore/io/qsavefile                          \
            QtCore/io/qstandardpaths                     \
+           QtCore/io/qtemporaryfile                     \
            QtCore/io/qurl                               \
            QtCore/io/qurlidna                           \
            QtCore/io/qurlquery                          \
            QtCore/io/qurlrecode                         \
            QtCore/kernel/qcoreapplication               \
-           QtCore/kernel/qcoreglobaldata                \
+           QtCore/kernel/qiterable                      \
+           QtCore/kernel/qmetacontainer                 \
            QtCore/kernel/qmetatype                      \
-           QtCore/kernel/qvariant                       \
            QtCore/kernel/qsystemerror                   \
+           QtCore/kernel/qvariant                       \
            QtCore/plugin/quuid                          \
+           QtCore/serialization/qcborcommon             \
+           QtCore/serialization/qcborstreamwriter       \
+           QtCore/serialization/qcborvalue              \
            QtCore/serialization/qdatastream             \
+           QtCore/serialization/qjsonarray              \
+           QtCore/serialization/qjsoncbor               \
+           QtCore/serialization/qjsondocument           \
+           QtCore/serialization/qjsonobject             \
+           QtCore/serialization/qjsonparser             \
+           QtCore/serialization/qjsonvalue              \
+           QtCore/serialization/qjsonwriter             \
            QtCore/serialization/qtextstream             \
            QtCore/serialization/qxmlutils               \
            QtCore/serialization/qxmlstream              \
@@ -73,10 +96,12 @@ core_src = QtCore/global/qendian                        \
            QtCore/text/qbytearray                       \
            QtCore/text/qbytearraylist                   \
            QtCore/text/qbytearraymatcher                \
+           QtCore/text/qlatin1stringmatcher             \
            QtCore/text/qlocale                          \
            QtCore/text/qlocale_tools                    \
            QtCore/text/qregularexpression               \
            QtCore/text/qstring                          \
+           QtCore/text/qstringbuilder                   \
            QtCore/text/qstringconverter                 \
            QtCore/text/qstringlist                      \
            QtCore/text/qvsnprintf                       \
@@ -85,6 +110,7 @@ core_src = QtCore/global/qendian                        \
            QtCore/time/qgregoriancalendar               \
            QtCore/time/qlocaltime                       \
            QtCore/time/qromancalendar                   \
+           QtCore/time/qtimezone                        \
            QtCore/tools/qarraydata                      \
            QtCore/tools/qbitarray                       \
            QtCore/tools/qcommandlineoption              \
@@ -97,19 +123,20 @@ core_src = QtCore/global/qendian                        \
 # The UNIX-specific QtCore source files required to build rcc. Note that
 # this includes Mac OS.
 #
-unix_core_src = QtCore/kernel/qcore_unix                \
-                QtCore/io/qfilesystemengine_unix        \
+unix_core_src = QtCore/io/qfilesystemengine_unix        \
                 QtCore/io/qfilesystemiterator_unix      \
-                QtCore/io/qfsfileengine_unix
+                QtCore/io/qfsfileengine_unix            \
+                QtCore/kernel/qcore_unix
 
 # The Windows-specific QtCore source files required to build rcc.
 #
-win_core_src = QtCore/io/qfilesystemengine_win                  \
+win_core_src = QtCore/global/qoperatingsystemversion_win        \
+               QtCore/io/qfilesystemengine_win                  \
                QtCore/io/qfilesystemiterator_win                \
                QtCore/io/qfsfileengine_win                      \
-               QtCore/global/qoperatingsystemversion_win        \
                QtCore/io/qstandardpaths_win                     \
                QtCore/kernel/qcoreapplication_win               \
+               QtCore/kernel/qfunctions_win                     \
                QtCore/kernel/qwinregistry                       \
                QtCore/plugin/qsystemlibrary
 
@@ -120,8 +147,8 @@ macos_core_src = QtCore/kernel/qcoreapplication_mac
 # The Mac OS-specific Objective-C++ QtCore source files required to build
 # rcc.
 #
-macos_core_src_mm = QtCore/io/qfilesystemengine_mac                     \
-                    QtCore/global/qoperatingsystemversion_darwin        \
+macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
+                    QtCore/io/qfilesystemengine_mac                     \
                     QtCore/io/qstandardpaths_mac                        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
@@ -139,11 +166,12 @@ exe{qt6rcc}: cxx{$win_core_src}:                 include = $windows
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
 #
-exe{qt6rcc}: cxx{3rdparty/sha1/sha1             \
-                 QtCore/global/archdetect       \
-                 QtCore/text/qchar              \
-                 QtCore/text/qstringmatcher     \
-                 QtCore/text/qunicodetables}: include = adhoc
+exe{qt6rcc}: cxx{3rdparty/sha1/sha1}    \
+             cxx{** -{$rcc_src          \
+                      $core_src         \
+                      $unix_core_src    \
+                      $win_core_src     \
+                      $macos_core_src}}: include = adhoc
 
 QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
 {
@@ -166,6 +194,7 @@ cxx.poptions =+                                                                 
 #
 cxx.poptions +=                                 \
   -DQT_BOOTSTRAPPED                             \
+  -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH    \
   -DQT_LEAN_HEADERS=1                           \
   -DQT_NO_CAST_FROM_ASCII                       \
   -DQT_NO_CAST_TO_ASCII                         \
