@@ -26,6 +26,7 @@ src = main                              \
       qcocoamenubar                     \
       qcocoamenuitem                    \
       qcocoamenuloader                  \
+      qcocoamessagedialog               \
       qcocoamimetypes                   \
       qcocoanativeinterface             \
       qcocoansmenu                      \
@@ -131,13 +132,13 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 cxx.poptions += -DQT_NO_FOREACH
 
 ../lib{qcocoa}: cxx.libs += -framework AppKit           \
-                            -framework CoreServices     \
                             -framework Carbon           \
-                            -framework IOKit            \
-                            -framework QuartzCore       \
+                            -framework CoreServices     \
                             -framework CoreVideo        \
+                            -framework IOKit            \
+                            -framework IOSurface        \
                             -framework Metal            \
-                            -framework IOSurface
+                            -framework QuartzCore
 
 # Installation.
 #

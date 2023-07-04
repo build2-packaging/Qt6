@@ -186,12 +186,14 @@ if ($build.mode != 'skeleton')
     }
   }
 
-  cc.poptions += -DQT_DEPRECATED_WARNINGS                                               \
-                 -DQT_DEPRECATED_WARNINGS_SINCE=0x070000                                \
-                 -DQT_DISABLE_DEPRECATED_BEFORE=($windows ? 0x040800 : 0x050000)        \
-                 -DQT_LEAN_HEADERS=1                                                    \
-                 -DQT_NO_JAVA_STYLE_ITERATORS                                           \
-                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT
+  cc.poptions += -DQT_DEPRECATED_WARNINGS                                       \
+                 -DQT_WARN_DEPRECATED_UP_TO=0x070000                            \
+                 -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000) \
+                 -DQT_LEAN_HEADERS=1                                            \
+                 -DQT_NO_JAVA_STYLE_ITERATORS                                   \
+                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT                       \
+                 -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH                     \
+                 -DQT_NO_AS_CONST=1
 
   # Disable exceptions.
   #

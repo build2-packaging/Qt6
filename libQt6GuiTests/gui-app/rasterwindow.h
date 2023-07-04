@@ -68,7 +68,7 @@ protected:
   }
 
   void
-  exposeEvent (QExposeEvent* event) override
+  exposeEvent (QExposeEvent*) override
   {
     if (isExposed ())
       renderNow ();

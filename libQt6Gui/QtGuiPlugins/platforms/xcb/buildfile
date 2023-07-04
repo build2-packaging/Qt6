@@ -172,6 +172,7 @@ if ($linux || $bsd)
                                -lX11                    \
                                -lX11-xcb                \
                                -lxcb                    \
+                               -lxcb-cursor             \
                                -lxcb-icccm              \
                                -lxcb-image              \
                                -lxcb-keysyms            \
@@ -184,11 +185,10 @@ if ($linux || $bsd)
                                -lxcb-xfixes             \
                                -lxcb-xinput             \
                                -lxcb-xkb                \
-                               -lxkbcommon              \
                                -lxkbcommon-x11
 
 if $linux
-  ../lib{Qt5XcbQpa}: cxx.libs += -ldl
+  ../lib{Qt6XcbQpa}: cxx.libs += -ldl
 
 # Installation.
 #
