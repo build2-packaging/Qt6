@@ -151,7 +151,8 @@ Q_DECLARE_TYPEINFO(CborEncoder, Q_PRIMITIVE_TYPE);
    \endlist
 
    \sa QCborStreamReader, QCborValue, QXmlStreamWriter
-   \sa {Cbordump Example}, {Convert Example}, {JSON Save Game Example}
+       {Parsing and displaying CBOR data}, {Convert Example},
+       {JSON Save Game Example}
  */
 
 class QCborStreamWriterPrivate
@@ -390,11 +391,11 @@ void QCborStreamWriter::append(QCborNegativeInteger n)
 /*!
    \overload
 
-   Appends the text string \a str to the stream, creating a CBOR Text String
-   value. QCborStreamWriter will attempt to write the entire string in one
-   chunk.
+   Appends the Latin-1 string viewed by \a str to the stream, creating a CBOR
+   Text String value. QCborStreamWriter will attempt to write the entire string
+   in one chunk.
 
-   The following example appends a simple string to the stream:
+   The following example appends a simple Latin-1 string literal to the stream:
 
    \snippet code/src_corelib_serialization_qcborstream.cpp 8
 
