@@ -5,12 +5,12 @@
 include ../../../QtWidgets/
 
 src = main                      \
-      qwindowsvistastyle        \
-      qwindowsxpstyle
+      qwindowsthemedata         \
+      qwindowsvistaanimation    \
+      qwindowsvistastyle
 
-moc_hdr = qwindowsvistastyle_p          \
-          qwindowsvistastyle_p_p        \
-          qwindowsxpstyle_p
+moc_hdr = qwindowsvistaanimation_p \
+          qwindowsvistastyle_p
 
 moc_src_adhoc = main
 

@@ -207,6 +207,7 @@ lib{Qt6Widgets}: ../mkspecs/hxx{**}                                 \
                  hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr}             \
                  cxx{** -{$gen_src                                  \
                           kernel/qapplication-* $win_src $macos_src \
+                          dialogs/qwizard                           \
                           util/qsystemtrayicon_x11                  \
                           util/qsystemtrayicon_qpa}}
 
@@ -229,6 +230,11 @@ lib{Qt6Widgets}: kernel/cxx{qapplication-develop}: for_install = false
 #
 lib{Qt6Widgets}: cxx{$macos_src} mm{$macos_mm}: include = $macos
 lib{Qt6Widgets}: cxx{$win_src}:                 include = $windows
+
+# dialogs/qwizard.cpp is compiled as Objective-C++ on macOS and C++ on all
+# other platforms.
+#
+lib{Qt6Widgets}: ($macos ? mm : cxx){dialogs/qwizard.cpp}
 
 # util/qsystemtrayicon_{x11,qpa}.cpp: build the former on XCB platforms and
 # the latter on non-XCB platforms.
@@ -399,9 +405,9 @@ cxx.poptions += -DQT_ASCII_CAST_WARNINGS                        \
 switch $cxx.target.class, $cxx.target.system
 {
   case  'windows', 'mingw32'
-    lib{Qt6Widgets}: cxx.libs += -ldwmapi -luxtheme
+    lib{Qt6Widgets}: cxx.libs += -ldwmapi -lgdi32 -luxtheme
   case  'windows'
-    lib{Qt6Widgets}: cxx.libs += dwmapi.lib uxtheme.lib
+    lib{Qt6Widgets}: cxx.libs += dwmapi.lib gdi32.lib uxtheme.lib
   case 'macos'
     lib{Qt6Widgets}: cxx.libs += -framework AppKit
 }
