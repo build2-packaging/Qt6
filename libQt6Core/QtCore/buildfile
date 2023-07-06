@@ -27,7 +27,9 @@ src = animation/qabstractanimation              \
       animation/qvariantanimation               \
       compat/removed_api                        \
       global/archdetect                         \
+      global/qassert                            \
       global/qendian                            \
+      global/qexceptionhandling                 \
       global/qfloat16                           \
       global/qglobal                            \
       global/qhooks                             \
@@ -38,6 +40,10 @@ src = animation/qabstractanimation              \
       global/qoperatingsystemversion            \
       global/qrandom                            \
       global/qsimd                              \
+      global/qsysinfo                           \
+      global/qtenvironmentvariables             \
+      global/qtversionchecks                    \
+      global/qtypes                             \
       io/qabstractfileengine                    \
       io/qbuffer                                \
       io/qdataurl                               \
@@ -87,7 +93,6 @@ src = animation/qabstractanimation              \
       kernel/qbasictimer                        \
       kernel/qcoreapplication                   \
       kernel/qcoreevent                         \
-      kernel/qcoreglobaldata                    \
       kernel/qdeadlinetimer                     \
       kernel/qelapsedtimer                      \
       kernel/qeventloop                         \
@@ -146,6 +151,7 @@ src = animation/qabstractanimation              \
       text/qbytearraymatcher                    \
       text/qcollator                            \
       text/qcollator_icu                        \
+      text/qlatin1stringmatcher                 \
       text/qlocale                              \
       text/qlocale_icu                          \
       text/qlocale_tools                        \
@@ -179,8 +185,8 @@ src = animation/qabstractanimation              \
       time/qislamiccivilcalendar                \
       time/qjalalicalendar                      \
       time/qjuliancalendar                      \
-      time/qmilankoviccalendar                  \
       time/qlocaltime                           \
+      time/qmilankoviccalendar                  \
       time/qromancalendar                       \
       time/qtimezone                            \
       time/qtimezoneprivate                     \
@@ -195,7 +201,6 @@ src = animation/qabstractanimation              \
       tools/qhash                               \
       tools/qline                               \
       tools/qmargins                            \
-      tools/qmessageauthenticationcode          \
       tools/qpoint                              \
       tools/qrect                               \
       tools/qrefcount                           \
@@ -262,6 +267,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qsortfilterproxymodel                                   \
                 qstandardpaths                                          \
                 qstringlistmodel                                        \
+                qsystemsemaphore                                        \
                 qtemporaryfile                                          \
                 qthread                                                 \
                 qthreadpool                                             \
@@ -293,13 +299,15 @@ macos_moc_hdr = private/QtCore/private/qfilesystemwatcher_fsevents_p
 
 # macOS headers to be moc'd and the outputs included.
 #
-macos_moc_hdr_adhoc = private/QtCore/private/qeventdispatcher_cf_p
+macos_moc_hdr_adhoc = private/QtCore/private/qdarwinpermissionplugin_p.h        \
+                      private/QtCore/private/qeventdispatcher_cf_p              \
+                      qpermissions
 
 # BSD headers to be moc'd and the outputs compiled.
 #
 bsd_moc_hdr = private/QtCore/private/qfilesystemwatcher_kqueue_p
 
-# Source files to be moc'ed (and the outputs included in all cases).
+# Source files to be moc'ed and the outputs included.
 #
 moc_src_adhoc = kernel/qtimer   \
                 thread/qthreadpool
@@ -351,6 +359,7 @@ win_src = global/qoperatingsystemversion_win    \
           kernel/qcoreapplication_win           \
           kernel/qelapsedtimer_win              \
           kernel/qeventdispatcher_win           \
+          kernel/qfunctions_win                 \
           kernel/qsharedmemory_win              \
           kernel/qsystemsemaphore_win           \
           kernel/qwineventnotifier              \
@@ -359,9 +368,9 @@ win_src = global/qoperatingsystemversion_win    \
           plugin/qlibrary_win                   \
           plugin/qsystemlibrary                 \
           text/qlocale_win                      \
-          time/qtimezoneprivate_icu             \
           thread/qthread_win                    \
-          thread/qwaitcondition_win
+          thread/qwaitcondition_win             \
+          time/qtimezoneprivate_icu
 
 # Mac OS source files.
 #
@@ -372,6 +381,7 @@ macos_src = io/qsettings_mac            \
             kernel/qcfsocketnotifier    \
             kernel/qcoreapplication_mac \
             kernel/qelapsedtimer_mac    \
+            kernel/qpermissions         \
             plugin/qmachparser
 
 macos_mm = global/qoperatingsystemversion_darwin        \
@@ -382,6 +392,8 @@ macos_mm = global/qoperatingsystemversion_darwin        \
            kernel/qcore_foundation                      \
            kernel/qcore_mac                             \
            kernel/qeventdispatcher_cf                   \
+           kernel/qpermissions_darwin                   \
+           platform/darwin/qdarwinpermissionplugin      \
            text/qlocale_mac                             \
            time/qtimezoneprivate_mac
 
@@ -430,13 +442,14 @@ gen_src = qmimeprovider_database        \
           global/qconfig-develop        \
           global/qconfig-install
 
-# Headers and included source files.
+# Headers, included source files, and other files.
 #
 lib{Qt6Core}: cxx{** -{$src $gen_src}} global/cxx{qconfig}      \
               ../3rdparty/{h    }{** -md5/md5}                  \
               ../3rdparty/{hxx  }{    md5/md5}                  \
               ../3rdparty/{c cxx}{**}                           \
-              ../3rdparty/sha3/file{**.macros}:                 \
+              ../3rdparty/sha3/file{**.macros}                  \
+              file{cmake.conf}:                                 \
   include = adhoc
 
 # Generated source files.
@@ -710,6 +723,12 @@ h{qconfig}: in{qconfig}
   QT_VERSION_PATCH="$version.patch"
 }
 
+# Extract the copyright year from upstream/qtbase/.cmake.conf.
+#
+qt_copyright_year = $process.run_regex(cat $src_base/cmake.conf,                \
+                                       '^\s*set\(QT_COPYRIGHT_YEAR\s+"(.+)"\)', \
+                                       '\1')
+
 # All-Qt private configuration header. Included by a few other Qt libraries
 # via QtCore/qglobal_p.h.
 #
@@ -718,6 +737,8 @@ h{qconfig}: in{qconfig}
 private/QtCore/private/h{qconfig_p}: private/QtCore/private/in{qconfig_p}
 {
   autoconf.prefix = qconfig_p_
+
+  QT_COPYRIGHT_YEAR = $qt_copyright_year
 
   # Enable to make Qt relocatable. See the comments on the
   # cxx{qconfig-install} target for more information.
@@ -914,16 +935,17 @@ cxx.poptions =+                                                                 
 cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
                 -DQT_LEAN_HEADERS=1                             \
                 -DQT_TYPESAFE_FLAGS                             \
-                -DQT_NO_LINKED_LIST                             \
                 -DQT_NO_JAVA_STYLE_ITERATORS                    \
                 -DQT_NO_USING_NAMESPACE                         \
                 -DQT_NO_FOREACH                                 \
                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_NO_AS_CONST=1                              \
                 -DQT_ASCII_CAST_WARNINGS                        \
                 -DQT_MOC_COMPAT                                 \
                 -DQT_USE_QSTRINGBUILDER                         \
+                -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH      \
                 -DQT_DEPRECATED_WARNINGS                        \
-                -DQT_DEPRECATED_WARNINGS_SINCE=0x070000
+                -DQT_WARN_DEPRECATED_UP_TO=0x070000
 
 if! $config.libQt6Core.debug
   cxx.poptions += -DQT_NO_DEBUG
@@ -942,8 +964,8 @@ if $windows
   # WINVER and _WIN32_WINNT (the minimum Windows version supported) to 0x0A00
   # if they're undefined, mingw defines them to Windows 7 before Qt can do it.
   #
-  cxx.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00         \
-                  -DQT_DISABLE_DEPRECATED_BEFORE=0x040800       \
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_UP_TO=0x040800        \
+                  -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00         \
                   -D_CRT_SECURE_NO_WARNINGS                     \
                   -D_USE_MATH_DEFINES                           \
                   -DUNICODE                                     \
@@ -952,7 +974,7 @@ if $windows
 }
 else
 {
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_BEFORE=0x050000       \
+  cxx.poptions += -DQT_DISABLE_DEPRECATED_UP_TO=0x050000        \
                   -DQT_NO_CAST_TO_ASCII                         \
                   -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 
@@ -997,6 +1019,8 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
                               -framework Foundation             \
                               -framework IOKit                  \
                               -framework Security
+
+    cxx.poptions += -D_DARWIN_C_SOURCE
   }
   case 'bsd', 'clang', 'freebsd'
     cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
@@ -1070,7 +1094,7 @@ lib{Qt6Core}:
 }
 
 # QT_NO_VERSION_TAGGING is automatically defined for static builds (see
-# qversiontagging.h).
+# qversiontagging.h) so define it only for shared builds.
 #
 libs{Qt6Core}: cxx.export.poptions += -DQT_NO_VERSION_TAGGING
 
