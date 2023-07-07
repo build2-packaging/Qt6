@@ -16,6 +16,7 @@
 //
 
 #include <QtGui/private/qtguiglobal_p.h>
+#include <QtGui/QWindow>
 #include <QtCore/qbasictimer.h>
 #include <QtCore/qrect.h>
 #include <QtCore/qnativeinterface.h>
