@@ -470,6 +470,14 @@ void QApplicationPrivate::init()
     QMacAutoReleasePool pool;
 #endif
 
+    // Register the output path for libQt6Widgets' plugins to be searched for
+    // plugins.
+    //
+    // Note that this path will be searched after any paths added by
+    // QGuiApplication::init().
+    //
+    QCoreApplication::addLibraryPath (QStringLiteral ("@widgets_plugins_path@"));
+
     QGuiApplicationPrivate::init();
 
     initResources();
