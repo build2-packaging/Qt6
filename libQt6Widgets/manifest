@@ -1,6 +1,6 @@
 : 1
 name: libQt6Widgets
-version: 6.4.3
+version: 6.4.3+1
 project: Qt6
 summary: Qt6 GUI widgets library
 license: LGPL-3.0-only
@@ -18,11 +18,16 @@ builds: default
 builds: -( +macos &gcc )  ; Not supported by upstream.
 builds: -freebsd          ; No X11 on CI.
 builds: -wasm             ; Not supported.
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 depends: * Qt6Moc == $
 depends: * Qt6Rcc == $
 depends: * Qt6Uic == $
 depends: libQt6Core == $
 depends: libQt6Gui == $
 tests: libQt6WidgetsTests == $
+
+# System package mapping.
+#
+debian-name: qt6-base-dev
+fedora-name: qt6-qtbase-devel

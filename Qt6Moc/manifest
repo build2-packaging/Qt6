@@ -1,6 +1,6 @@
 : 1
 name: Qt6Moc
-version: 6.4.3
+version: 6.4.3+1
 project: Qt6
 summary: Qt meta object compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
@@ -15,7 +15,12 @@ build-error-email: builds@build2.org
 builds: host : &default
 builds: -( +macos &gcc )  ; Not supported by upstream.
 builds: -wasm             ; Not supported.
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 depends: libpcre2 ^10.38.0
 depends: libtinycbor ^0.6.0
+
+# System package mapping.
+#
+debian-name: qt6-base-dev-tools
+fedora-name: qt6-qtbase-devel
