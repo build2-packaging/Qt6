@@ -4,15 +4,14 @@ include platforms/
 
 ./: platforms/ platforminputcontexts/ imageformats/
 
-# This alias presents a single target that depends on all of the plugins
-# loaded by libs{Qt6Gui} for a specific platform.
+# The list of pairs that specify the plugins loaded by libs{Qt6Gui} and
+# whether they are included for the target platform.
 #
-alias{Qt6GuiPlugins}: imageformats/libs{qgif qico qjpeg}
-
-alias{Qt6GuiPlugins}:                                                   \
-  platforms/libs{qxcb}                                                  \
-  platforminputcontexts/libs{composeplatforminputcontextplugin}:        \
-    include = ($linux || $bsd)
-
-alias{Qt6GuiPlugins}: platforms/libs{qcocoa}:   include = $macos
-alias{Qt6GuiPlugins}: platforms/libs{qwindows}: include = $windows
+gui_plugins = \
+  imageformats/libs{qgif}@true \
+  imageformats/libs{qico}@true \
+  imageformats/libs{qjpeg}@true \
+  platforms/libs{qxcb}@($linux || $bsd) \
+  platforminputcontexts/libs{composeplatforminputcontextplugin}@($linux || $bsd) \
+  platforms/libs{qcocoa}@$macos \
+  platforms/libs{qwindows}@$windows
