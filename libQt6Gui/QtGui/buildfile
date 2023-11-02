@@ -17,7 +17,9 @@ import priv_intf_libs = libQt6Core%lib{Qt6CorePrivate}
 
 # For post hoc dependency (see below).
 #
-include ../QtGuiPlugins/
+plugins_dir = [dir_path] ../QtGuiPlugins/
+
+include $plugins_dir
 
 src = accessible/qaccessible                    \
       accessible/qaccessiblebridge              \
@@ -405,7 +407,12 @@ lib{Qt6Gui}: painting/cxx{qdrawhelper_neon      \
 
 # Make sure plugins are built if the shared Qt6Gui library is built.
 #
-libs{Qt6Gui}: ../QtGuiPlugins/alias{Qt6GuiPlugins}: include = posthoc
+# Note: force posthoc for the dist meta-operation since it ignores false
+#       and would otherwise end up with a cycle.
+#
+for p: $($plugins_dir/ gui_plugins)
+  libs{Qt6Gui}: $plugins_dir/([name] $first($p)): \
+    include = ($second($p) || $build.meta_operation == dist ? posthoc : false)
 
 # Use different versions of kernel/qguiapplication.cpp for the develop and
 # installed cases because their plugin paths differ.

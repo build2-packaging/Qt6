@@ -11,7 +11,8 @@ import priv_intf_libs = libQt6Gui%lib{Qt6GuiPrivate}
 
 # For post hoc dependency (see below).
 #
-include ../QtWidgetsPlugins/
+plugins_dir = [dir_path] ../QtWidgetsPlugins/
+include $plugins_dir
 
 moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
                 private/QtWidgets/private/qcolumnviewgrip_p             \
@@ -213,8 +214,12 @@ lib{Qt6Widgets}: ../mkspecs/hxx{**}                                 \
 
 # Make sure plugins are built if the shared Qt6Widgets library is built.
 #
-libs{Qt6Widgets}: ../QtWidgetsPlugins/alias{Qt6WidgetsPlugins}: \
-  include = posthoc
+# Note: force posthoc for the dist meta-operation since it ignores false
+#       and would otherwise end up with a cycle.
+#
+for p: $($plugins_dir/ widgets_plugins)
+  libs{Qt6Widgets}: $plugins_dir/([name] $first($p)): \
+    include = ($second($p) || $build.meta_operation == dist ? posthoc : false)
 
 # Use different versions of kernel/qapplication.cpp for the develop and
 # installed cases because their plugin paths differ.
