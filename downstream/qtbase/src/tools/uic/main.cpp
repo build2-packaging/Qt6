@@ -224,16 +224,5 @@ QT_END_NAMESPACE
 
 int main(int argc, char *argv[])
 {
-    // Handle --build2-metadata (see also buildfile).
-    if (argc == 2 && strncmp (argv[1], "--build2-metadata=", 18) == 0)
-    {
-      printf ("# build2 buildfile qt6uic\n");
-      printf ("export.metadata = 1 qt6uic\n");
-      printf ("qt6uic.name = [string] uic\n");
-      printf ("qt6uic.version = [string] '%s'\n", QT_VERSION_STR);
-      printf ("qt6uic.checksum = [string] '%s'\n", QT_VERSION_STR);
-      return 0;
-    }
-
     return QT_PREPEND_NAMESPACE(runUic)(argc, argv);
 }
