@@ -69,6 +69,7 @@ rm -rf libQt6Gui/mkspecs
 rm -rf libQt6Gui/3rdparty/
 rm -rf libQt6Gui/QtGui/qpa/
 rm -rf libQt6Gui/QtGui/private/QtGui/qpa/
+rm -rf libQt6Gui/QtGui/rhi/
 rm -f  libQt6Gui/QtGui/Q*
 
 rm_symlinks libQt6Gui/QtGuiPlugins/
@@ -108,6 +109,7 @@ mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 mkdir libQt6Gui/3rdparty
 mkdir libQt6Gui/QtGui/qpa
 mkdir libQt6Gui/QtGui/private/QtGui/qpa
+mkdir libQt6Gui/QtGui/rhi
 
 # Create a symlink to one or more upstream directories and set the
 # `symlink=dir` attribute on each in the containing directory's
@@ -188,7 +190,7 @@ symlink_dirs upstream/qtbase/src/3rdparty/{easing,forkfd}             \
 
 symlink_dirs upstream/qtbase/mkspecs \
              libQt6Gui/
-symlink_dirs upstream/qtbase/src/3rdparty/{icc,wintab} \
+symlink_dirs upstream/qtbase/src/3rdparty/{icc,wintab,D3D12MemoryAllocator} \
              libQt6Gui/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs libQt6Widgets/
@@ -421,7 +423,7 @@ function symlink_module_subdir () # <output-path-prefix> <module-name> <subdir>
 }
 
 # Symlink the moc and rcc applications' headers and source files into
-# Qt6Moc/moc/, Qt6Rcc/rcc/.
+# Qt6Moc/moc/, Qt6Rcc/rcc/, and Qt6Uic/uic/.
 #
 symlink_non_module upstream/qtbase/src/tools/moc \
                    Qt6Moc/
@@ -430,10 +432,10 @@ symlink_non_module upstream/qtbase/src/tools/rcc \
 symlink_non_module upstream/qtbase/src/tools/uic \
                    Qt6Uic/
 
-# Symlink the upstream QtCore sources into Qt6Moc/, Qt6Rcc/, and
-# libQt6Core/. Although the Qt6Moc and Qt6Rcc builds include only a subset of
-# the QtCore sources we symlink all of them for the sake of simplicity (their
-# buildfiles do not use wildcards).
+# Symlink the upstream QtCore sources and other files into Qt6Moc/, Qt6Rcc/,
+# Qt6Uic/, and libQt6Core/. Although the Qt6{Moc,Rcc,Uic} builds include only
+# a subset of the QtCore sources we symlink all of them for the sake of
+# simplicity (their buildfiles do not use wildcards).
 #
 for d in upstream/qtbase/src/corelib/*/; do
   if [[ "$(basename "$d")" == doc ]]; then
@@ -445,16 +447,34 @@ for d in upstream/qtbase/src/corelib/*/; do
   symlink_module_subdir libQt6Core QtCore "$d"
 done
 
+# libQt6Core
+#
 ln -s ../../upstream/qtbase/.cmake.conf \
       libQt6Core/QtCore/cmake.conf
-ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
-      Qt6Moc/moc/QtCore/qtcoreexports.h.in
-ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
-      Qt6Rcc/rcc/QtCore/qtcoreexports.h.in
-ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
-      Qt6Uic/uic/QtCore/qtcoreexports.h.in
+
 ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
       libQt6Core/QtCore/qtcoreexports.h.in
+
+# Qt6Moc
+#
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Moc/moc/QtCore/qtcoreexports.h.in
+
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Moc/moc/QtCore/
+
+# Qt6Rcc
+#
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Rcc/rcc/QtCore/qtcoreexports.h.in
+
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Rcc/rcc/QtCore/
+
+# Qt6Uic
+#
+ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
+      Qt6Uic/uic/QtCore/qtcoreexports.h.in
+
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Uic/uic/QtCore/
 
 # Symlink the upstream QtGui sources into libQt6Gui/.
 #
@@ -553,6 +573,7 @@ ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
 
 # Create the few required QtCore camelcase headers.
 #
+echo '#include "qalgorithms.h"' > Qt6Moc/moc/QtCore/QtAlgorithms
 echo '#include "qstring.h"' > Qt6Moc/moc/QtCore/QString
 echo '#include "qfile.h"' > Qt6Moc/moc/QtCore/QFile
 echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
@@ -560,10 +581,12 @@ echo '#include "qbytearrayview.h"' > Qt6Moc/moc/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Moc/moc/QtCore/QVarLengthArray
 echo '#include "qcoreapplication.h"' > Qt6Moc/moc/QtCore/QCoreApplication
 
+echo '#include "qalgorithms.h"' > Qt6Rcc/rcc/QtCore/QtAlgorithms
 echo '#include "qbytearrayview.h"' > Qt6Rcc/rcc/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Rcc/rcc/QtCore/QVarLengthArray
 echo '#include "qcoreapplication.h"' > Qt6Rcc/rcc/QtCore/QCoreApplication
 
+echo '#include "qalgorithms.h"' > Qt6Uic/uic/QtCore/QtAlgorithms
 echo '#include "qbytearrayview.h"' > Qt6Uic/uic/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Uic/uic/QtCore/QVarLengthArray
 echo '#include "qcoreapplication.h"' > Qt6Uic/uic/QtCore/QCoreApplication
@@ -645,6 +668,17 @@ rm -r "$tmpdir"
 #
 touch libQt6Core/QtCore/QtCoreDepends
 
+# syncqt.pl does not create QOperatingSystemVersion whereas syncqt.cpp does.
+#
+# @@ TMP see TODO about syncqt.cpp below.
+#
+# @@ TMP The qt_class pragma instances in
+#        corelib/global/qoperatingsystemversion.h are what cause these headers
+#        to be generated.
+#
+cp libQt6Core/QtCore/QOperatingSystemVersionBase \
+   libQt6Core/QtCore/QOperatingSystemVersion
+
 # Copy headers generated for QtGui into libQt6Gui/QtGui/.
 #
 tmpdir="$(gen_hdrs QtGui)"
@@ -698,8 +732,46 @@ done
 
 rm -r "$tmpdir"
 
+# Move the QtGui RHI headers into place.
+#
+# Note that unlike the QPA headers these are not collected and arranged by the
+# syncqt.pl script so the source files are the symlinks we created above in
+# libQt6Gui/.
+#
+# @@ TODO Upstream is in the process of moving from syncqt.pl to
+#         syncqt.cpp. QtGui has already made the move so upstream the RHI
+#         headers are handled just like the QPA ones. syncqt.pl, which we use,
+#         does not handle the RHI headers so we have to do it manually.
+#         Currently this is not too hard because there are few RHI headers and
+#         they're all in the same directory. But we should probably make the
+#         move to syncqt.cpp.
+#
+# Note that downstream patches, if any, have already been applied.
+#
+rhi_hdr=(libQt6Gui/QtGui/qrhi.h
+         libQt6Gui/QtGui/qrhi_platform.h
+         libQt6Gui/QtGui/qshader.h
+         libQt6Gui/QtGui/qshaderdescription.h)
+
+# Note: mv would most likely break the symlinks so use cp and rm instead.
+#
+cp -H "${rhi_hdr[@]}" "libQt6Gui/QtGui/rhi"
+rm "${rhi_hdr[@]}"
+
+# Remove inclusion of the RHI headers from the QtGui header. syncqt.cpp does
+# not include any RHI headers from the QtGui header but syncqt.pl does so
+# until we upgrade we'll have to remove them.
+#
+for h in "${rhi_hdr[@]}"; do
+  h="$(basename "$h")"
+  sed -i "/#include \"$h\"/d" libQt6Gui/QtGui/QtGui
+done
+
 cat > libQt6Gui/QtGui/QtGuiDepends << EOF
-/* This file was generated by cmake with the info from Gui target. */
+/* This file was generated by the generate script in the build2 amalgamation
+   root. Its contents were generated upstream by cmake with the info from
+   the Gui target.
+*/
 #ifdef __cplusplus /* create empty PCH in C mode */
 #  include <QtCore/QtCore>
 #endif
@@ -720,7 +792,10 @@ done
 rm -r "$tmpdir"
 
 cat > libQt6Widgets/QtWidgets/QtWidgetsDepends << EOF
-/* This file was generated by cmake with the info from Widgets target. */
+/* This file was generated by the generate script in the build2 amalgamation
+   root. Its contents were generated upstream by cmake with the info from
+   the Widgets target.
+*/
 #ifdef __cplusplus /* create empty PCH in C mode */
 #  include <QtCore/QtCore>
 #  include <QtGui/QtGui>
