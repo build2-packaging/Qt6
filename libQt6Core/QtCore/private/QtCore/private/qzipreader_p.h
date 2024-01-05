@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/corelib/io/qzipreader_p.h

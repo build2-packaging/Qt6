@@ -1,1 +1,1 @@
-../../upstream/qtbase/src/corelib/kernel/qsystemsemaphore.h
+../../upstream/qtbase/src/corelib/ipc/qsystemsemaphore.h

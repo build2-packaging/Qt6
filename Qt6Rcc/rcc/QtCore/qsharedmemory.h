@@ -1,1 +1,1 @@
-../../../upstream/qtbase/src/corelib/kernel/qsharedmemory.h
+../../../upstream/qtbase/src/corelib/ipc/qsharedmemory.h

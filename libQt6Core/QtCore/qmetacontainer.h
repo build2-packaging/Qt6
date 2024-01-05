@@ -1,1 +1,1 @@
-../../downstream/qtbase/src/corelib/kernel/qmetacontainer.h
+../../upstream/qtbase/src/corelib/kernel/qmetacontainer.h
