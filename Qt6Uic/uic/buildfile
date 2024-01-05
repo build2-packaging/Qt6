@@ -161,8 +161,10 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
-exe{qt6uic}: hxx{** -QtCore/qtcoreexports +QtCore/Q*.} QtCore/h{qtcoreexports}  \
-             cxx{$core_src $uic_src}                                            \
+gen_hdr = QtCore/qtcoreexports QtCore/qconfig
+
+exe{qt6uic}: hxx{** -{$gen_hdr} +QtCore/Q*.} h{$gen_hdr}        \
+             cxx{$core_src $uic_src}                            \
              testscript
 
 exe{qt6uic}: cxx{$unix_core_src}:                include = $unix
@@ -180,6 +182,27 @@ exe{qt6uic}: cxx{3rdparty/sha1/sha1}    \
                       $unix_core_src    \
                       $win_core_src     \
                       $macos_core_src}}: include = adhoc
+
+# Generated headers and source files.
+#
+using autoconf
+
+QtCore/h{qconfig}: in.symbol = '$'
+
+# All-Qt public configuration header. Included by other Qt libraries via
+# QtCore/qtconfiginclude.h.
+#
+# See the .in file for more information.
+#
+QtCore/h{qconfig}: QtCore/in{qconfig}
+{
+  autoconf.prefix = qconfig_
+
+  QT_VERSION_STR="$version.major.$version.minor.$version.patch"
+  QT_VERSION_MAJOR="$version.major"
+  QT_VERSION_MINOR="$version.minor"
+  QT_VERSION_PATCH="$version.patch"
+}
 
 QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
 {
