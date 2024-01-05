@@ -28,7 +28,7 @@ fi
 #
 for f in $(find downstream/ -type f); do
   f="${f/'downstream/qtbase/'/}" # Path relative to upstream/qtbase/.
-  f="$(basename "$f" .in)"       # Strip .in suffix, if present.
+  f="${f%.in}"                   # Strip .in suffix, if present.
 
   if [[ "$(git -C upstream/qtbase/ diff --name-only "$rev" -- "$f")" ]]; then
     echo "qtbase/$f"
