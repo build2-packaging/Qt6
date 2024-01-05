@@ -1,0 +1,5 @@
+qt6uic
+
+# Testscript output directory (can be symlink).
+#
+test-qt6uic
