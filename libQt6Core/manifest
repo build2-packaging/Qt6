@@ -1,6 +1,6 @@
 : 1
 name: libQt6Core
-version: 6.5.2
+version: 6.6.1-a.0.z
 project: Qt6
 summary: Qt6 core library
 license: LGPL-3.0-only
