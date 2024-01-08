@@ -27,6 +27,7 @@ src = accessible/qaccessible                    \
       accessible/qaccessibleplugin              \
       accessible/qplatformaccessibility         \
       animation/qguivariantanimation            \
+      compat/removed_api                        \
       image/qabstractfileiconengine             \
       image/qabstractfileiconprovider           \
       image/qbitmap                             \
@@ -209,7 +210,6 @@ src = accessible/qaccessible                    \
       text/qtextodfwriter                       \
       text/qtextoption                          \
       text/qtexttable                           \
-      text/qzip                                 \
       util/qabstractlayoutstyleinfo             \
       util/qastchandler                         \
       util/qdesktopservices                     \
@@ -228,12 +228,14 @@ unix_src = platform/unix/qunixeventdispatcher   \
            platform/unix/qunixnativeinterface   \
            platform/unix/qgenericunixeventdispatcher
 
-win_src = accessible/windows/apisupport/qwindowsuiawrapper      \
+win_src = ../3rdparty/D3D12MemoryAllocator/D3D12MemAlloc        \
+          accessible/windows/apisupport/qwindowsuiawrapper      \
           image/qpixmap_win                                     \
           platform/windows/qwindowsguieventdispatcher           \
           platform/windows/qwindowsmimeconverter                \
           platform/windows/qwindowsnativeinterface              \
           rhi/qrhid3d11                                         \
+          rhi/qrhid3d12                                         \
           text/windows/qwindowsfontdatabase                     \
           text/windows/qwindowsfontdatabase_ft                  \
           text/windows/qwindowsfontdatabasebase                 \
@@ -382,6 +384,7 @@ gen_hdr = qtgui-config private/QtGui/private/qtgui-config_p     \
 # Headers and source files.
 #
 lib{Qt6Gui}: ../mkspecs/hxx{**} hxx{** -{$gen_hdr} +Q*.} hxx{$gen_hdr}  \
+             ../3rdparty/D3D12MemoryAllocator/hxx{D3D12MemAlloc}        \
              cxx{$src} c{**}
 
 # Platform-specific source files.
@@ -557,6 +560,9 @@ kernel/cxx{qguiapplication-develop}: kernel/in{qguiapplication-develop}
 
 # Build options.
 #
+if $windows
+  cc.poptions =+ "-I$src_root/3rdparty/D3D12MemoryAllocator"
+
 cc.poptions =+                                                                  \
   "-I$out_root"                       "-I$src_root"                             \
   "-I$out_root/QtGui"                 "-I$src_root/QtGui"                       \
@@ -578,8 +584,7 @@ cc.poptions += -DQT_ASCII_CAST_WARNINGS \
                -DQT_NO_USING_NAMESPACE  \
                -DQT_USE_QSTRINGBUILDER
 
-# Add platform-specific header directories, libraries, compilation options,
-# and macro definitions.
+# Add platform-specific libraries.
 #
 if! $windows
 {
@@ -625,6 +630,7 @@ switch $cxx.target.class, $cxx.target.system
 
     export_libs = -ladvapi32    \
                   -ld3d11       \
+                  -ld3d12       \
                   -ldxgi        \
                   -ldxguid      \
                   -ldcomp
@@ -642,6 +648,7 @@ switch $cxx.target.class, $cxx.target.system
 
     export_libs = advapi32.lib  \
                   d3d11.lib     \
+                  d3d12.lib     \
                   dxgi.lib      \
                   dxguid.lib    \
                   dcomp.lib
