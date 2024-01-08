@@ -52,7 +52,6 @@
 // #define QT_FEATURE_developer_build -1 // Moved to public
 // #define QT_FEATURE_gc_binaries -1
 // #define QT_FEATURE_no_direct_extern_access -1 // Moved to public
-// #define QT_FEATURE_no_prefix -1
 // #define QT_FEATURE_private_tests -1
 // #define QT_FEATURE_stack_protector_strong -1
 // #define QT_FEATURE_stdlib_libcpp -1
