@@ -933,20 +933,11 @@ cxx.poptions =+                                                                 
   "-I$out_base/private/QtCore/private" "-I$src_base/private/QtCore/private"     \
   "-I$src_root/3rdparty/forkfd"
 
-cxx.poptions += -DQT_BUILDING_QT -DQT_BUILD_CORE_LIB            \
-                -DQT_LEAN_HEADERS=1                             \
-                -DQT_TYPESAFE_FLAGS                             \
-                -DQT_NO_JAVA_STYLE_ITERATORS                    \
-                -DQT_NO_USING_NAMESPACE                         \
-                -DQT_NO_FOREACH                                 \
-                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
-                -DQT_NO_AS_CONST=1                              \
-                -DQT_ASCII_CAST_WARNINGS                        \
-                -DQT_MOC_COMPAT                                 \
-                -DQT_USE_QSTRINGBUILDER                         \
-                -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH      \
-                -DQT_DEPRECATED_WARNINGS                        \
-                -DQT_WARN_DEPRECATED_UP_TO=0x070000
+cxx.poptions += $lib_macros             \
+                -DQT_BUILD_CORE_LIB     \
+                -DQT_NO_FOREACH         \
+                -DQT_NO_USING_NAMESPACE \
+                -DQT_TYPESAFE_FLAGS
 
 if! $config.libQt6Core.debug
   cxx.poptions += -DQT_NO_DEBUG
@@ -961,23 +952,15 @@ if! $config.libQt6Core.debug
 #
 if $windows
 {
-  # Qt6 supports only Windows 10 and newer. Although the Qt headers do define
-  # WINVER and _WIN32_WINNT (the minimum Windows version supported) to 0x0A00
-  # if they're undefined, mingw defines them to Windows 7 before Qt can do it.
+  # "Remove QT_NO_CAST_TO_ASCII to ensure that the symbols are included in the
+  # library."
   #
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_UP_TO=0x040800        \
-                  -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00         \
-                  -D_CRT_SECURE_NO_WARNINGS                     \
-                  -D_USE_MATH_DEFINES                           \
-                  -DUNICODE                                     \
-                  -D_UNICODE                                    \
-                  -DWIN32
+  cxx.poptions = $regex.filter_out_match($cxx.poptions, -DQT_NO_CAST_TO_ASCII)
 }
 else
 {
-  cxx.poptions += -DQT_DISABLE_DEPRECATED_UP_TO=0x050000        \
-                  -DQT_NO_CAST_TO_ASCII                         \
-                  -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+  if $macos
+    cxx.poptions += -D_DARWIN_C_SOURCE
 
   lib{Qt6Core}: cxx.libs += -pthread
 
@@ -1020,14 +1003,13 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   case 'macos', 'clang-apple'
   {
     cxx.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
+
     lib{Qt6Core}: cxx.libs += -framework AppKit                 \
                               -framework CoreServices           \
                               -framework DiskArbitration        \
                               -framework Foundation             \
                               -framework IOKit                  \
                               -framework Security
-
-    cxx.poptions += -D_DARWIN_C_SOURCE
   }
   case 'bsd', 'clang', 'freebsd'
     cxx.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
@@ -1037,8 +1019,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/QtCore/mkspecs/netbsd-g++"
   case 'windows', 'msvc'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc" \
-                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-msvc"
 
     # @@ synchronization.lib is only for Windows >= 8; on older versions no
     #    library should be added.
@@ -1056,8 +1037,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc" \
-                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc"
 
     lib{Qt6Core}: cxx.libs += advapi32.lib              \
                               authz.lib                 \
@@ -1072,8 +1052,8 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
   case 'windows', 'gcc', 'mingw32'
   {
-    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++" \
-                    -DMINGW_HAS_SECURE_API=1
+    cxx.poptions += "-I$src_root/QtCore/mkspecs/win32-g++"
+
     cxx.coptions += -fno-keep-inline-dllexport
 
     lib{Qt6Core}: cxx.libs += -ladvapi32        \
