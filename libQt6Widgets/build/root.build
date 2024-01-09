@@ -198,15 +198,6 @@ if ($build.mode != 'skeleton')
     }
   }
 
-  cxx.poptions += -DQT_DEPRECATED_WARNINGS                                      \
-                 -DQT_WARN_DEPRECATED_UP_TO=0x070000                            \
-                 -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000) \
-                 -DQT_LEAN_HEADERS=1                                            \
-                 -DQT_NO_JAVA_STYLE_ITERATORS                                   \
-                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT                       \
-                 -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH                     \
-                 -DQT_NO_AS_CONST=1
-
   # Disable exceptions.
   #
   switch $cxx.class
@@ -222,27 +213,6 @@ if ($build.mode != 'skeleton')
       cxx.coptions += /EHs- /EHc-
     }
   }
-
-  if $windows
-  {
-    # Qt6 supports only Windows 10 and newer. Although the Qt headers do
-    # define WINVER and _WIN32_WINNT (the minimum Windows version supported)
-    # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
-    # Qt can do it.
-    #
-    cxx.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
-                   -DUNICODE -D_UNICODE                         \
-                   -DWIN32                                      \
-                   -D_CRT_SECURE_NO_WARNINGS                    \
-                   -D_USE_MATH_DEFINES
-
-    if ($cxx.target.system == 'mingw32')
-      cxx.poptions += -DMINGW_HAS_SECURE_API=1
-    else
-      cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-  }
-  else
-    cxx.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
 
   # Don't install headers in mkspecs/ (which is at the root level and is shared
   # between QtWidgets/ and QtWidgetsPlugins/).
@@ -261,4 +231,7 @@ if ($build.mode != 'skeleton')
     #
     hxx{*}: install = false
   }
+
+  source build/common.build
+
 } # $build.mode != 'skeleton'
