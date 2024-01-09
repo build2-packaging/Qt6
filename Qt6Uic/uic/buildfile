@@ -161,6 +161,9 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
+all_core_src = $core_src $unix_core_src $win_core_src \
+               $macos_core_src $macos_core_src_mm
+
 gen_hdr = QtCore/qtcoreexports QtCore/qconfig
 
 exe{qt6uic}: hxx{** -{$gen_hdr} +QtCore/Q*.} h{$gen_hdr}        \
@@ -172,6 +175,8 @@ exe{qt6uic}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
 exe{qt6uic}: cxx{$macos_core_src}:               include = $macos
 exe{qt6uic}: mm{$macos_core_src_mm}:             include = $macos
 exe{qt6uic}: cxx{$win_core_src}:                 include = $windows
+
+all_core_src += QtCore/io/qstandardpaths_unix
 
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
@@ -224,49 +229,18 @@ cxx.poptions =+ "-I$out_base"         "-I$src_base"                             
                                       "-I$src_base/python"                              \
                                       "-I$src_base/shared"
 
-cxx.poptions +=                                 \
-  -DQT_BOOTSTRAPPED                             \
-  -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH    \
-  -DQT_LEAN_HEADERS=1                           \
-  -DQT_NO_CAST_FROM_ASCII                       \
-  -DQT_NO_CAST_TO_ASCII                         \
-  -DQT_NO_DEBUG                                 \
-  -DQT_NO_FOREACH                               \
-  -DQT_NO_JAVA_STYLE_ITERATORS                  \
-  -DQT_NO_LINKED_LIST                           \
-  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT      \
-  -DQT_TYPESAFE_FLAGS                           \
-  -DQT_USE_QSTRINGBUILDER                       \
-  -DQT_VERSION_MAJOR="$version.major"           \
-  -DQT_VERSION_MINOR="$version.minor"           \
-  -DQT_VERSION_PATCH="$version.patch"           \
-  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""
-
 if $windows
 {
-  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS     \
-                  -D_USE_MATH_DEFINES           \
-                  -DUNICODE                     \
-                  -D_UNICODE                    \
-                  -DWIN32
-
   if ($cxx.target.system == 'mingw32')
   {
-    cxx.poptions += -DMINGW_HAS_SECURE_API=1
     cxx.coptions += -fno-keep-inline-dllexport
     cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -luuid
   }
   else
-  {
-    cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
     cxx.libs     += ole32.lib advapi32.lib netapi32.lib
-  }
 }
 else
 {
-  cxx.poptions += -D_LARGEFILE64_SOURCE \
-                  -D_LARGEFILE_SOURCE
-
   if $macos
     cxx.libs += -framework AppKit       \
                 -framework CoreServices \
@@ -305,7 +279,11 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions =+ "-I$src_root/uic/mkspecs/win32-g++"
 }
 
-obj{$uic_src}: cxx.poptions += -DQT_UIC
+cxx.poptions += -DQT_NO_CAST_FROM_ASCII \
+                -DQT_NO_FOREACH
+
+obj{$all_core_src}: cxx.poptions += $bootstrap_macros
+obj{$uic_src}:      cxx.poptions += $compiler_macros -DQT_UIC
 
 # Disable exceptions on the uic objects.
 #
