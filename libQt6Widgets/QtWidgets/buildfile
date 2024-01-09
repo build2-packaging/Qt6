@@ -394,13 +394,9 @@ cxx.poptions =+                                                         \
 # Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
 #       so need neither be defined again nor exported.
 #
-cxx.poptions += -DQT_ASCII_CAST_WARNINGS                        \
-                -DQT_BUILDING_QT                                \
-                -DQT_BUILD_WIDGETS_LIB                          \
-                -DQT_MOC_COMPAT                                 \
-                -DQT_NO_CAST_TO_ASCII                           \
-                -DQT_NO_USING_NAMESPACE                         \
-                -DQT_USE_QSTRINGBUILDER
+cxx.poptions += $lib_macros             \
+                -DQT_BUILD_WIDGETS_LIB  \
+                -DQT_NO_USING_NAMESPACE
 
 switch $cxx.target.class, $cxx.target.system
 {
