@@ -22,3 +22,6 @@ test.target = $cxx.target
 # If true, build without -DQT_NO_DEBUG.
 #
 config [bool] config.libQt6Core.debug ?= false
+
+if ($build.mode != 'skeleton')
+  source build/common.build
