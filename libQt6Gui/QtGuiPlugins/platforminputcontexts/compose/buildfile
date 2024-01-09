@@ -44,7 +44,7 @@ moc{qcomposeplatforminputcontextmain}: cxx{qcomposeplatforminputcontextmain} \
 # Build options.
 #
 cxx.poptions =+ "-I$out_base" "-I$src_base"
-cxx.poptions += -DQT_PLUGIN
+cxx.poptions += $plugin_macros
 
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden

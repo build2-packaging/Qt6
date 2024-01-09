@@ -128,7 +128,7 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"                             \
 
 # Define macros.
 #
-cxx.poptions += -DQT_NO_FOREACH
+cxx.poptions += $plugin_macros -DQT_NO_FOREACH
 
 switch $cxx.target.class, $cxx.target.system
 {
