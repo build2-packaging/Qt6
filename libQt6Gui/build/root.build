@@ -186,15 +186,6 @@ if ($build.mode != 'skeleton')
     }
   }
 
-  cc.poptions += -DQT_DEPRECATED_WARNINGS                                       \
-                 -DQT_WARN_DEPRECATED_UP_TO=0x070000                            \
-                 -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000) \
-                 -DQT_LEAN_HEADERS=1                                            \
-                 -DQT_NO_JAVA_STYLE_ITERATORS                                   \
-                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT                       \
-                 -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH                     \
-                 -DQT_NO_AS_CONST=1
-
   # Disable exceptions.
   #
   switch $cxx.class
@@ -211,27 +202,6 @@ if ($build.mode != 'skeleton')
     }
   }
 
-  if $windows
-  {
-    # Qt6 supports only Windows 10 and newer. Although the Qt headers do
-    # define WINVER and _WIN32_WINNT (the minimum Windows version supported)
-    # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
-    # Qt can do it.
-    #
-    cc.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
-                   -DUNICODE -D_UNICODE                         \
-                   -DWIN32                                      \
-                   -D_CRT_SECURE_NO_WARNINGS                    \
-                   -D_USE_MATH_DEFINES
-
-    if ($cxx.target.system == 'mingw32')
-      cc.poptions += -DMINGW_HAS_SECURE_API=1
-    else
-      cc.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-  }
-  else
-    cc.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
-
   # Don't install headers in mkspecs/ and 3rdparty/ (which are at the root level
   # and are shared between QtGui/ and QtGuiPlugins/).
   #
@@ -245,15 +215,6 @@ if ($build.mode != 'skeleton')
     {
       cxx.poptions =+ "-I$out_root/QtGuiPlugins" "-I$src_root/QtGuiPlugins"
 
-      # Poptions used in private libraries (that is, ones that are more like
-      # regular Qt libraries (QtCore, QtGui) and less like plugin libraries).
-      #
-      privlib_poptions = -DQT_ASCII_CAST_WARNINGS       \
-                         -DQT_NO_CAST_TO_ASCII          \
-                         -DQT_BUILDING_QT               \
-                         -DQT_MOC_COMPAT                \
-                         -DQT_USE_QSTRINGBUILDER
-
       if ($cxx.class == 'gcc')
         cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
     }
@@ -263,4 +224,7 @@ if ($build.mode != 'skeleton')
     #
     hxx{*}: install = false
   }
+
+  source build/common.build
+
 } # $build.mode != 'skeleton'

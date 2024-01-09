@@ -143,11 +143,11 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"     \
 cxx.poptions += -DQT_NO_FOREACH
 
 obj{$src $moc_gen_obj} moc{$moc_src_adhoc} cxx{$moc_gen_src}:   \
-  cxx.poptions += $privlib_poptions                             \
+  cxx.poptions += $lib_macros                                   \
                   -DQT_BUILD_XCB_PLUGIN                         \
                   -DQT_BUILD_XCB_QPA_LIB_LIB
 
-{obj moc}{qxcbmain}: cxx.poptions += -DQT_PLUGIN        \
+{obj moc}{qxcbmain}: cxx.poptions += $plugin_macros    \
                                      -DQT_XCB_QPA_LIB_LIB
 
 ../lib{Qt6XcbQpa}: cxx.libs += -pthread                 \

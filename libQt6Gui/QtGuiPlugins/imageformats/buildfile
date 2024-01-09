@@ -45,7 +45,7 @@ lib{qjpeg}: $impl_libs_jpeg
 
 # Build options.
 #
-cxx.poptions += -DQT_PLUGIN
+cxx.poptions += $plugin_macros
 
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
