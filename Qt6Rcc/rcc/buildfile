@@ -153,6 +153,9 @@ macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin        \
                     QtCore/kernel/qcore_foundation                      \
                     QtCore/kernel/qcore_mac
 
+all_core_src = $core_src $unix_core_src $win_core_src \
+               $macos_core_src $macos_core_src_mm
+
 gen_hdr = QtCore/qtcoreexports QtCore/qconfig
 
 exe{qt6rcc}: hxx{** -{$gen_hdr} +QtCore/Q*.} h{$gen_hdr}        \
@@ -164,6 +167,8 @@ exe{qt6rcc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
 exe{qt6rcc}: cxx{$macos_core_src}:               include = $macos
 exe{qt6rcc}: mm{$macos_core_src_mm}:             include = $macos
 exe{qt6rcc}: cxx{$win_core_src}:                 include = $windows
+
+all_core_src += QtCore/io/qstandardpaths_unix
 
 # Ensure that C and C++ source files that are included by other source files
 # instead of compiled themselves are included in the distribution.
@@ -212,40 +217,6 @@ cxx.poptions =+                                                                 
                            "-I$src_root/rcc/QtCore/private/QtCore"              \
                            "-I$src_root/rcc/QtCore/private/QtCore/private"
 
-# Define macros from the upstream build (a union of the bootstrap library and
-# rcc builds as far as possible).
-#
-cxx.poptions +=                                 \
-  -DQT_BOOTSTRAPPED                             \
-  -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH    \
-  -DQT_LEAN_HEADERS=1                           \
-  -DQT_NO_CAST_FROM_ASCII                       \
-  -DQT_NO_CAST_TO_ASCII                         \
-  -DQT_NO_DEBUG                                 \
-  -DQT_NO_FOREACH                               \
-  -DQT_NO_JAVA_STYLE_ITERATORS                  \
-  -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT      \
-  -DQT_TYPESAFE_FLAGS                           \
-  -DQT_USE_QSTRINGBUILDER                       \
-  -DQT_VERSION_MAJOR="$version.major"           \
-  -DQT_VERSION_MINOR="$version.minor"           \
-  -DQT_VERSION_PATCH="$version.patch"           \
-  -DQT_VERSION_STR="\"$version.major.$version.minor.$version.patch\""
-
-if $windows
-{
-    cxx.poptions += -D_CRT_SECURE_NO_WARNINGS   \
-                    -D_USE_MATH_DEFINES         \
-                    -DUNICODE                   \
-                    -D_UNICODE                  \
-                    -DWIN32
-}
-else
-{
-  cxx.poptions += -D_LARGEFILE64_SOURCE \
-                  -D_LARGEFILE_SOURCE
-}
-
 # Add platform-specific header directories, libraries, compilation options,
 # and macro definitions.
 #
@@ -277,28 +248,27 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/rcc/mkspecs/netbsd-g++"
   case 'windows', 'msvc'
   {
-    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-msvc" \
-                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-msvc"
     cxx.libs += ole32.lib advapi32.lib netapi32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
-    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-clang-msvc" \
-                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
-
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-clang-msvc"
     cxx.libs += ole32.lib advapi32.lib netapi32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
-    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-g++" \
-                    -DMINGW_HAS_SECURE_API=1
+    cxx.poptions += "-I$src_root/rcc/mkspecs/win32-g++"
     cxx.coptions += -fno-keep-inline-dllexport
     cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -luuid
   }
 }
 
-obj{$rcc_src}: cxx.poptions += -DQT_RCC
+cxx.poptions += -DQT_NO_CAST_FROM_ASCII \
+                -DQT_NO_FOREACH
+
+obj{$all_core_src}: cxx.poptions += $bootstrap_macros
+obj{$rcc_src}:      cxx.poptions += $compiler_macros -DQT_RCC
 
 # Disable exceptions on the rcc objects.
 #
