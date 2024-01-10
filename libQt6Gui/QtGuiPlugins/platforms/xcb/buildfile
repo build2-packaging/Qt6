@@ -89,13 +89,6 @@ moc_gen_obj = $regex.apply($moc_hdr, '(.+/)?(.+)', '\1moc_\2')
 #
 ../lib{Qt6XcbQpa}: file{xcb.json}: include = adhoc
 
-# Linker version script.
-#
-define vsc: file
-vsc{*}: extension = version
-
-../lib{Qt6XcbQpa}: vsc{QtXcbQpa}: include = ($linux || $bsd ? adhoc : false)
-
 # Dependencies involving moc-generated source files.
 #
 
@@ -156,15 +149,6 @@ obj{$src $moc_gen_obj} moc{$moc_src_adhoc} cxx{$moc_gen_src}:   \
 
 {obj moc}{qxcbmain}: cxx.poptions += -DQT_PLUGIN        \
                                      -DQT_XCB_QPA_LIB_LIB
-
-if ($linux || $bsd)
-{
-  # Note that this version script does not restrict the visibility of any
-  # symbols.
-  #
-  ../lib{Qt6XcbQpa}: \
-    cxx.loptions += "-Wl,--version-script=$src_base/xcb/QtXcbQpa.version"
-}
 
 ../lib{Qt6XcbQpa}: cxx.libs += -pthread                 \
                                -lICE                    \
