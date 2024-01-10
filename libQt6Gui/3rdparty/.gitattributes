@@ -1,2 +1,3 @@
 icc symlink=dir
 wintab symlink=dir
+D3D12MemoryAllocator symlink=dir
