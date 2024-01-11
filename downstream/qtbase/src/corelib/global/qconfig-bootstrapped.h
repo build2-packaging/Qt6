@@ -23,6 +23,18 @@
 
 #ifdef QT_BOOTSTRAPPED
 
+// Add a few additional feature definitions required by Qt6Rcc and Qt6Uic.
+//
+// This is necessary because the upstream rcc and uic are linked against the
+// real QtCore library instead of the bootstrap library which we prefer not to
+// do because Qt6Rcc and Qt6Uic are build-time dependencies of the Qt
+// libraries and thus we would have to build libQt6Core in both the host and
+// target configurations.
+//
+#define QT_FEATURE_xmlstream 1
+#define QT_FEATURE_xmlstreamreader 1
+#define QT_FEATURE_xmlstreamwriter 1
+
 #include <stdlib.h> // for __GLIBC_PREREQ
 
 #ifndef QT_NO_EXCEPTIONS
