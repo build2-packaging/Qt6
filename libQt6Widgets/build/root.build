@@ -166,7 +166,7 @@ if ($build.mode != 'skeleton')
   }}
 
   if! $config.libQt6Widgets.debug
-    cc.poptions += -DQT_NO_DEBUG
+    cxx.poptions += -DQT_NO_DEBUG
 
   # Every directory under mkspecs/ contains a unique `qplatformdefs.h`.
   #
@@ -176,29 +176,29 @@ if ($build.mode != 'skeleton')
   switch $cxx.target.class, $cxx.id, $cxx.target.system
   {
     case 'linux', 'gcc'
-      cc.poptions =+ "-I$src_root/mkspecs/linux-g++"
+      cxx.poptions =+ "-I$src_root/mkspecs/linux-g++"
     case 'linux', 'clang'
-      cc.poptions =+ "-I$src_root/mkspecs/linux-clang"
+      cxx.poptions =+ "-I$src_root/mkspecs/linux-clang"
     case 'macos', 'clang-apple'
-      cc.poptions =+ "-I$src_root/mkspecs/macx-clang"
+      cxx.poptions =+ "-I$src_root/mkspecs/macx-clang"
     case 'bsd', 'clang', 'freebsd'
-      cc.poptions =+ "-I$src_root/mkspecs/freebsd-clang"
+      cxx.poptions =+ "-I$src_root/mkspecs/freebsd-clang"
     case 'bsd', 'gcc', 'openbsd'
-      cc.poptions =+ "-I$src_root/mkspecs/openbsd-g++"
+      cxx.poptions =+ "-I$src_root/mkspecs/openbsd-g++"
     case 'bsd', 'gcc', 'netbsd'
-      cc.poptions =+ "-I$src_root/mkspecs/netbsd-g++"
+      cxx.poptions =+ "-I$src_root/mkspecs/netbsd-g++"
     case 'windows', 'msvc'
-      cc.poptions =+ "-I$src_root/mkspecs/win32-msvc"
+      cxx.poptions =+ "-I$src_root/mkspecs/win32-msvc"
     case 'windows', 'msvc-clang' | 'clang'
-      cc.poptions =+ "-I$src_root/mkspecs/win32-clang-msvc"
+      cxx.poptions =+ "-I$src_root/mkspecs/win32-clang-msvc"
     case 'windows', 'gcc', 'mingw32'
     {
-      cc.poptions =+ "-I$src_root/mkspecs/win32-g++"
-      cc.coptions += -fno-keep-inline-dllexport
+      cxx.poptions =+ "-I$src_root/mkspecs/win32-g++"
+      cxx.coptions += -fno-keep-inline-dllexport
     }
   }
 
-  cc.poptions += -DQT_DEPRECATED_WARNINGS                                       \
+  cxx.poptions += -DQT_DEPRECATED_WARNINGS                                      \
                  -DQT_WARN_DEPRECATED_UP_TO=0x070000                            \
                  -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000) \
                  -DQT_LEAN_HEADERS=1                                            \
@@ -230,19 +230,19 @@ if ($build.mode != 'skeleton')
     # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
     # Qt can do it.
     #
-    cc.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
+    cxx.poptions += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
                    -DUNICODE -D_UNICODE                         \
                    -DWIN32                                      \
                    -D_CRT_SECURE_NO_WARNINGS                    \
                    -D_USE_MATH_DEFINES
 
     if ($cxx.target.system == 'mingw32')
-      cc.poptions += -DMINGW_HAS_SECURE_API=1
+      cxx.poptions += -DMINGW_HAS_SECURE_API=1
     else
-      cc.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+      cxx.poptions += -D_ENABLE_EXTENDED_ALIGNED_STORAGE
   }
   else
-    cc.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
+    cxx.poptions += -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE
 
   # Don't install headers in mkspecs/ (which is at the root level and is shared
   # between QtWidgets/ and QtWidgetsPlugins/).
