@@ -1,0 +1,77 @@
+windows = ($cxx.target.class  == 'windows')
+
+# Note that QT_DEPRECATED_WARNINGS is now obsolete so we don't define it
+# despite it still being defined in some places upstream.
+#
+
+# Macros defined on all targets (libraries, executables, plugins). Note that
+# this variable is only a building block for the more target-specific macros
+# variables below (so it should only be referenced in this file).
+#
+common_macros = -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH      \
+                -DQT_NO_AS_CONST                                \
+                -DQT_NO_JAVA_STYLE_ITERATORS                    \
+                -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_NO_QEXCHANGE
+
+# Upstream defines QT_{WARN,DISABLE}_DEPRECATED_UP_TO and QT_LEAN_HEADERS=1
+# everywhere except the bootstrap library. However these particular macros
+# seem safe to define on the bootstrap library (especially if no compilation
+# errors result) so define them there too for the sake of simplicity.
+#
+common_macros += -DQT_LEAN_HEADERS=1                    \
+                 -DQT_WARN_DEPRECATED_UP_TO=0x070000    \
+                 -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000)
+
+if $windows
+{
+  # Qt6 supports only Windows 10 and newer. Although the Qt headers do
+  # define WINVER and _WIN32_WINNT (the minimum Windows version supported)
+  # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
+  # Qt can do it.
+  #
+  common_macros += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
+                   -DWIN32                                      \
+                   -DNOMINMAX                                   \
+                   -DUNICODE -D_UNICODE                         \
+                   -D_CRT_SECURE_NO_WARNINGS                    \
+                   -D_USE_MATH_DEFINES                          \
+                   -D_ENABLE_EXTENDED_ALIGNED_STORAGE
+
+  if ($cxx.target.system == 'mingw32')
+    common_macros += -DMINGW_HAS_SECURE_API=1
+}
+else
+{
+  # The _LARGEFILE*_SOURCE definitions depend on the `largefile` internal Qt
+  # feature which is always enabled on our supported platforms.
+  #
+  common_macros += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+}
+
+# Macros for all libraries except the bootstrap one. This includes libraries
+# such as the XCB plugin's private implementation library.
+#
+lib_macros = $common_macros             \
+             -DQT_ASCII_CAST_WARNINGS   \
+             -DQT_BUILDING_QT           \
+             -DQT_MOC_COMPAT            \
+             -DQT_NO_CAST_TO_ASCII      \
+             -DQT_USE_QSTRINGBUILDER
+
+# Macros for the Qt compilers: Qt6Moc, Qt6Rcc, and Qt6Uic.
+#
+compiler_macros = $common_macros        \
+                  -DQT_BOOTSTRAPPED     \
+                  -DQT_NO_CAST_TO_ASCII \
+                  -DQT_USE_QSTRINGBUILDER
+
+# Macros for the bootstrap library (built into Qt6Moc, Qt6Uic and Qt6Rcc).
+#
+bootstrap_macros = $compiler_macros     \
+                   -DQT_TYPESAFE_FLAGS
+
+# Macros for all plugins. (Note that this does not include the XCB plugin's
+# private implementation library.)
+#
+plugin_macros = $common_macros -DQT_PLUGIN
