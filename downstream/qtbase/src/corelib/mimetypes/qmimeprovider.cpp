@@ -57,18 +57,6 @@ static inline void appendIfNew(QStringList &list, const QString &str)
         list.push_back(str);
 }
 
-QMimeProviderBase::QMimeProviderBase(QMimeDatabasePrivate *db, const QString &directory)
-    : m_db(db), m_directory(directory)
-{
-}
-
-
-QMimeBinaryProvider::QMimeBinaryProvider(QMimeDatabasePrivate *db, const QString &directory)
-    : QMimeProviderBase(db, directory), m_mimetypeListLoaded(false)
-{
-    ensureLoaded();
-}
-
 struct QMimeBinaryProvider::CacheFile
 {
     CacheFile(const QString &fileName);
@@ -128,6 +116,18 @@ bool QMimeBinaryProvider::CacheFile::reload()
     }
     data = nullptr;
     return load();
+}
+
+QMimeProviderBase::QMimeProviderBase(QMimeDatabasePrivate *db, const QString &directory)
+    : m_db(db), m_directory(directory)
+{
+}
+
+
+QMimeBinaryProvider::QMimeBinaryProvider(QMimeDatabasePrivate *db, const QString &directory)
+    : QMimeProviderBase(db, directory), m_mimetypeListLoaded(false)
+{
+    ensureLoaded();
 }
 
 QMimeBinaryProvider::~QMimeBinaryProvider() = default;
