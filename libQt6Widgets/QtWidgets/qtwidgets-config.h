@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtGui/qtgui-config.h>
+
 #define QT_FEATURE_abstractbutton 1
 #define QT_FEATURE_abstractslider 1
 

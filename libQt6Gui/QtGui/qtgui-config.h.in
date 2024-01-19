@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/qtcore-config.h>
+
 #define QT_FEATURE_accessibility 1
 #if !QT_CONFIG(accessibility)
 #  define QT_NO_ACCESSIBILITY 1
