@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/qconfig.h>
+
 // "Provides easing curve" (animation, interpolation between 0 and 1).
 //
 #define QT_FEATURE_easingcurve 1
