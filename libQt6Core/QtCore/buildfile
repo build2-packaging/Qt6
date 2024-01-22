@@ -14,6 +14,7 @@ windows = ($cxx.target.class  == 'windows')
 unix    = ($cxx.target.class  != 'windows')
 linux   = ($cxx.target.class  == 'linux')
 bsd     = ($cxx.target.class  == 'bsd')
+netbsd  = ($bsd && $cxx.target.system == 'netbsd')
 macos   = ($cxx.target.class  == 'macos')
 
 # Source files.
@@ -27,6 +28,7 @@ src = animation/qabstractanimation              \
       animation/qvariantanimation               \
       compat/removed_api                        \
       global/archdetect                         \
+      global/q23utility                         \
       global/qassert                            \
       global/qendian                            \
       global/qexceptionhandling                 \
@@ -79,6 +81,10 @@ src = animation/qabstractanimation              \
       io/qurlidna                               \
       io/qurlquery                              \
       io/qurlrecode                             \
+      io/qzip                                   \
+      ipc/qsharedmemory                         \
+      ipc/qsystemsemaphore                      \
+      ipc/qtipccommon                           \
       itemmodels/qabstractitemmodel             \
       itemmodels/qabstractproxymodel            \
       itemmodels/qconcatenatetablesproxymodel   \
@@ -105,14 +111,11 @@ src = animation/qabstractanimation              \
       kernel/qmimedata                          \
       kernel/qobject                            \
       kernel/qobjectcleanuphandler              \
-      kernel/qpointer                           \
       kernel/qproperty                          \
       kernel/qsequentialiterable                \
-      kernel/qsharedmemory                      \
       kernel/qsignalmapper                      \
       kernel/qsocketnotifier                    \
       kernel/qsystemerror                       \
-      kernel/qsystemsemaphore                   \
       kernel/qtestsupport_core                  \
       kernel/qtimer                             \
       kernel/qtranslator                        \
@@ -243,6 +246,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qfiledevice                                             \
                 qfileselector                                           \
                 qfilesystemwatcher                                      \
+                qfutureinterface                                        \
                 qfuturewatcher                                          \
                 qidentityproxymodel                                     \
                 qiodevice                                               \
@@ -273,6 +277,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qthreadpool                                             \
                 qtimeline                                               \
                 qtimer                                                  \
+                qtipccommon                                             \
                 qtranslator                                             \
                 qtransposeproxymodel                                    \
                 qvariantanimation
@@ -309,7 +314,8 @@ bsd_moc_hdr = private/QtCore/private/qfilesystemwatcher_kqueue_p
 
 # Source files to be moc'ed and the outputs included.
 #
-moc_src_adhoc = kernel/qtimer   \
+moc_src_adhoc = kernel/qtimer           \
+                thread/qfutureinterface \
                 thread/qthreadpool
 
 win_moc_src_adhoc = io/qfilesystemwatcher_win
@@ -318,24 +324,22 @@ moc_mm_adhoc = kernel/qeventdispatcher_cf
 
 # UNIX source files.
 #
-unix_src = io/forkfd_qt                         \
-           io/qfilesystemengine_unix            \
-           io/qfilesystemiterator_unix          \
-           io/qfsfileengine_unix                \
-           io/qlockfile_unix                    \
-           io/qprocess_unix                     \
-           kernel/qcore_unix                    \
-           kernel/qeventdispatcher_unix         \
-           kernel/qpoll                         \
-           kernel/qsharedmemory_posix           \
-           kernel/qsharedmemory_systemv         \
-           kernel/qsharedmemory_unix            \
-           kernel/qsystemsemaphore_posix        \
-           kernel/qsystemsemaphore_systemv      \
-           kernel/qsystemsemaphore_unix         \
-           kernel/qtimerinfo_unix               \
-           plugin/qlibrary_unix                 \
-           thread/qthread_unix                  \
+unix_src = io/forkfd_qt                 \
+           io/qfilesystemengine_unix    \
+           io/qfilesystemiterator_unix  \
+           io/qfsfileengine_unix        \
+           io/qlockfile_unix            \
+           io/qprocess_unix             \
+           ipc/qsharedmemory_posix      \
+           ipc/qsharedmemory_systemv    \
+           ipc/qsystemsemaphore_posix   \
+           ipc/qsystemsemaphore_systemv \
+           kernel/qcore_unix            \
+           kernel/qeventdispatcher_unix \
+           kernel/qpoll                 \
+           kernel/qtimerinfo_unix       \
+           plugin/qlibrary_unix         \
+           thread/qthread_unix          \
            thread/qwaitcondition_unix
 
 # Linux source files.
@@ -356,12 +360,11 @@ win_src = global/qoperatingsystemversion_win    \
           io/qstorageinfo_win                   \
           io/qwindowspipereader                 \
           io/qwindowspipewriter                 \
+          ipc/qsharedmemory_win                 \
+          ipc/qsystemsemaphore_win              \
           kernel/qcoreapplication_win           \
-          kernel/qelapsedtimer_win              \
           kernel/qeventdispatcher_win           \
           kernel/qfunctions_win                 \
-          kernel/qsharedmemory_win              \
-          kernel/qsystemsemaphore_win           \
           kernel/qwineventnotifier              \
           kernel/qwinregistry                   \
           plugin/qcoffpeparser                  \
@@ -380,7 +383,6 @@ macos_src = io/qsettings_mac            \
             io/qstorageinfo_mac         \
             kernel/qcfsocketnotifier    \
             kernel/qcoreapplication_mac \
-            kernel/qelapsedtimer_mac    \
             kernel/qpermissions         \
             plugin/qmachparser
 
@@ -481,7 +483,6 @@ lib{Qt6Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
 #
 lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
                   io/qstorageinfo_unix          \
-                  kernel/qelapsedtimer_unix     \
                   plugin/qelfparser_p           \
                   text/qlocale_unix             \
                   time/qtimezoneprivate_icu     \
@@ -709,9 +710,9 @@ global/cxx{qconfig-install qconfig-develop}:    \
   in.symbol = '$'
 
 # All-Qt public configuration header. Included by other Qt libraries via
-# QtCore/qglobal.h.
+# QtCore/qtconfiginclude.h.
 #
-# See the .in files for more information.
+# See the .in file for more information.
 #
 h{qconfig}: in{qconfig}
 {
@@ -982,6 +983,12 @@ else
 
   if $linux
     lib{Qt6Core}: cxx.libs += -ldl
+
+
+  # -lrt is required for shm_open() and shm_unlink() on Linux and NetBSD.
+  #
+  if ($linux || $netbsd)
+    lib{Qt6Core}: cxx.libs += -lrt
 }
 
 # Not sure if/when this is necessary (see `libatomic` in
