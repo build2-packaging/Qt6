@@ -488,49 +488,33 @@ lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
                   time/qtimezoneprivate_icu     \
                   time/qtimezoneprivate_tz}: include = ($unix && !$macos)
 
-# Rule to generate a header with C++ compiler's predefined macros. It is used
-# to make them available to moc.
+# Generate a header with the C++ compiler's predefined macros. It is used to
+# make them available to moc.
 #
 # This is necessary because moc's (built-in) preprocessor evaluates conditions
 # and expands macros and thus the set of defined macros can affect its
 # output. For example, signals and/or slots can be defined conditionally.
 #
 # Not all compilers have a mode that produces such a macro list. GCC, Clang,
-# and the Intel compiler do, but MSVC (for one) does not.
+# and the Intel compiler do, but MSVC only got support in MSVC 19 (cl.exe
+# version 19.20). In that case we fall back to a very basic, manually-created
+# predefs header.
 #
-# The upstream build does not generate this header unless the compiler
-# supports such a mode (that is, moc gets no macro definitions at all). The
-# only exception is MSVC in which case Qt6 uses qmake to produce the required
-# output (by passing /Bx<path-to-qmake> to cl.exe, specifying an alternative
-# preprocessor executable), and Qt6 (via CMake) does nothing except for adding
-# the WIN32 macro to moc's definitions. We emulate the Qt6 behavior here for
-# now.
+# Note that CMake puts WIN32 and not _WIN32 into their predefs for moc for
+# some reason. But all the moc-compiled headers check for both _WIN32 and
+# WIN32 so we keep it consistent with the auto-generated version.
 #
-# Note also that this approach is not limited to the Qt libraries themselves:
-# applications may have preprocessor directives that affect the moc output and
-# thus will either need to do something similar or supply the necessary macro
-# definitions manually. As a result, it may make sense to provide a utility
-# (probably as part of the moc package, maybe call it moc-predefs) that knows
-# how to extract this list for various compilers (we could just pass to it the
-# compiler id and maybe the target followed by the compiler command line and
-# it can decide on the best method, potentially invoking the compiler,
-# including for MSVC).
-#
-hxx{$moc_predefs}: mkspecs/features/data/cxx{dummy}
-%
-if ($cxx.id != 'msvc')
+[rule_hint=cxx.predefs] hxx{$moc_predefs}:
+% update
+if ($cxx.id == 'msvc' &&        \
+    ($cxx.version.major < 19 || \
+     ($cxx.version.major == 19 && $cxx.version.minor < 20)))
 {{
-  diag gen $>
-  $cxx.path $cc.poptions $cxx.poptions $cc.coptions $cxx.coptions $cxx.mode \
-            -o $path($>) -dM -E $path($<)
-}}
-else
-{{
-  diag gen $>
-  cat <<EOI >$path($>)
+  diag c++-predefs $>
+
+  cat <<EOF >$path($>)
   #define _WIN32
-  #define WIN32
-  EOI
+  EOF
 }}
 
 # Dependencies involving moc-generated source files.
