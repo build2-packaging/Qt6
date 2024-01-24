@@ -21,7 +21,7 @@ config [bool] config.libQt6Gui.debug ?= false
 
 linux   = ($cxx.target.class == 'linux')
 bsd     = ($cxx.target.class == 'bsd')
-windows = ($cxx.target.class  == 'windows')
+windows = ($cxx.target.class == 'windows')
 macos   = ($cxx.target.class == 'macos')
 unix    = ($cxx.target.class != 'windows')
 

@@ -500,15 +500,9 @@ lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
 # version 19.20). In that case we fall back to a very basic, manually-created
 # predefs header.
 #
-# The upstream build does not generate this header unless the compiler
-# supports such a mode (that is, moc gets no macro definitions at all). The
-# only exception is MSVC in which case Qt5 uses qmake to produce the required
-# output (by passing /Bx<path-to-qmake> to cl.exe, specifying an alternative
-# preprocessor executable), and Qt6 (via CMake) does nothing except for adding
-# the WIN32 macro to moc's definitions.
-#
-# @@ TMP I wonder why cmake puts WIN32 and not _WIN32? Do they think it a
-#        mistake for anything but a real compiler to define _WIN32?
+# Note that CMake puts WIN32 and not _WIN32 into their predefs for moc for
+# some reason. But all the moc-compiled headers check for both _WIN32 and
+# WIN32 so we keep it consistent with the auto-generated version.
 #
 [rule_hint=cxx.predefs] hxx{$moc_predefs}:
 % update
@@ -520,7 +514,6 @@ if ($cxx.id == 'msvc' &&        \
 
   cat <<EOF >$path($>)
   #define _WIN32
-  #define __cplusplus 201402L
   EOF
 }}
 
@@ -946,7 +939,7 @@ if $windows
   # "Remove QT_NO_CAST_TO_ASCII to ensure that the symbols are included in the
   # library."
   #
-  cxx.poptions = $regex.filter_out_match($cxx.poptions, "-DQT_NO_CAST_TO_ASCII")
+  cxx.poptions = $regex.filter_out_match($cxx.poptions, -DQT_NO_CAST_TO_ASCII)
 }
 else
 {
