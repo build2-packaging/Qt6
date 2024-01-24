@@ -452,8 +452,6 @@ done
 ln -s ../../upstream/qtbase/.cmake.conf \
       libQt6Core/QtCore/cmake.conf
 
-ln -s ../../common/qconfig.h.in libQt6Core/QtCore/
-
 ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
       libQt6Core/QtCore/qtcoreexports.h.in
 
@@ -462,21 +460,21 @@ ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Moc/moc/QtCore/qtcoreexports.h.in
 
-ln -s ../../../common/qconfig.h.in Qt6Moc/moc/QtCore/
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Moc/moc/QtCore/
 
 # Qt6Rcc
 #
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Rcc/rcc/QtCore/qtcoreexports.h.in
 
-ln -s ../../../common/qconfig.h.in Qt6Rcc/rcc/QtCore/
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Rcc/rcc/QtCore/
 
 # Qt6Uic
 #
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Uic/uic/QtCore/qtcoreexports.h.in
 
-ln -s ../../../common/qconfig.h.in Qt6Uic/uic/QtCore/
+ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Uic/uic/QtCore/
 
 # Symlink the upstream QtGui sources into libQt6Gui/.
 #

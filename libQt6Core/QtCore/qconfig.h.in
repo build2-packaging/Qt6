@@ -1,1 +1,472 @@
-../../common/qconfig.h.in
+#pragma once
+
+// Copied from qtconfigmacros.h. See README-DEV for an explanation.
+//
+#ifndef QT_CONFIG
+#define QT_CONFIG(feature) (1/QT_FEATURE_##feature == 1)
+#endif
+
+#define QT_VERSION_STR "$QT_VERSION_STR$"
+#define QT_VERSION_MAJOR $QT_VERSION_MAJOR$
+#define QT_VERSION_MINOR $QT_VERSION_MINOR$
+#define QT_VERSION_PATCH $QT_VERSION_PATCH$
+
+// Disable the QtDBus module (has not been packaged for build2).
+//
+#define QT_FEATURE_dbus -1
+#if !QT_CONFIG(dbus)
+#  define QT_NO_DBUS 1
+#endif
+
+// Disable the QtConcurrent module.
+//
+// #define QT_FEATURE_concurrent -1
+// #if !QT_CONFIG(concurrent)
+// #  define QT_NO_CONCURRENT 1
+// #endif
+
+// #define QT_FEATURE_widgets 1 // Moved from private
+// #if !QT_CONFIG(widgets)
+// #  define QT_NO_WIDGETS 1
+// #endif
+
+// These are supported on all platforms other than WASM.
+//
+#define QT_FEATURE_thread 1
+#define QT_FEATURE_future 1
+
+// "Disables code that is not allowed in platform app stores"
+//
+#define QT_FEATURE_appstore_compliant -1
+#if QT_CONFIG(appstore_compliant)
+#  define QT_APPLE_NO_PRIVATE_APIS 1
+#endif
+
+// Not supported.
+//
+// #define QT_COORD_TYPE
+// #define QT_COORD_TYPE_STRING
+// #define QT_EMCC_VERSION
+
+// Zstandard support (system only, not bundled with Qt).
+//
+// @@ TODO Enable when zstd is packaged for build2.
+//
+//    Used to:
+//
+//    - decompress resources (QResource in qtbase/src/corelib/io/qresource.cpp
+//      and rcc, the resource compiler at qtbase/src/tools/rcc/)
+//
+//    - decompress the MIME database
+//      (qtbase/src/corelib/mimetypes/qmimeprovider.cpp)
+//
+//    So if disabled then MIME databases and resources compressed using zstd
+//    are not supported (but zlib-compressed ones are).
+//
+#define QT_FEATURE_zstd -1
+
+// OpenSSL support.
+//
+// Note that, despite the existence of QT_FEATURE_opensslv11, QtCore only uses
+// OpenSSL if version 3 is available. And because OpenSSL3 is not packaged for
+// build2 we therefore always disable OpenSSL.
+//
+// @@ TMP Do we want to turn this on if OpenSSL 3 is installed on the system?
+//        The upstream commit says: "QCryptographicHash: implement OpenSSL 3.0
+//        support, where available. Use OpenSSL 3.0 as a provider of all
+//        hashing algorithms, except the BLAKE2b and BLAKE2s".
+//
+#define QT_FEATURE_openssl -1 // Moved from private
+#if !QT_CONFIG(openssl)
+#  define QT_NO_OPENSSL 1
+#endif
+
+// Always disable OpenSSL 3 because it's not packaged for build2.
+//
+#define QT_FEATURE_opensslv30 -1
+
+#if QT_CONFIG(openssl)
+// Link libQt6Core against OpenSSL instead of loading it at runtime.
+//
+#  define QT_FEATURE_openssl_linked 1
+#  define QT_LINKED_OPENSSL 1
+
+#  define QT_FEATURE_opensslv11 1 // Packaged for build2.
+#else
+#  define QT_FEATURE_openssl_linked -1
+
+#  define QT_FEATURE_opensslv11 -1
+#endif
+
+// Shared vs. static build.
+//
+// Upstream enables QT_FEATURE_shared by default on most platforms and
+// disables QT_FEATURE_static if QT_FEATURE_shared is enabled. So upstream
+// never builds both shared and static libraries.
+//
+// Neither are currently used and the actual code checks the QT_SHARED and
+// QT_STATIC macros which we set in the buildfile.
+//
+// Note: Leave all shared and static features and macros commented-out so that
+//       we'll get a build failure the moment upstream code actually starts
+//       referencing these.
+//
+// #define QT_FEATURE_shared 1
+//
+// #if !QT_CONFIG(shared)
+// #  define QT_FEATURE_static 1
+// #  define QT_STATIC 1 // Never uncomment this line!
+// #else
+// #  define QT_FEATURE_static -1
+// #endif
+
+// "Build Apple Frameworks".
+//
+// Always disable because we don't build frameworks.
+//
+// #if defined(__APPLE__) && defined(QT_SHARED)
+//
+#define QT_FEATURE_framework -1
+
+#if QT_CONFIG(framework)
+#  define QT_MAC_FRAMEWORK_BUILD
+#endif
+
+// #define QT_FEATURE_simulator_and_device -1
+#define QT_FEATURE_debug_and_release -1
+// #define QT_FEATURE_force_asserts -1
+// #define QT_FEATURE_separate_debug_info -1
+// #define QT_FEATURE_cross_compile -1
+// #define QT_FEATURE_rpath 1
+// #define QT_FEATURE_pkg_config -1
+
+// #define QT_FEATURE_developer_build -1 // Moved from private
+// #if QT_CONFIG(developer_build)
+// #  define QT_BUILD_INTERNAL
+// #endif
+
+// Adds -Bsymbolic-functions to the linker command line.
+//
+// #define QT_FEATURE_reduce_relocations -1
+// #if QT_CONFIG(reduce_relocations)
+// #  define QT_REDUCE_RELOCATIONS
+// #endif
+
+// QT_VISIBILITY_AVAILABLE: If true and on a non-Windows platform, sets the
+// values of the Q_DECL_EXPORT, Q_DECL_IMPORT, and Q_DECL_HIDDEN macros to
+// "default", "default", and "hidden", respectively (values of the GCC
+// `visibility` attribute), otherwise they are left undefined. On Windows this
+// macro is ignored.
+//
+#define QT_FEATURE_reduce_exports 1 // Moved from private
+#if QT_CONFIG(reduce_exports)
+#  define QT_VISIBILITY_AVAILABLE true
+#endif
+
+// #define QT_FEATURE_no_direct_extern_access -1 // Moved from private
+// #if QT_CONFIG(no_direct_extern_access)
+// #  define QT_USE_PROTECTED_VISIBILITY
+// #endif
+
+// #define QT_FEATURE_cxx20 1
+// #define QT_FEATURE_cxx2a 1
+// #define QT_FEATURE_cxx2b 1
+
+// Upstream always defines this to 64 on all of our supported platforms.
+//
+// Depends on internal upstream feature "largefile".
+//
+// Note that this macro is not directly related to the _LARGEFILE_SOURCE or
+// _LARGEFILE64_SOURCE macros -- those are UNIX-only while this macro applies
+// to all platforms.
+//
+#define QT_LARGEFILE_SUPPORT 64
+
+#undef qconfig_HAVE_SIGNALING_NAN
+#ifdef qconfig_HAVE_SIGNALING_NAN
+#  define QT_FEATURE_signaling_nan 1
+#else
+#  define QT_FEATURE_signaling_nan -1
+#endif
+
+// @@ TODO Consider enabling these (wasm_simd128/wasm_exceptions) in future.
+//         Currently disabled because upstream support is still very limited:
+//         they only pass -msimd128/-fwasm-exceptions to the compiler; there
+//         is no optimized code.
+//
+#define QT_FEATURE_wasm_simd128 -1
+#if QT_CONFIG(wasm_simd128)
+#  define QT_COMPILER_SUPPORTS_WASM_SIMD128 1
+#endif
+
+#define QT_FEATURE_wasm_exceptions -1
+#if QT_CONFIG(wasm_exceptions)
+#  define QT_WASM_EXCEPTIONS 1
+#endif
+
+// The QT_COMPILER_SUPPORTS_* macros cover support for various instruction
+// with the following convoluted semantics.
+//
+// Distinct places where SIMD decisions are made:
+//
+// 1. Call site: calling SIMD or non-SIMD version based on runtime check.
+//
+//    #if QT_COMPILER_SUPPORTS(XXX)
+//    if (qCpuHasFeature(XXX))
+//       operation_XXX();
+//    else
+//       operation_unoptimized();
+//    #else
+//    operation_unoptimized();
+//    #endif
+//
+// 2. Impl: within "orginary TU" where SIMD code is enabled with an attribute.
+//
+//    #if QT_COMPILER_SUPPORTS_HERE(XXX)
+//    QT_FUNCTION_TARGET(XXX)
+//    static uint crc32()
+//    {
+//      ...
+//    }
+//    #endif
+//
+// 3. Impl: within "SIMD TU" -- TU that is expected to be compiled with SIMD
+//    already enabled, if possible (if not possible, the TU will be empty).
+//
+//    #if QT_COMPILER_SUPPORTS(XXX)
+//    ...
+//    #endif
+//
+// For every "SIMD" instruction set XXX (SSEn, AVXn, AES, F16C, and RDRND*),
+// there are two configuration macros involved:
+//
+// QT_COMPILER_SUPPORTS_XXX
+// QT_COMPILER_SUPPORTS_SIMD_ALWAYS
+//
+// They are used as follows in the above test macros:
+//
+// QT_COMPILER_SUPPORTS(XXX) QT_COMPILER_SUPPORTS_XXX
+//
+// #if QT_COMPILER_SUPPORTS_SIMD_ALWAYS
+//   QT_COMPILER_SUPPORTS_HERE(XXX)  __XXX__ || QT_COMPILER_SUPPORTS_XXX
+// #else
+//   QT_COMPILER_SUPPORTS_HERE(XXX) __XXX__
+// #endif
+//
+// ("SIMD_ALWAYS" means that SIMD is always compiled-in, regardless of what is
+//  enabled with compiler options.)
+//
+// Our plan is as follows: we will always disable
+// QT_COMPILER_SUPPORTS_SIMD_ALWAYS effectively forcing Qt to only use SIMD
+// instructions that are enabled with compiler options. And we will set each
+// QT_COMPILER_SUPPORTS_XXX according to our autoconf macros.
+//
+
+#undef qconfig_HAVE_SSE2
+#ifdef qconfig_HAVE_SSE2
+// #  define QT_FEATURE_sse2 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_SSE2 1
+#else
+// #  define QT_FEATURE_sse2 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_SSE3
+#ifdef qconfig_HAVE_SSE3
+// #  define QT_FEATURE_sse3 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_SSE3 1
+#else
+// #  define QT_FEATURE_sse3 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_SSSE3
+#ifdef qconfig_HAVE_SSSE3
+// #  define QT_FEATURE_ssse3 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_SSSE3 1
+#else
+// #  define QT_FEATURE_ssse3 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_SSE4_1
+#ifdef qconfig_HAVE_SSE4_1
+// #  define QT_FEATURE_sse4_1 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_SSE4_1 1
+#else
+// #  define QT_FEATURE_sse4_1 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_SSE4_2
+#ifdef qconfig_HAVE_SSE4_2
+// #  define QT_FEATURE_sse4_2 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_SSE4_2 1
+#else
+// #  define QT_FEATURE_sse4_2 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_AVX
+#ifdef qconfig_HAVE_AVX
+// #  define QT_FEATURE_avx 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_AVX 1
+#else
+// #  define QT_FEATURE_avx -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_AVX2
+#ifdef qconfig_HAVE_AVX2
+// #  define QT_FEATURE_avx2 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_AVX2 1
+#else
+// #  define QT_FEATURE_avx2 -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_NEON
+#ifdef qconfig_HAVE_NEON
+// #define QT_FEATURE_neon 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_NEON 1
+#else
+// #define QT_FEATURE_neon -1 // Moved from private
+#endif
+
+// #define QT_FEATURE_avx512f -1 // Moved from private
+// #if QT_CONFIG(avx512f)
+// #  define QT_COMPILER_SUPPORTS_AVX512F 1
+// #endif
+
+// #define QT_FEATURE_avx512bw -1 // Moved from private
+// #if QT_CONFIG(avx512bw)
+// #  define QT_COMPILER_SUPPORTS_AVX512BW 1
+// #endif
+
+// #define QT_FEATURE_avx512cd -1 // Moved from private
+// #if QT_CONFIG(avx512cd)
+// #  define QT_COMPILER_SUPPORTS_AVX512CD 1
+// #endif
+
+// #define QT_FEATURE_avx512dq -1 // Moved from private
+// #if QT_CONFIG(avx512dq)
+// #  define QT_COMPILER_SUPPORTS_AVX512DQ 1
+// #endif
+
+// #define QT_FEATURE_avx512er -1 // Moved from private
+// #if QT_CONFIG(avx512er)
+// #  define QT_COMPILER_SUPPORTS_AVX512ER 1
+// #endif
+
+// #define QT_FEATURE_avx512ifma -1 // Moved from private
+// #if QT_CONFIG(avx512ifma)
+// #  define QT_COMPILER_SUPPORTS_AVX512IFMA 1
+// #endif
+
+// #define QT_FEATURE_avx512pf -1 // Moved from private
+// #if QT_CONFIG(avx512pf)
+// #  define QT_COMPILER_SUPPORTS_AVX512PF 1
+// #endif
+
+// #define QT_FEATURE_avx512vbmi -1 // Moved from private
+// #if QT_CONFIG(avx512vbmi)
+// #  define QT_COMPILER_SUPPORTS_AVX512VBMI 1
+// #endif
+
+// #define QT_FEATURE_avx512vbmi2 -1 // Moved from private
+// #if QT_CONFIG(avx512vbmi2)
+// #  define QT_COMPILER_SUPPORTS_AVX512VBMI2
+// #endif
+
+// #define QT_FEATURE_avx512vl -1 // Moved from private
+// #if QT_CONFIG(avx512vl)
+// #  define QT_COMPILER_SUPPORTS_AVX512VL 1
+// #endif
+
+// #define QT_FEATURE_arm_crc32 -1 // Moved from private
+// #if QT_CONFIG(arm_crc32)
+// #  define QT_COMPILER_SUPPORTS_CRC32 1
+// #endif
+
+// #define QT_FEATURE_mips_dsp -1 // Moved from private
+// #if QT_CONFIG(mips_dsp)
+// #  define QT_COMPILER_SUPPORTS_MIPS_DSP 1
+// #endif
+
+// #define QT_FEATURE_mips_dspr2 -1 // Moved from private
+// #if QT_CONFIG(mips_dspr2)
+// #  define QT_COMPILER_SUPPORTS_MIPS_DSPR2 1
+// #endif
+
+// @@ TODO Handle like the various SSE, AVX features.
+//
+
+// #define QT_FEATURE_vaes 1 // Moved from private
+// #if QT_CONFIG(vaes)
+// #  define QT_COMPILER_SUPPORTS_VAES 1
+// #endif
+
+// Floating-point instructions (conversion between half- and single-precision
+// formats).
+//
+// Define QFLOAT16_INCLUDE_FAST to make qfloat16.cpp include qfloat16_f16c.c,
+// but only if both F16C and AVX are enabled (the latter check being necessary
+// due to unconventional macro use in qfloat16_f16c.c; Qt6 fixes this).
+//
+// Note that, although the upstream build compiles qfloat16_f16c.c separately
+// in some cases, we include it because inclusion always works for us and this
+// is what is preferred by the upstream build.
+//
+// See QT_FEATURE_f16c in qconfig_p.h.in.
+//
+#undef qconfig_HAVE_F16C
+#ifdef qconfig_HAVE_F16C
+#  define QT_FEATURE_f16c 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_F16C 1
+#  ifdef qconfig_HAVE_AVX
+#    define QFLOAT16_INCLUDE_FAST
+#  endif
+#else
+#  define QT_FEATURE_f16c -1 // Moved from private
+#endif
+
+// AES intrinsics (AES-NI).
+//
+#undef qconfig_HAVE_AES
+#ifdef qconfig_HAVE_AES
+#  define QT_FEATURE_aesni 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_AES 1
+#else
+#  define QT_FEATURE_aesni -1 // Moved from private
+#endif
+
+// Note: also sets QT_COMPILER_SUPPORTS_AES.
+//
+// #define QT_FEATURE_arm_crypto -1 // Moved from private
+// #if QT_CONFIG(arm_crypto)
+// #  define QT_COMPILER_SUPPORTS_AES 1
+// #endif
+
+// See QT_FEATURE_rdrnd in qconfig_p.h.in.
+//
+#undef qconfig_HAVE_RDRND
+#ifdef qconfig_HAVE_RDRND
+#  define QT_FEATURE_rdrnd 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_RDRND 1
+#else
+#  define QT_FEATURE_rdrnd -1 // Moved from private
+#endif
+
+#undef qconfig_HAVE_RDSEED
+#ifdef qconfig_HAVE_RDSEED
+#  define QT_FEATURE_rdseed 1 // Moved from private
+#  define QT_COMPILER_SUPPORTS_RDSEED 1
+#else
+#  define QT_FEATURE_rdseed -1 // Moved from private
+#endif
+
+// SHA intrinsics.
+//
+// Not referenced anywhere but qtbase/configure.json. (Note that upstream also
+// apparently uses `SHANI` to refer to the same thing.)
+//
+// NOTE: First added to GCC 4.9.0 (2014). Only supported by a few of Intel's
+// mobile and Xeon processors and only Zen in the case of AMD.
+//
+// #define QT_FEATURE_shani 1 // Moved from private
+// #if QT_CONFIG(shani)
+// #  define QT_COMPILER_SUPPORTS_SHA 1
+// #endif
