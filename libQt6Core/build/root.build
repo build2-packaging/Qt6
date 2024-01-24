@@ -5,6 +5,7 @@ using c
 cxx.std = latest
 
 using cxx
+using cxx.predefs
 
 hxx{*}: extension = h
 cxx{*}: extension = cpp
