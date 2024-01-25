@@ -214,9 +214,12 @@ lib{Qt6Widgets}: ../mkspecs/hxx{**}                                 \
 
 # Make sure plugins are built if the shared Qt6Widgets library is built.
 #
+# Note: force posthoc for the dist meta-operation since it ignores false
+#       and would otherwise end up with a cycle.
+#
 for p: $($plugins_dir/ widgets_plugins)
   libs{Qt6Widgets}: $plugins_dir/([name] $first($p)): \
-    include = ($second($p) ? posthoc : false)
+    include = ($second($p) || $build.meta_operation == dist ? posthoc : false)
 
 # Use different versions of kernel/qapplication.cpp for the develop and
 # installed cases because their plugin paths differ.
