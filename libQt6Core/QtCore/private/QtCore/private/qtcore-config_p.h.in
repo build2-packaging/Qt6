@@ -21,6 +21,14 @@
 //
 #define QT_FEATURE_sha3_fast 1
 
+// "Uses OpenSSL based implementation of cryptographic hash algorithms."
+//
+#if QT_CONFIG(openssl_linked) && QT_CONFIG(opensslv30)
+#  define QT_FEATURE_openssl_hash 1
+#else
+#  define QT_FEATURE_openssl_hash -1
+#endif
+
 #define QT_FEATURE_ctf -1   // Event tracing (Platform-independent).
 #define QT_FEATURE_etw -1   // Event tracing (Windows).
 #define QT_FEATURE_lttng -1 // Event tracing (Linux).
@@ -48,6 +56,36 @@
 #  define QT_FEATURE_glibc -1
 #endif
 
+// POSIX and SYSV shared memory and semaphores.
+//
+#undef qtcore_config_p_HAVE_POSIX_SHM
+#ifdef qtcore_config_p_HAVE_POSIX_SHM
+# define QT_FEATURE_posix_shm 1
+#else
+# define QT_FEATURE_posix_shm -1
+#endif
+
+#undef qtcore_config_p_HAVE_POSIX_SEM
+#ifdef qtcore_config_p_HAVE_POSIX_SEM
+# define QT_FEATURE_posix_sem 1
+#else
+# define QT_FEATURE_posix_sem -1
+#endif
+
+#undef qtcore_config_p_HAVE_SYSV_SHM
+#ifdef qtcore_config_p_HAVE_SYSV_SHM
+# define QT_FEATURE_sysv_shm  1
+#else
+# define QT_FEATURE_sysv_shm  -1
+#endif
+
+#undef qtcore_config_p_HAVE_SYSV_SEM
+#ifdef qtcore_config_p_HAVE_SYSV_SEM
+# define QT_FEATURE_sysv_sem  1
+#else
+# define QT_FEATURE_sysv_sem  -1
+#endif
+
 // Upstream build disables autodetection (doesn't run its test) and so this
 // feature was left disabled. However, looking at the upstream code it should
 // work as expected if we enable this on non-Windows platforms. Maybe we can
@@ -65,6 +103,13 @@
 // option to enable it. Note that Debian doesn't link to this library.
 //
 #define QT_FEATURE_journald -1
+
+#undef qtcore_config_p_HAVE_CLOSE_RANGE
+#ifdef qtcore_config_p_HAVE_CLOSE_RANGE
+# define QT_FEATURE_close_range 1
+#else
+# define QT_FEATURE_close_range -1
+#endif
 
 #undef qtcore_config_p_HAVE_CLOCK_GETTIME
 #ifdef qtcore_config_p_HAVE_CLOCK_GETTIME
@@ -110,6 +155,7 @@
 #endif
 
 // #define QT_FEATURE_system_doubleconversion 1
+// #define QT_FEATURE_doubleconversion 1 // Moved to public
 
 // Detect polling functions, in order of precedence: ppoll, pollts, poll,
 // select.

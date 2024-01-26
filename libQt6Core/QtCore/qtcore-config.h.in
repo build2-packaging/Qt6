@@ -170,17 +170,8 @@
 // "Provides a simple streaming API for XML."
 //
 #define QT_FEATURE_xmlstream 1
-#if !QT_CONFIG(xmlstream)
-#  define QT_NO_XMLSTREAM 1
-#endif
 #define QT_FEATURE_xmlstreamreader 1
-#if !QT_CONFIG(xmlstreamreader)
-#  define QT_NO_XMLSTREAMREADER 1
-#endif
 #define QT_FEATURE_xmlstreamwriter 1
-#if !QT_CONFIG(xmlstreamwriter)
-#  define QT_NO_XMLSTREAMWRITER 1
-#endif
 
 // "Provides a higher-level abstraction of environment variables."
 //
@@ -214,7 +205,7 @@
 //
 // Note: leave enabled if uncommenting.
 //
-// #define QT_FEATURE_doubleconversion 1
+// #define QT_FEATURE_doubleconversion 1 // Moved from private
 // #if !QT_CONFIG(doubleconversion)
 // #  define QT_NO_DOUBLECONVERSION 1
 // #endif

@@ -67,10 +67,9 @@
 
 // OpenSSL support.
 //
-// Despite the existence of QT_FEATURE_opensslv11, upstream only uses OpenSSL
-// if version 3 is available (see upstream commit
-// 633c1365966eda89fc883c039683a727d0a0813e; specifically, the OpenSSL-related
-// changes it makes to upstream/qtbase/src/corelib/CMakeLists.txt).
+// Note that, despite the existence of QT_FEATURE_opensslv11, QtCore only uses
+// OpenSSL if version 3 is available. And because OpenSSL3 is not packaged for
+// build2 we therefore always disable OpenSSL.
 //
 // @@ TMP Do we want to turn this on if OpenSSL 3 is installed on the system?
 //        The upstream commit says: "QCryptographicHash: implement OpenSSL 3.0
@@ -169,12 +168,6 @@
 // #  define QT_USE_PROTECTED_VISIBILITY
 // #endif
 
-// #define QT_FEATURE_c99 1
-// #define QT_FEATURE_c11 1
-// #define QT_FEATURE_cxx11 1
-// #define QT_FEATURE_cxx14 1
-// #define QT_FEATURE_cxx17 1
-// #define QT_FEATURE_cxx1z 1
 // #define QT_FEATURE_cxx20 1
 // #define QT_FEATURE_cxx2a 1
 // #define QT_FEATURE_cxx2b 1
