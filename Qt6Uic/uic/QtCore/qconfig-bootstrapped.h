@@ -1,1 +1,1 @@
-../../../upstream/qtbase/src/corelib/global/qconfig-bootstrapped.h
+../../../downstream/qtbase/src/corelib/global/qconfig-bootstrapped.h

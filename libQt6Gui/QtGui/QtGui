@@ -86,11 +86,8 @@
 #include "qrgb.h"
 #include "qrgba64.h"
 #include "qrgbafloat.h"
-#include "qrhi.h"
 #include "qscreen.h"
 #include "qsessionmanager.h"
-#include "qshader.h"
-#include "qshaderdescription.h"
 #if QT_CONFIG(shortcut)
 #include "qshortcut.h"
 #endif

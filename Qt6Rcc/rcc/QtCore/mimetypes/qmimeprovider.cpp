@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/corelib/mimetypes/qmimeprovider.cpp
+../../../../downstream/qtbase/src/corelib/mimetypes/qmimeprovider.cpp
