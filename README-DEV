@@ -1,6 +1,18 @@
+# @@ TMP "Inconsistent compiler behavior" build2 errors when CI'ing clang 18
+# on Windows.
+# E.g. https://ci.stage.build2.org/@f58b86b2-9784-4565-afb0-7cc34001c94e/libQt6Widgets/6.7.2/log/x86_64-microsoft-win32-msvc14.3/windows_10-clang_18_llvm_msvc_17.10/default/stage/0.18.0-a.0.20240628122722.68eac2eacdac
+
+# @@ TODO Windows CI logs do now show compilation of libQt6Core sources. Are
+#    the logs truncated? Need this to confirm macros are correct on Windows.
+
+Qt release information: https://wiki.qt.io/QtReleasing
+
 Also see build2-packaging/Qt5/README-DEV.
 
 1. The upstream build
+
+Note: See Appendix A for instructions for running the upstream build on
+      various operating systems.
 
 Qt5's qmake build has been completely converted to cmake in Qt6.
 
@@ -12,32 +24,25 @@ using the pro2cmake.py script.
 
 1.1 Upstream build documentation
 
-- https://wiki.qt.io/Qt6_Build_System (not much there at the time of writing,
-  however).
+https://wiki.qt.io/Qt6_Build_System (not much there at the time of writing,
+however).
 
-1.2 Finding macro definitions
+1.2 Macro definitions
 
-Unfortunately upstream defines macros in many different places and in many
-different ways and getting the upstream build going is a pain on some
-platforms (Windows), so discovering the set of macros for each target/platform
-is not easy.
+Module-specific macros are defined in each module's CMakeLists.txt. Common
+ones are defined in various .cmake files in upstream/qtbase/cmake, using the
+following variables and functions:
 
-Files that define macros:
-
-  */.cmake.conf (but primarily upstream/qtbase/.cmake.conf)
-  upstream/qtbase/cmake/QtBaseConfigureTests.cmake
-  upstream/qtbase/cmake/QtInternalTargets.cmake
-  upstream/qtbase/cmake/QtBuild.cmake
-  upstream/qtbase/cmake/QtModuleHelpers.cmake
-  Module's CMakeLists.txt
-
-CMake variables/functions that contain/set macro definitions:
-
-  QT_PLATFORM_DEFINITIONS/QT_DEFAULT_PLATFORM_DEFINITIONS
+  QT_DEFAULT_PLATFORM_DEFINITIONS
+  QT_PLATFORM_DEFINITIONS
   target_compile_definitions
   QT_EXTRA_INTERNAL_TARGET_DEFINES
   defines_for_extend_target
   qt_internal_add_global_definition
+
+This list should be relatively stable but probably better be updated
+periodically. Searching upstream/qtbase/cmake/ for some of the macros we
+define in libQt6Core/build/common.build should help identify them.
 
 1.3 Configuration system
 
@@ -169,7 +174,7 @@ However, we treat `PUBLIC PRIVATE` and `PRIVATE PUBLIC` merely as public (that
 is, we do not duplicate these features into both the public and private module
 config headers) for the following reasons:
 
-1) It's not clear that the `PUBLIC PRIVATE` scheme is even necessary. I asked
+a) It's not clear that the `PUBLIC PRIVATE` scheme is even necessary. I asked
    one of the developers who works on the cmake build on IRC what its purpose
    is (in light of the points below) and even he couldn't tell me.
 
@@ -193,7 +198,7 @@ config headers) for the following reasons:
    included was already covered by the global module header scheme for a long
    time.
 
-2) Because we manage the module config headers manually it would be very
+b) Because we manage the module config headers manually it would be very
    tedious to keep every feature duplicated in both files and it would also
    make reading those files much more difficult.
 
@@ -266,6 +271,14 @@ Then make use of something like `git add --patch` to merge the new upstream
 changes and our downstream patches:
 
   $ cp {upstream,downstream}/qtbase/src/tools/moc/generator.cpp
+
+  Use the latest upstream patch to differentiate new upstream code from our
+  patch code:
+
+  $ git -C upstream/qtbase diff v6.4.1 -- src/tools/moc/generator.cpp
+
+  Merge the upstream patch into our patched file:
+
   $ git add --patch downstream/qtbase/src/tools/moc/generator.cpp
 
 2.4. Check whether any bugs reported upstream have been resolved.
@@ -300,7 +313,7 @@ Otherwise, to generate the .qrc files, simply run cmake on the upstream build:
   ./src/widgets/.rcc/qstyle.qrc
   ./src/widgets/.rcc/qmessagebox.qrc
 
-2.6. Check for new or removed Qt configuration features and macros
+2.7. Check for new or removed Qt configuration features and associated macros
 
 Run the `check-config-header` script for all modules:
 
@@ -319,7 +332,32 @@ or removed by the upstream upgrade. Update the downstream module config
 headers indicated by the module and visibility options passed as required (see
 the script itself for the list of headers).
 
-2.7. Misc.
+2.8. Update each module's build
+
+To see changes in a module's build (QtCore, in this example):
+
+  $ git -C upstream/qtbase diff v6.6.1  -- src/corelib/CMakeLists.txt
+
+Look out for dependency changes, new/removed source files, and added/removed
+macro definitions. Also check that we're not still moc'ing sources that no
+longer need it.
+
+2.9. Look for changes to common macros
+
+Search the changes in upstream/qtbase/cmake/ and upstream/qtbase/.cmake.conf
+for instances of the macro-defining functions and variables (listed above in
+the "Upstream build documentation" section):
+
+  $ git -C upstream/qtbase diff v6.6.1  -- cmake/
+
+2.10. Confirm we got all of the macros right
+
+Compare the macros defined in our build to that of the upstream build. This is
+the only way to be sure we got them right because the upstream build defines
+macros in multiple places using multiple methods. (See Appendix A for upstream
+build instructions.)
+
+2.11. Misc.
 
 - Enable OpenSSL 3 support when it's been packaged for build2. (See
   QT_FEATURE_openssl and QT_FEATURE_opensslv30 in qconfig.h.in.)
@@ -347,3 +385,164 @@ do not have the X Window System installed.
 4. Upstream bugs
 
 None, currently.
+
+Appendix A: Running the upstream build
+
+Upstream reference: https://doc.qt.io/qt-6/build-sources.html
+
+A.1. Windows
+
+Upstream reference: https://doc.qt.io/qt-6/windows-building.html
+
+These instructions work on our Windows CI VMs.
+
+Begin from C:\tmp:
+
+  cd C:\tmp
+
+Make various tools available:
+
+  set PATH=%PATH%;C:\build2\bin
+
+Download and install cmake:
+
+  Find download link at https://github.com/Kitware/CMake/releases/.
+
+  curl -L -A git/2.42.0 -sS -O <cmake-download-URL>
+
+  - Run the graphical installer, installing into C:\tmp\cmake.
+
+  - Append cmake.exe location to PATH:
+
+    set PATH=%PATH%;C:\tmp\cmake\bin
+
+Download and "install" Ninja:
+
+  Find download link at https://github.com/ninja-build/ninja/releases/.
+
+  curl -L -A git/2.42.0 -sS -O <ninja-download-URL>
+  unzip ninja-win.zip
+  move ninja.exe C:\build2\bin
+
+Download the python installer:
+
+  Find download link at https://www.python.org/downloads/windows/.
+
+  curl -L -A git/2.42.0 -sS -O <python-download-URL>
+
+  - Run graphic installer, installing into C:\tmp\python.
+
+  - Append python.exe location to PATH:
+
+    set PATH=%PATH%;C:\tmp\python
+
+Set up VS environment:
+
+  "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+
+Clone the upstream Qt repository:
+
+  git clone git://code.qt.io/qt/qtbase.git
+
+Check out the version we're working on:
+
+  git -C qtbase checkout v6.7.2
+
+Set up the Qt build with verbose output:
+
+  mkdir qtbuild
+  cd qtbuild
+  ..\qtbase\configure
+  cmake -DCMAKE_VERBOSE_MAKEFILE=1 ..\qtbase
+
+Run the build, sending output to a file:
+
+  cmake --build . > C:\tmp\qtbuild.txt
+
+(To clean: cmake --build . --target clean)
+
+Download the build log from dev machine:
+
+  scp -o PreferredAuthentications=password \
+      -o UserKnownHostsFile=/dev/null \
+      -o StrictHostKeyChecking=no \
+      -o LogLevel=ERROR \
+      -P <ssh-tunnel-port> \
+      build@localhost:C:/tmp/qtbuild.txt \
+      ~
+
+A.2. macOS
+
+Upstream reference: https://doc.qt.io/qt-6/macos-building.html
+
+These instructions work on our macOS CI VMs.
+
+Download and install cmake:
+
+  Find download link at https://github.com/Kitware/CMake/releases/.
+
+  curl -L -A git/2.42.0 -sS -O <cmake-download-URL>
+
+  Run the graphical installer:
+
+    open cmake-3.30.0-macos10.10-universal.dmg
+
+  Create the cmake executable symlinks:
+
+    sudo "/Applications/CMake.app/Contents/bin/cmake-gui" --install
+
+Download and "install" Ninja:
+
+  Find download link at https://github.com/ninja-build/ninja/releases/.
+
+  curl -L -A git/2.42.0 -sS -O <ninja-download-URL>
+  unzip ninja-mac.zip
+  sudo ln -s $PWD/ninja /usr/local/bin
+
+Clone the upstream Qt repository:
+
+  git clone git://code.qt.io/qt/qtbase.git
+
+Check out the version we're working on:
+
+  git -C qtbase checkout v6.7.2
+
+Set up the Qt build with verbose output:
+
+  mkdir qtbuild
+  cd qtbuild
+  ../qtbase/configure
+  cmake -DCMAKE_VERBOSE_MAKEFILE=1 ../qtbase
+
+Run the build, sending output to a file:
+
+  cmake --build . > qtbuild.txt
+
+(To clean: cmake --build . --target clean)
+
+Create an archive containing the cmake autogen (moc, rcc, uic) build
+parameters:
+
+  tar czf moc_mac.tgz src/corelib/CMakeFiles/Core_autogen.dir \
+                      src/gui/CMakeFiles/Gui_autogen.dir \
+                      src/widgets/CMakeFiles/Widgets_autogen.dir
+
+Download the build log from dev machine:
+
+  scp -o PreferredAuthentications=password \
+      -o UserKnownHostsFile=/dev/null \
+      -o StrictHostKeyChecking=no \
+      -o LogLevel=ERROR \
+      -P <ssh-tunnel-port> \
+      build@localhost:qtbuild.txt \
+      ~
+
+Download the cmake autogen archive from dev machine:
+
+  scp -o PreferredAuthentications=password \
+      -o UserKnownHostsFile=/dev/null \
+      -o StrictHostKeyChecking=no \
+      -o LogLevel=ERROR \
+      -P <ssh-tunnel-port> \
+      build@localhost:qtbuild/moc_mac.tgz \
+      ~
