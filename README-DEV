@@ -346,14 +346,4 @@ do not have the X Window System installed.
 
 4. Upstream bugs
 
-https://bugreports.qt.io/browse/QTBUG-115201
-
-Missing <QtGui/QWindow> include in gui/kernel/qplatformwindow_p.h
-
-This patch has been merged into their as yet unreleased 6.7 branch but do look
-out for it when upgrading to future 6.6.x releases.
-
-https://bugreports.qt.io/browse/QTBUG-121204
-
-~unique_ptr() static assertion failure due to incomplete type T (C++23) in
-corelib/mimetypes/qmimeprovider.cpp.
+None, currently.
