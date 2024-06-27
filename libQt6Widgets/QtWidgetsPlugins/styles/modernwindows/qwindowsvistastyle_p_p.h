@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/plugins/styles/modernwindows/qwindowsvistastyle_p_p.h
