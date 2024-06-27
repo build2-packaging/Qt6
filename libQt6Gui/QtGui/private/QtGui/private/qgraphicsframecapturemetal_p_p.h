@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/util/qgraphicsframecapturemetal_p_p.h

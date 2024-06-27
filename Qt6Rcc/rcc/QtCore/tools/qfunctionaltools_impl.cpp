@@ -1,0 +1,1 @@
+../../../../upstream/qtbase/src/corelib/tools/qfunctionaltools_impl.cpp

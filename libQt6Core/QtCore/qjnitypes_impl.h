@@ -1,0 +1,1 @@
+../../upstream/qtbase/src/corelib/kernel/qjnitypes_impl.h

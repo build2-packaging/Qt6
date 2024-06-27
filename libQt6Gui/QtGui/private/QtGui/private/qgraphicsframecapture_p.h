@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/util/qgraphicsframecapture_p.h
