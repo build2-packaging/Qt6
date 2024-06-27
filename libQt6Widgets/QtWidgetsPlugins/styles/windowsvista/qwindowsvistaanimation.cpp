@@ -1,1 +1,0 @@
-../../../../upstream/qtbase/src/plugins/styles/windowsvista/qwindowsvistaanimation.cpp

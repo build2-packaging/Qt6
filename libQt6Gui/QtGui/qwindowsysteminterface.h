@@ -1,1 +1,0 @@
-../../upstream/qtbase/src/gui/kernel/qwindowsysteminterface.h
