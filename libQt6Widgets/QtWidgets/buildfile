@@ -160,7 +160,8 @@ macos_mm = widgets/qmenu_mac
 #
 qrc = dialogs/qmessagebox       \
       styles/qstyle             \
-      styles/qstyle1
+      styles/qstyle1            \
+      styles/qstyle_fusion
 
 # Resources.
 #
