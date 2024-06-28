@@ -51,12 +51,6 @@
 //
 #define QT_FEATURE_system_libb2 1
 
-#ifdef __GLIBC__
-#  define QT_FEATURE_glibc 1
-#else
-#  define QT_FEATURE_glibc -1
-#endif
-
 // POSIX and SYSV shared memory and semaphores.
 //
 #undef qtcore_config_p_HAVE_POSIX_SHM
@@ -218,13 +212,6 @@
 #  define QT_FEATURE_renameat2 1
 #else
 #  define QT_FEATURE_renameat2 -1
-#endif
-
-#undef qtcore_config_p_HAVE_STATX
-#ifdef qtcore_config_p_HAVE_STATX
-#  define QT_FEATURE_statx 1
-#else
-#  define QT_FEATURE_statx -1
 #endif
 
 // @@ TODO Enable when libbacktrace is packaged for build2.

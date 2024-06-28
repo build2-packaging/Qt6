@@ -347,6 +347,12 @@
 #define QT_FEATURE_xcb_glx_plugin -1
 #endif
 
+// Disable Wayland. Requires the QtWayland module, AKA the "Qt Wayland
+// Compositor". (This is the module that provides the Wayland QPA (platform
+// integration) plugin.)
+//
+#define QT_FEATURE_wayland -1
+
 // Disable OpenGL and Vulkan.
 //
 #define QT_FEATURE_dynamicgl -1

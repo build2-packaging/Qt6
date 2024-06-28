@@ -264,14 +264,6 @@
 #  define QT_NO_LIBRARY 1
 #endif
 
-#undef qtcore_config_HAVE_EVENTFD
-#ifdef qtcore_config_HAVE_EVENTFD
-#  define QT_FEATURE_eventfd 1
-#else
-#  define QT_FEATURE_eventfd -1
-#  define QT_NO_EVENTFD 1
-#endif
-
 #undef qtcore_config_HAVE_THREADSAFE_CLOEXEC
 #ifdef qtcore_config_HAVE_THREADSAFE_CLOEXEC
 #  define QT_THREADSAFE_CLOEXEC 1

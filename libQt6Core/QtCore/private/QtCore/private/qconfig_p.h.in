@@ -1,11 +1,5 @@
 #include <QtCore/qconfig.h>
 
-// Undefined because it's not referenced in any upstream source code.
-//
-// #define QT_COPYRIGHT
-
-#define QT_COPYRIGHT_YEAR "$QT_COPYRIGHT_YEAR$"
-
 // Qt modules.
 //
 // #define QT_FEATURE_gui 1
@@ -59,6 +53,7 @@
 // #define QT_FEATURE_use_gold_linker -1
 // #define QT_FEATURE_use_lld_linker -1
 // #define QT_FEATURE_use_mold_linker -1
+// #define QT_FEATURE_elf_private_full_version -1
 
 #undef qconfig_p_HAVE_DLOPEN
 #ifdef qconfig_p_HAVE_DLOPEN

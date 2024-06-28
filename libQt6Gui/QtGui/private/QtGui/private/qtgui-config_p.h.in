@@ -14,6 +14,15 @@
 //
 #define QT_FEATURE_raster_fp 1
 
+// Disable because it's used only for graphics debugging and adds a
+// dependency.
+//
+// "Provides a way to capture a graphic's API calls for a rendered frame."
+//
+// Requires the RenderDoc library on non-Apple platforms.
+//
+#define QT_FEATURE_graphicsframecapture -1
+
 // #define QT_FEATURE_imageio_text_loading 1 // Moved to public
 // #define QT_FEATURE_gif 1 // Moved to public
 // #define QT_FEATURE_jpeg 1 // Moved to public

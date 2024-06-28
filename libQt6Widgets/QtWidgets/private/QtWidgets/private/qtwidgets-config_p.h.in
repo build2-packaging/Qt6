@@ -8,5 +8,6 @@
 
 #define QT_FEATURE_gtk3 -1
 #define QT_FEATURE_style_mac @QT_FEATURE_style_mac@
+#define QT_FEATURE_style_windows11    @QT_FEATURE_style_windows11@
 #define QT_FEATURE_style_windowsvista @QT_FEATURE_style_windowsvista@
 #define QT_FEATURE_style_android -1

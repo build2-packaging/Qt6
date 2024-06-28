@@ -11,6 +11,8 @@
 #define QT_VERSION_MINOR $QT_VERSION_MINOR$
 #define QT_VERSION_PATCH $QT_VERSION_PATCH$
 
+#define QT_COPYRIGHT "$QT_COPYRIGHT$"
+
 // Disable the QtDBus module (has not been packaged for build2).
 //
 #define QT_FEATURE_dbus -1

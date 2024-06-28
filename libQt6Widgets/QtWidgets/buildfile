@@ -372,6 +372,12 @@ private/QtWidgets/private/hxx{qtwidgets-config_p}: \
   private/QtWidgets/private/in{qtwidgets-config_p}
 {
   QT_FEATURE_style_mac          = ($macos   ? 1 : -1)
+
+  # Note: Although the windowsvista style has been replaced with the windows11
+  #       style, the windowsvista feature is still referenced by upstream code
+  #       so we must define it.
+  #
+  QT_FEATURE_style_windows11    = ($windows ? 1 : -1)
   QT_FEATURE_style_windowsvista = ($windows ? 1 : -1)
 }
 
