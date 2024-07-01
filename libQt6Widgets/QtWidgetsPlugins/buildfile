@@ -7,4 +7,4 @@ include styles/
 #
 widgets_plugins = \
   styles/libs{qmacstyle}@$macos \
-  styles/libs{qwindowsvistastyle}@$windows
+  styles/libs{qmodernwindowsstyle}@$windows

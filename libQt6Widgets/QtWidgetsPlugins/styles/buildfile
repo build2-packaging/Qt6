@@ -1,5 +1,5 @@
 include mac/
-include windowsvista/
+include modernwindows/
 
-./: lib{qmacstyle}:          include = $macos
-./: lib{qwindowsvistastyle}: include = $windows
+./: lib{qmacstyle}:           include = $macos
+./: lib{qmodernwindowsstyle}: include = $windows

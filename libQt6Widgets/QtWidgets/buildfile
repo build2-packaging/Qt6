@@ -14,6 +14,8 @@ import priv_intf_libs = libQt6Gui%lib{Qt6GuiPrivate}
 plugins_dir = [dir_path] ../QtWidgetsPlugins/
 include $plugins_dir
 
+# Headers to be moc'd and the outputs included.
+#
 moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
                 private/QtWidgets/private/qcolumnviewgrip_p             \
                 private/QtWidgets/private/qcombobox_p                   \
@@ -150,6 +152,34 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
                 qwidgetaction                                           \
                 qwizard
 
+# Headers to be moc'd and the outputs compiled.
+#
+moc_hdr = qrhiwidget
+
+# Source files to be moc'd and the outputs included.
+#
+moc_src_adhoc = dialogs/qcolordialog            \
+                dialogs/qfontdialog             \
+                dialogs/qinputdialog            \
+                dialogs/qmessagebox             \
+                itemviews/qitemeditorfactory    \
+                itemviews/qlistwidget           \
+                itemviews/qtableview            \
+                kernel/qtooltip                 \
+                kernel/qwhatsthis               \
+                kernel/qwidgetrepaintmanager    \
+                util/qsystemtrayicon_x11        \
+                util/qundoview                  \
+                widgets/qcalendarwidget         \
+                widgets/qdockwidget             \
+                widgets/qeffects                \
+                widgets/qfontcombobox           \
+                widgets/qmainwindowlayout       \
+                widgets/qmdisubwindow           \
+                widgets/qmenu                   \
+                widgets/qtabbar                 \
+                widgets/qtoolbox
+
 win_src = dialogs/qwizard_win
 
 macos_src = kernel/qmacgesturerecognizer
@@ -181,10 +211,10 @@ gen_hdr = private/QtWidgets/private/qtwidgets-config_p \
 # moc_foo.cpp) and by qrc from resource collection files (foo.qrc ->
 # qrc_foo.cpp).
 #
-gen_src  = $regex.apply($moc_hdr_adhoc $macos_moc_hdr,  \
-                       '(.+/)?(.+)', 'moc_\2')          \
-           $regex.apply($qrc,                           \
-                       '(.+/)?(.+)', 'qrc_\2')
+gen_src = $regex.apply($moc_hdr $moc_hdr_adhoc $macos_moc_hdr, \
+                      '(.+/)?(.+)', 'moc_\2')                  \
+          $regex.apply($qrc,                                   \
+                      '(.+/)?(.+)', 'qrc_\2')
 
 ./: lib{Qt6Widgets}
 
@@ -258,6 +288,13 @@ lib{Qt6Widgets}: cxx{util/qsystemtrayicon_qpa}: include = ($windows || $macos)
 # (moc_foo.cpp), and the header files they were generated from (for example,
 # `moc foo.h` produces moc_foo.cpp).
 #
+for s: hxx{$moc_hdr}
+{
+  n = $name($s)
+  cxx{moc_$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+  lib{Qt6Widgets}: cxx{moc_$n}
+}
+
 for s: hxx{$moc_hdr_adhoc}
 {
   n = $name($s)
@@ -276,6 +313,20 @@ for s: hxx{$moc_hdr_adhoc}
 # moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
 # which includes cxx{moc_foo}.
 #
+for s: $moc_src_adhoc
+  lib{Qt6Widgets}: moc{$name($s)}: include = adhoc
+
+for s: cxx{kernel/qtooltip              \
+           kernel/qwhatsthis            \
+           util/qsystemtrayicon_x11     \
+           widgets/qeffects}
+{
+  n = $name($s)
+  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+}
+
+# The following moc{} targets all have different cxx{moc_*} dependencies.
+#
 for s: cxx{dialogs/qcolordialog         \
            dialogs/qfontdialog          \
            dialogs/qinputdialog         \
@@ -290,40 +341,26 @@ for s: cxx{dialogs/qcolordialog         \
            widgets/qtoolbox}
 {
   n = $name($s)
-  lib{Qt6Widgets}: moc{$n}: include = adhoc
-  moc{$n}: $s libul{Qt6WidgetsMeta} cxx{moc_$n} hxx{$gen_hdr}
+  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
+           cxx{moc_$n}
 }
 
-for s: cxx{kernel/qtooltip              \
-           kernel/qwhatsthis            \
-           util/qsystemtrayicon_x11     \
-           widgets/qeffects}
+for s: cxx{itemviews/qlistwidget \
+           widgets/qdockwidget}
 {
   n = $name($s)
-  lib{Qt6Widgets}: moc{$n}: include = adhoc
-  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}  \
+           cxx{moc_$n} cxx{moc_$(n)_p}
 }
 
-# More or less as above, except with different cxx{moc_*} dependencies.
-#
-for n: qdockwidget              \
-       qitemeditorfactory       \
-       qlistwidget              \
-       qwidgetrepaintmanager
-  lib{Qt6Widgets}: moc{$n}: include = adhoc
-
-moc{qdockwidget}:           cxx{widgets/qdockwidget}            \
-                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
-                            cxx{moc_qdockwidget} cxx{moc_qdockwidget_p}
-moc{qlistwidget}:           cxx{itemviews/qlistwidget}          \
-                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
-                            cxx{moc_qlistwidget} cxx{moc_qlistwidget_p}
-moc{qitemeditorfactory}:    cxx{itemviews/qitemeditorfactory}   \
-                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
-                            cxx{moc_qitemeditorfactory_p}
-moc{qwidgetrepaintmanager}: cxx{kernel/qwidgetrepaintmanager}   \
-                            libul{Qt6WidgetsMeta} hxx{$gen_hdr} \
-                            cxx{moc_qwidgetrepaintmanager_p}
+for s: cxx{itemviews/qitemeditorfactory \
+           kernel/qwidgetrepaintmanager \
+           widgets/qmainwindowlayout}
+{
+  n = $name($s)
+  moc{$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}  \
+           cxx{moc_$(n)_p}
+}
 
 # Dependencies involving source files generated by rcc from Qt resource
 # collection files (foo.qrc -> qrc_foo.cpp).
@@ -331,8 +368,8 @@ moc{qwidgetrepaintmanager}: cxx{kernel/qwidgetrepaintmanager}   \
 for s: qrc{$qrc}
 {
   n = $name($s)
-  lib{Qt6Widgets}: cxx{qrc_$(n)}
-  cxx{qrc_$(n)}: $s
+  lib{Qt6Widgets}: cxx{qrc_$n}
+  cxx{qrc_$n}: $s
 }
 
 # Ensure resources are distributed.
@@ -345,8 +382,8 @@ lib{Qt6Widgets}: $rc: include = adhoc
 for s: ui{$ui}
 {
   n = $name($s)
-  lib{Qt6Widgets}: hxx{ui_$(n)}
-  hxx{ui_$(n)}: $s
+  lib{Qt6Widgets}: hxx{ui_$n}
+  hxx{ui_$n}: $s
 }
 
 lib{Qt6Widgets}: libul{Qt6WidgetsMeta} $impl_libs
@@ -406,8 +443,9 @@ cxx.poptions =+                                                         \
 # Note: QT_NO_VERSION_TAGGING and QT_SHARED/QT_STATIC are exported by QtCore
 #       so need neither be defined again nor exported.
 #
-cxx.poptions += $lib_macros             \
-                -DQT_BUILD_WIDGETS_LIB  \
+cxx.poptions += $lib_macros                     \
+                -DQT_BUILD_WIDGETS_LIB          \
+                -DQT_NO_CONTEXTLESS_CONNECT     \
                 -DQT_NO_USING_NAMESPACE
 
 switch $cxx.target.class, $cxx.target.system
