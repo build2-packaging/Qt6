@@ -112,7 +112,6 @@ core_src = QtCore/global/qassert                        \
            QtCore/time/qromancalendar                   \
            QtCore/time/qtimezone                        \
            QtCore/tools/qarraydata                      \
-           QtCore/tools/qbitarray                       \
            QtCore/tools/qcommandlineoption              \
            QtCore/tools/qcommandlineparser              \
            QtCore/tools/qcryptographichash              \
@@ -170,21 +169,28 @@ exe{qt6rcc}: cxx{$win_core_src}:                 include = $windows
 
 all_core_src += QtCore/io/qstandardpaths_unix
 
-# Ensure that C and C++ source files that are included by other source files
-# instead of compiled themselves are included in the distribution.
+# Ensure included C and C++ source files and other files are included in the
+# distribution.
 #
 exe{qt6rcc}: cxx{3rdparty/sha1/sha1}    \
              cxx{** -{$rcc_src          \
                       $core_src         \
                       $unix_core_src    \
                       $win_core_src     \
-                      $macos_core_src}}: include = adhoc
+                      $macos_core_src}} \
+             file{cmake.conf}: include = adhoc
 
 # Generated headers and source files.
 #
 using autoconf
 
 QtCore/h{qconfig}: in.symbol = '$'
+
+# Extract the copyright string from upstream/qtbase/.cmake.conf.
+#
+qt_copyright = $process.run_regex(cat $src_base/cmake.conf,             \
+                                  '^\s*set\(QT_COPYRIGHT\s+"(.+)"\)',   \
+                                  '\1')
 
 # All-Qt public configuration header. Included by other Qt libraries via
 # QtCore/qtconfiginclude.h.
@@ -199,6 +205,8 @@ QtCore/h{qconfig}: QtCore/in{qconfig}
   QT_VERSION_MAJOR="$version.major"
   QT_VERSION_MINOR="$version.minor"
   QT_VERSION_PATCH="$version.patch"
+
+  QT_COPYRIGHT="$qt_copyright"
 }
 
 QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
@@ -264,8 +272,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-cxx.poptions += -DQT_NO_CAST_FROM_ASCII \
-                -DQT_NO_FOREACH
+cxx.poptions += -DQT_NO_CAST_FROM_ASCII
 
 obj{$all_core_src}: cxx.poptions += $bootstrap_macros
 obj{$rcc_src}:      cxx.poptions += $compiler_macros -DQT_RCC
