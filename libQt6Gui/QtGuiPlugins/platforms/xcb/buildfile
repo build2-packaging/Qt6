@@ -49,7 +49,8 @@ moc_hdr_adhoc = qxcbclipboard           \
 
 # C++ headers to be moc'd (foo.h -> moc_foo.cpp) and the output compiled.
 #
-moc_hdr = gl_integrations/qxcbglintegrationplugin
+moc_hdr = gl_integrations/qxcbglintegrationplugin \
+          qxcbwindow
 
 # C++ sources files to be moc'd (foo.cpp -> foo.moc) and the output included.
 #
@@ -137,10 +138,6 @@ moc{qxcbclipboard}: cxx{moc_qxcbclipboard}
 #
 cxx.poptions =+ "-I$out_base" "-I$src_base"     \
                 "-I$src_base/gl_integrations"
-
-# Common options (private and main sources)
-#
-cxx.poptions += -DQT_NO_FOREACH
 
 obj{$src $moc_gen_obj} moc{$moc_src_adhoc} cxx{$moc_gen_src}:   \
   cxx.poptions += $lib_macros                                   \
