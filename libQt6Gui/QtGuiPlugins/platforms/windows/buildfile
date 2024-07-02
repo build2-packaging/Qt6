@@ -15,6 +15,7 @@ src = main                                              \
       qwindowsdropdataobject                            \
       qwindowsgdiintegration                            \
       qwindowsgdinativeinterface                        \
+      qwindowsiconengine                                \
       qwindowsinputcontext                              \
       qwindowsintegration                               \
       qwindowsinternalmimedata                          \
@@ -128,7 +129,7 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"                             \
 
 # Define macros.
 #
-cxx.poptions += $plugin_macros -DQT_NO_FOREACH
+cxx.poptions += $plugin_macros
 
 switch $cxx.target.class, $cxx.target.system
 {
