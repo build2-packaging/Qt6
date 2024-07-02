@@ -129,15 +129,16 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 
 # Define macros.
 #
-cxx.poptions += $plugin_macros -DQT_NO_FOREACH
+cxx.poptions += $plugin_macros
 
-../lib{qcocoa}: cxx.libs += -framework AppKit           \
-                            -framework Carbon           \
-                            -framework CoreServices     \
-                            -framework CoreVideo        \
-                            -framework IOKit            \
-                            -framework IOSurface        \
-                            -framework Metal            \
+../lib{qcocoa}: cxx.libs += -framework AppKit                   \
+                            -framework Carbon                   \
+                            -framework CoreServices             \
+                            -framework CoreVideo                \
+                            -framework IOKit                    \
+                            -framework IOSurface                \
+                            -framework Metal                    \
+                            -framework UniformTypeIdentifiers   \
                             -framework QuartzCore
 
 # Installation.
