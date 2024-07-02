@@ -10,9 +10,11 @@ windows = ($cxx.target.class  == 'windows')
 #
 common_macros = -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH      \
                 -DQT_NO_AS_CONST                                \
+                -DQT_NO_FOREACH                                 \
                 -DQT_NO_JAVA_STYLE_ITERATORS                    \
                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
-                -DQT_NO_QEXCHANGE
+                -DQT_NO_QEXCHANGE                               \
+                -DQT_USE_QSTRINGBUILDER
 
 # Upstream defines QT_{WARN,DISABLE}_DEPRECATED_UP_TO and QT_LEAN_HEADERS=1
 # everywhere except the bootstrap library. However these particular macros
@@ -30,12 +32,17 @@ if $windows
   # to 0x0A00 if they're undefined, mingw defines them to Windows 7 before
   # Qt can do it.
   #
-  common_macros += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00        \
-                   -DWIN32                                      \
-                   -DNOMINMAX                                   \
-                   -DUNICODE -D_UNICODE                         \
-                   -D_CRT_SECURE_NO_WARNINGS                    \
-                   -D_USE_MATH_DEFINES                          \
+  common_macros += -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00 \
+                   -DWIN32
+
+  # Only x86 and ARM supported from Windows 2000 onwards.
+  #
+  if ($cc.target.cpu == 'x86_64'|| $cc.target.cpu == 'aarch64')
+    common_macros += -D_WIN64 -DWIN64
+
+  common_macros += -DNOMINMAX                   \
+                   -DUNICODE -D_UNICODE         \
+                   -D_CRT_SECURE_NO_WARNINGS    \
                    -D_ENABLE_EXTENDED_ALIGNED_STORAGE
 
   if ($cxx.target.system == 'mingw32')
@@ -56,17 +63,31 @@ lib_macros = $common_macros             \
              -DQT_ASCII_CAST_WARNINGS   \
              -DQT_BUILDING_QT           \
              -DQT_MOC_COMPAT            \
-             -DQT_NO_CAST_TO_ASCII      \
-             -DQT_USE_QSTRINGBUILDER
+             -DQT_NO_CAST_TO_ASCII
+
+if $windows
+  lib_macros += -D_USE_MATH_DEFINES
 
 # Macros for the Qt compilers: Qt6Moc, Qt6Rcc, and Qt6Uic.
 #
+# Note that, unlike upstream, where moc consumes the bootstrap library while
+# rcc and uic consume QtCore proper, we compile the upstream bootstrap library
+# code into all of the compilers' executables. As a result we diverge from
+# upstream by defining QT_BOOTSTRAPPED and QT_NO_CAST_TO_ASCII on all
+# compilers.
+#
+# Note that unlike upstream we do not define the QT_VERSION_* macros because
+# their definitions in the module config headers cover all references in our
+# case (probably because we include the corresponding public header from
+# private module config headers, unlike upstream; see README-DEV).
+#
 compiler_macros = $common_macros        \
                   -DQT_BOOTSTRAPPED     \
-                  -DQT_NO_CAST_TO_ASCII \
-                  -DQT_USE_QSTRINGBUILDER
+                  -DQT_NO_CAST_TO_ASCII
 
 # Macros for the bootstrap library (built into Qt6Moc, Qt6Uic and Qt6Rcc).
+#
+# See note above about the QT_VERSION_* macros.
 #
 bootstrap_macros = $compiler_macros     \
                    -DQT_TYPESAFE_FLAGS
