@@ -1,1 +1,1 @@
-#include "qprocessordetection.h"
+#include "qprocessordetection.h" // IWYU pragma: export

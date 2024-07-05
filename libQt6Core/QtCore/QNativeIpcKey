@@ -1,1 +1,1 @@
-#include "qtipccommon.h"
+#include "qtipccommon.h" // IWYU pragma: export

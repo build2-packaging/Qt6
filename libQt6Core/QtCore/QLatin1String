@@ -1,1 +1,1 @@
-#include "qlatin1stringview.h"
+#include "qlatin1stringview.h" // IWYU pragma: export

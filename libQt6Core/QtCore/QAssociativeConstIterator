@@ -1,1 +1,1 @@
-#include "qassociativeiterable.h"
+#include "qassociativeiterable.h" // IWYU pragma: export

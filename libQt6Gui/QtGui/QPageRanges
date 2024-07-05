@@ -1,1 +1,1 @@
-#include "qpageranges.h"
+#include "qpageranges.h" // IWYU pragma: export

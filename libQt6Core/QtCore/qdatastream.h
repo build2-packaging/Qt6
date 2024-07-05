@@ -1,1 +1,1 @@
-../../downstream/qtbase/src/corelib/serialization/qdatastream.h
+../../upstream/qtbase/src/corelib/serialization/qdatastream.h

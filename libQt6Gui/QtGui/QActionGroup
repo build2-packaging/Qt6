@@ -1,1 +1,1 @@
-#include "qactiongroup.h"
+#include "qactiongroup.h" // IWYU pragma: export

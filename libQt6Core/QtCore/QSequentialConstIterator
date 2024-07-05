@@ -1,1 +1,1 @@
-#include "qsequentialiterable.h"
+#include "qsequentialiterable.h" // IWYU pragma: export

@@ -6,7 +6,9 @@
 #include "q20chrono.h"
 #include "q20functional.h"
 #include "q20iterator.h"
+#include "q20map.h"
 #include "q20memory.h"
+#include "q20vector.h"
 #include "q23functional.h"
 #include "q23utility.h"
 #if QT_CONFIG(animation)
@@ -32,6 +34,7 @@
 #include "qassert.h"
 #include "qassociativeiterable.h"
 #include "qatomic.h"
+#include "qatomicscopedvaluerollback.h"
 #include "qbasictimer.h"
 #include "qbindingstorage.h"
 #include "qbitarray.h"
@@ -67,6 +70,7 @@
 #if QT_CONFIG(concatenatetablesproxymodel)
 #include "qconcatenatetablesproxymodel.h"
 #endif
+#include "qconfig-bootstrapped.h"
 #include "qconstructormacros.h"
 #include "qcontainerfwd.h"
 #include "qcontainerinfo.h"
@@ -128,6 +132,7 @@
 #endif
 #include "qiterable.h"
 #include "qiterator.h"
+#include "qjniarray.h"
 #include "qjnienvironment.h"
 #include "qjniobject.h"
 #include "qjnitypes.h"
@@ -235,8 +240,10 @@
 #if QT_CONFIG(sortfilterproxymodel)
 #include "qsortfilterproxymodel.h"
 #endif
+#include "qspan.h"
 #include "qstack.h"
 #include "qstandardpaths.h"
+#include "qstaticlatin1stringmatcher.h"
 #include "qstorageinfo.h"
 #include "qstring.h"
 #include "qstringalgorithms.h"
@@ -259,6 +266,7 @@
 #include "qtclasshelpermacros.h"
 #include "qtconfiginclude.h"
 #include "qtconfigmacros.h"
+#include "qtcoreversion.h"
 #include "qtdeprecationmarkers.h"
 #include "qtemporarydir.h"
 #include "qtemporaryfile.h"
@@ -284,11 +292,13 @@
 #include "qtransposeproxymodel.h"
 #endif
 #include "qtresource.h"
+#include "qtsymbolmacros.h"
 #include "qttranslation.h"
 #include "qttypetraits.h"
 #include "qtversion.h"
 #include "qtversionchecks.h"
 #include "qtypeinfo.h"
+#include "qtyperevision.h"
 #include "qtypes.h"
 #include "qurl.h"
 #include "qurlquery.h"
@@ -309,5 +319,5 @@
 #include "qwineventnotifier.h"
 #include "qxmlstream.h"
 #include "qxpfunctional.h"
-#include "qtcoreversion.h"
+#include "qyieldcpu.h"
 #endif

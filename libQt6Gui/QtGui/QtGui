@@ -109,6 +109,7 @@
 #include "qtextobject.h"
 #include "qtextoption.h"
 #include "qtexttable.h"
+#include "qtguiversion.h"
 #include "qtransform.h"
 #if QT_CONFIG(undogroup)
 #include "qundogroup.h"
@@ -125,5 +126,4 @@
 #include "qwindow.h"
 #include "qwindowdefs.h"
 #include "qwindowsmimeconverter.h"
-#include "qtguiversion.h"
 #endif

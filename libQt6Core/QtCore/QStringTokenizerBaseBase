@@ -1,1 +1,1 @@
-#include "qstringtokenizer.h"
+#include "qstringtokenizer.h" // IWYU pragma: export

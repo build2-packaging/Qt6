@@ -1,1 +1,1 @@
-#include "qcompare.h"
+#include "qcompare.h" // IWYU pragma: export

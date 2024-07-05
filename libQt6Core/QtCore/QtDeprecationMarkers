@@ -1,1 +1,1 @@
-#include "qtdeprecationmarkers.h"
+#include "qtdeprecationmarkers.h" // IWYU pragma: export

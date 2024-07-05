@@ -1,1 +1,1 @@
-#include "qmetacontainer.h"
+#include "qmetacontainer.h" // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qrgbafloat.h"
+#include "qcolortransform.h" // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qpermissions.h"
+#include "qpermissions.h" // IWYU pragma: export

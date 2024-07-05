@@ -1,1 +1,1 @@
-#include "qttypetraits.h"
+#include "qttypetraits.h" // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qmalloc.h"
+#include "qmalloc.h" // IWYU pragma: export

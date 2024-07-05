@@ -1,1 +1,1 @@
-#include "qjsonarray.h"
+#include "qvariantlist.h" // IWYU pragma: export

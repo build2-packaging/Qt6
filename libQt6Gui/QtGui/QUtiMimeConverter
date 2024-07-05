@@ -1,1 +1,1 @@
-#include "qutimimeconverter.h"
+#include "qutimimeconverter.h" // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qpropertyprivate.h"
+#include "qpropertyprivate.h" // IWYU pragma: export

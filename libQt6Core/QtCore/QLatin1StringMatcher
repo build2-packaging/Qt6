@@ -1,1 +1,1 @@
-#include "qlatin1stringmatcher.h"
+#include "qlatin1stringmatcher.h" // IWYU pragma: export

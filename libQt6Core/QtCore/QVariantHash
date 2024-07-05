@@ -1,1 +1,1 @@
-#include "qvarianthash.h"
+#include "qvarianthash.h" // IWYU pragma: export

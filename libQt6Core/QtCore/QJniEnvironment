@@ -1,1 +1,1 @@
-#include "qjnienvironment.h"
+#include "qjnienvironment.h" // IWYU pragma: export

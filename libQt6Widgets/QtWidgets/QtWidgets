@@ -201,6 +201,7 @@
 #if QT_CONFIG(radiobutton)
 #include "qradiobutton.h"
 #endif
+#include "qrhiwidget.h"
 #if QT_CONFIG(rubberband)
 #include "qrubberband.h"
 #endif
@@ -288,6 +289,7 @@
 #if QT_CONFIG(treewidget)
 #include "qtreewidgetitemiterator.h"
 #endif
+#include "qtwidgetsversion.h"
 #if QT_CONFIG(undoview)
 #include "qundoview.h"
 #endif
@@ -301,5 +303,4 @@
 #if QT_CONFIG(wizard)
 #include "qwizard.h"
 #endif
-#include "qtwidgetsversion.h"
 #endif

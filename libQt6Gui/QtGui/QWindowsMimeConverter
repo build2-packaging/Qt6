@@ -1,1 +1,1 @@
-#include "qwindowsmimeconverter.h"
+#include "qwindowsmimeconverter.h" // IWYU pragma: export

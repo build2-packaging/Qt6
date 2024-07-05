@@ -1,1 +1,1 @@
-#include "qtenvironmentvariables.h"
+#include "qtenvironmentvariables.h" // IWYU pragma: export

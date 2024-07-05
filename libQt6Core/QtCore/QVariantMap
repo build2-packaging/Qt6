@@ -1,1 +1,1 @@
-#include "qvariantmap.h"
+#include "qvariantmap.h" // IWYU pragma: export
