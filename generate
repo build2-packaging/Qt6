@@ -71,24 +71,17 @@ rm -rf libQt6Gui/QtGui/qpa/
 rm -rf libQt6Gui/QtGui/private/QtGui/qpa/
 rm -rf libQt6Gui/QtGui/rhi/
 rm -f  libQt6Gui/QtGui/Q*
-
 rm_symlinks libQt6Gui/QtGuiPlugins/
 rm_empty_dirs libQt6Gui/QtGuiPlugins/
-rm -rf libQt6Gui/QtGuiPlugins/{Qt*Support,QtPlatformHeaders}
+rm_symlinks libQt6GuiTests/gui-app
 
-rm -f libQt6GuiTests/mkspecs
-
-rm -f libQt6Widgets/mkspecs
-#rm -rf libQt6Widgets/QtWidgets/QtPlatformHeaders
 rm_symlinks libQt6Widgets/QtWidgets/
 rm_empty_dirs libQt6Widgets/QtWidgets/
+rm -f libQt6Widgets/mkspecs
 rm -f libQt6Widgets/QtWidgets/Q*
-
 rm_symlinks libQt6Widgets/QtWidgetsPlugins/
 rm_empty_dirs libQt6Widgets/QtWidgetsPlugins/
-
-rm_symlinks libQt6WidgetsTests/widgets-app
-rm -f libQt6WidgetsTests/mkspecs
+rm_symlinks libQt6WidgetsTests/widgets-app/
 
 # Create output directories.
 #
@@ -457,6 +450,9 @@ ln -s ../../upstream/qtbase/cmake/modulecppexports.h.in \
 
 # Qt6Moc
 #
+ln -s ../../upstream/qtbase/.cmake.conf \
+      Qt6Moc/moc/cmake.conf
+
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Moc/moc/QtCore/qtcoreexports.h.in
 
@@ -464,6 +460,9 @@ ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Moc/moc/QtCore/
 
 # Qt6Rcc
 #
+ln -s ../../upstream/qtbase/.cmake.conf \
+      Qt6Rcc/rcc/cmake.conf
+
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Rcc/rcc/QtCore/qtcoreexports.h.in
 
@@ -471,6 +470,9 @@ ln -s ../../../libQt6Core/QtCore/qconfig.h.in Qt6Rcc/rcc/QtCore/
 
 # Qt6Uic
 #
+ln -s ../../upstream/qtbase/.cmake.conf \
+      Qt6Uic/uic/cmake.conf
+
 ln -s ../../../upstream/qtbase/cmake/modulecppexports.h.in \
       Qt6Uic/uic/QtCore/qtcoreexports.h.in
 
@@ -563,7 +565,7 @@ symlink_dirs upstream/qtbase/src/widgets/dialogs/images \
 
 symlink_non_module upstream/qtbase/src/plugins/styles/mac/ \
                    libQt6Widgets/QtWidgetsPlugins/styles/
-symlink_non_module upstream/qtbase/src/plugins/styles/windowsvista/ \
+symlink_non_module upstream/qtbase/src/plugins/styles/modernwindows/ \
                    libQt6Widgets/QtWidgetsPlugins/styles/
 
 ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
@@ -571,7 +573,7 @@ ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.h \
 ln -s ../../upstream/qtbase/examples/widgets/widgets/spinboxes/window.cpp \
       libQt6WidgetsTests/widgets-app/
 
-# Create the few required QtCore camelcase headers.
+# Create the few QtCore camelcase headers required by the Qt compilers.
 #
 echo '#include "qalgorithms.h"' > Qt6Moc/moc/QtCore/QtAlgorithms
 echo '#include "qstring.h"' > Qt6Moc/moc/QtCore/QString
@@ -579,7 +581,6 @@ echo '#include "qfile.h"' > Qt6Moc/moc/QtCore/QFile
 echo '#include "qbytearray.h"' > Qt6Moc/moc/QtCore/QByteArray
 echo '#include "qbytearrayview.h"' > Qt6Moc/moc/QtCore/QByteArrayView
 echo '#include "qvarlengtharray.h"' > Qt6Moc/moc/QtCore/QVarLengthArray
-echo '#include "qcoreapplication.h"' > Qt6Moc/moc/QtCore/QCoreApplication
 
 echo '#include "qalgorithms.h"' > Qt6Rcc/rcc/QtCore/QtAlgorithms
 echo '#include "qbytearrayview.h"' > Qt6Rcc/rcc/QtCore/QByteArrayView
@@ -588,6 +589,7 @@ echo '#include "qcoreapplication.h"' > Qt6Rcc/rcc/QtCore/QCoreApplication
 
 echo '#include "qalgorithms.h"' > Qt6Uic/uic/QtCore/QtAlgorithms
 echo '#include "qbytearrayview.h"' > Qt6Uic/uic/QtCore/QByteArrayView
+echo '#include "qlist.h"' > Qt6Uic/uic/QtCore/QList
 echo '#include "qvarlengtharray.h"' > Qt6Uic/uic/QtCore/QVarLengthArray
 echo '#include "qcoreapplication.h"' > Qt6Uic/uic/QtCore/QCoreApplication
 
