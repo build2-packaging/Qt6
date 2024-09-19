@@ -38,7 +38,7 @@ function rm_empty_dirs () # <dir>
     #
     rm_empty_dirs "$sd"
 
-    if [[ -z "$(ls -a "$sd")" ]]; then
+    if [[ -z "$(ls -A "$sd")" ]]; then
       rmdir "$sd"
     fi
   done
@@ -73,7 +73,6 @@ rm -rf libQt6Gui/QtGui/rhi/
 rm -f  libQt6Gui/QtGui/Q*
 rm_symlinks libQt6Gui/QtGuiPlugins/
 rm_empty_dirs libQt6Gui/QtGuiPlugins/
-rm_symlinks libQt6GuiTests/gui-app
 
 rm_symlinks libQt6Widgets/QtWidgets/
 rm_empty_dirs libQt6Widgets/QtWidgets/
@@ -95,9 +94,6 @@ mkdir -p Qt6Rcc/rcc/QtCore/private/QtCore/private
 mkdir -p Qt6Uic/uic/QtCore/private/QtCore/private
 
 mkdir    libQt6Core/3rdparty
-# Directory for the MIME type database source XML file.
-#
-mkdir -p libQt6Core/QtCore/mimetypes/mime/packages
 
 mkdir libQt6Gui/3rdparty
 mkdir libQt6Gui/QtGui/qpa
