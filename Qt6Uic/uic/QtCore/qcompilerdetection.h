@@ -1,1 +1,1 @@
-../../../downstream/qtbase/src/corelib/global/qcompilerdetection.h
+../../../upstream/qtbase/src/corelib/global/qcompilerdetection.h
