@@ -890,11 +890,11 @@ global/cxx{qconfig-install qconfig-develop}: global/in{qconfig}
 
 # qmimeprovider_database.cpp:
 #
-# Convert mimetypes/mime/packages/freedesktop.org.xml into an array definition
+# Convert mimetypes/3rdparty/tika-mimetypes.xml into an array definition
 # which is included by mimetypes/qmimeprovider.cpp. Note that the
 # MimeTypeDatabaseOriginalSize variable is the size of the uncompressed data.
 #
-cxx{qmimeprovider_database}: mimetypes/mime/packages/freedesktop.org.xml $xxd
+cxx{qmimeprovider_database}: mimetypes/3rdparty/tika-mimetypes.xml $xxd
 {{
   diag xxd ($<[0]) -> $>
 
@@ -1058,6 +1058,8 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
                               -lws2_32
   }
 }
+
+objs{$src}: cc.poptions += $so_macros
 
 # Export options.
 #
