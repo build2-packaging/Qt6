@@ -4,7 +4,9 @@
 
 include ../../../QtWidgets/
 
-../lib{qmacstyle}: ../../../mkspecs/hxx{**} hxx{*} mm{*}
+src = main qmacstyle_mac
+
+../lib{qmacstyle}: ../../../mkspecs/hxx{**} hxx{*} mm{$src}
 
 moc_hdr = qmacstyle_mac_p
 
@@ -54,6 +56,8 @@ for s: mm{$moc_src_adhoc}
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
 cxx.poptions += $plugin_macros
+
+objs{$src}: cxx.poptions += $so_macros
 
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
