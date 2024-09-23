@@ -62,6 +62,8 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 
 cxx.poptions += $plugin_macros
 
+objs{$src}: cxx.poptions += $objs_macros
+
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
 

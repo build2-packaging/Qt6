@@ -448,6 +448,8 @@ cxx.poptions += $lib_macros                     \
                 -DQT_NO_CONTEXTLESS_CONNECT     \
                 -DQT_NO_USING_NAMESPACE
 
+objs{*}: cxx.poptions += $objs_macros
+
 switch $cxx.target.class, $cxx.target.system
 {
   case  'windows', 'mingw32'
