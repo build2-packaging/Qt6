@@ -49,6 +49,8 @@ cxx.poptions += $plugin_macros
 if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
 
+objs{*}: cxx.poptions += $objs_macros
+
 ../lib{composeplatforminputcontextplugin}: \
   cxx.libs += -pthread -lxkbcommon
 

@@ -131,6 +131,8 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 #
 cxx.poptions += $plugin_macros
 
+objs{$src}: cxx.poptions += $objs_macros
+
 ../lib{qcocoa}: cxx.libs += -framework AppKit                   \
                             -framework Carbon                   \
                             -framework CoreServices             \
