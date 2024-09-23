@@ -57,6 +57,10 @@ ico/obj{main qicohandler}: \
 jpeg/obj{main qjpeghandler}: \
   cxx.poptions =+ "-I$out_base/jpeg" "-I$src_base/jpeg"
 
+gif/objs{main qgifhandler}:   cxx.poptions += $so_macros
+ico/objs{main qicohandler}:   cxx.poptions += $so_macros
+jpeg/objs{main qjpeghandler}: cxx.poptions += $so_macros
+
 if ($cxx.target.class != 'windows')
   lib{qgif qico qjpeg}: cxx.libs += -pthread
 

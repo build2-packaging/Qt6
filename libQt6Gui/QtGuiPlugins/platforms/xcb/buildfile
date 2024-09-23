@@ -147,6 +147,8 @@ obj{$src $moc_gen_obj} moc{$moc_src_adhoc} cxx{$moc_gen_src}:   \
 {obj moc}{qxcbmain}: cxx.poptions += $plugin_macros    \
                                      -DQT_XCB_QPA_LIB_LIB
 
+objs{$src}: cxx.poptions += $so_macros
+
 ../lib{Qt6XcbQpa}: cxx.libs += -pthread                 \
                                -lICE                    \
                                -lSM                     \

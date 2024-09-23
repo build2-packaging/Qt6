@@ -129,7 +129,12 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"                             \
 
 # Define macros.
 #
-cxx.poptions += $plugin_macros
+# Note that this is the only platform plugin that defines
+# QT_NO_CAST_FROM_ASCII.
+#
+cxx.poptions += $plugin_macros -DQT_NO_CAST_FROM_ASCII
+
+objs{$src}: cxx.poptions += $so_macros
 
 switch $cxx.target.class, $cxx.target.system
 {
