@@ -1,6 +1,6 @@
 : 1
 name: Qt6Rcc
-version: 6.7.3-a.0.z
+version: 6.7.3
 project: Qt6
 summary: Qt resource compiler
 license: other: GPL-3.0-only-with-Qt-GPL-Exception-1.0
