@@ -659,7 +659,7 @@ switch $cxx.target.class, $cxx.target.system
 
 cc.poptions += -DQT_QPA_DEFAULT_PLATFORM_NAME="\"$qpa_default_platform_name\""
 
-objs{*}: cc.poptions += $so_macros
+objs{*}: cc.poptions += $objs_macros
 
 # Export options.
 #

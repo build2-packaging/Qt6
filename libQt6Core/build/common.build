@@ -99,7 +99,7 @@ plugin_macros = $common_macros -DQT_PLUGIN
 
 # Macros for shared library object files.
 #
-so_macros =
+objs_macros =
 
 if ($cxx.id == 'msvc')
-   so_macros += -D_WINDLL
+   objs_macros += -D_WINDLL

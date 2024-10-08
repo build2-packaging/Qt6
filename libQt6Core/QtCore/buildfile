@@ -933,8 +933,8 @@ if! $config.libQt6Core.debug
 
 # Note: the same macro from export/import (see also -DQT_BUILD_CORE_LIB).
 #
-{hbmia obja}{*}: cc.poptions += -DQT_STATIC
-{hbmis objs}{*}: cc.poptions += -DQT_SHARED
+obja{*}: cc.poptions += -DQT_STATIC
+objs{*}: cc.poptions += -DQT_SHARED
 
 # Add platform-specific header directories, libraries, compilation options,
 # and macro definitions.
@@ -1059,7 +1059,7 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   }
 }
 
-objs{$src}: cc.poptions += $so_macros
+objs{$src}: cc.poptions += $objs_macros
 
 # Export options.
 #
