@@ -96,3 +96,10 @@ bootstrap_macros = $compiler_macros     \
 # private implementation library.)
 #
 plugin_macros = $common_macros -DQT_PLUGIN
+
+# Macros for shared library object files.
+#
+objs_macros =
+
+if ($cxx.id == 'msvc')
+   objs_macros += -D_WINDLL
