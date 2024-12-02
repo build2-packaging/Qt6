@@ -1,6 +1,6 @@
 : 1
 name: libQt6WidgetsTests
-version: 6.7.3
+version: 6.7.4-a.0.z
 project: Qt6
 summary: Tests for libQt6Widgets
 license: MIT
