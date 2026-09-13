@@ -1,5 +1,17 @@
 <RCC>
   <qresource prefix="/qt-project.org/styles/commonstyle">
+    <file alias="images/arrow-down-128.png">images/arrow-down-128.png</file>
+    <file alias="images/arrow-down-16.png">images/arrow-down-16.png</file>
+    <file alias="images/arrow-down-32.png">images/arrow-down-32.png</file>
+    <file alias="images/arrow-left-128.png">images/arrow-left-128.png</file>
+    <file alias="images/arrow-left-16.png">images/arrow-left-16.png</file>
+    <file alias="images/arrow-left-32.png">images/arrow-left-32.png</file>
+    <file alias="images/arrow-right-128.png">images/arrow-right-128.png</file>
+    <file alias="images/arrow-right-16.png">images/arrow-right-16.png</file>
+    <file alias="images/arrow-right-32.png">images/arrow-right-32.png</file>
+    <file alias="images/arrow-up-128.png">images/arrow-up-128.png</file>
+    <file alias="images/arrow-up-16.png">images/arrow-up-16.png</file>
+    <file alias="images/arrow-up-32.png">images/arrow-up-32.png</file>
     <file alias="images/cdr-128.png">images/cdr-128.png</file>
     <file alias="images/cdr-16.png">images/cdr-16.png</file>
     <file alias="images/cdr-32.png">images/cdr-32.png</file>
@@ -28,9 +40,6 @@
     <file alias="images/diropen-128.png">images/diropen-128.png</file>
     <file alias="images/diropen-16.png">images/diropen-16.png</file>
     <file alias="images/diropen-32.png">images/diropen-32.png</file>
-    <file alias="images/down-128.png">images/down-128.png</file>
-    <file alias="images/down-16.png">images/down-16.png</file>
-    <file alias="images/down-32.png">images/down-32.png</file>
     <file alias="images/dvd-128.png">images/dvd-128.png</file>
     <file alias="images/dvd-16.png">images/dvd-16.png</file>
     <file alias="images/dvd-32.png">images/dvd-32.png</file>
@@ -64,9 +73,6 @@
     <file alias="images/information-128.png">images/information-128.png</file>
     <file alias="images/information-16.png">images/information-16.png</file>
     <file alias="images/information-32.png">images/information-32.png</file>
-    <file alias="images/left-128.png">images/left-128.png</file>
-    <file alias="images/left-16.png">images/left-16.png</file>
-    <file alias="images/left-32.png">images/left-32.png</file>
     <file alias="images/media-pause-128.png">images/media-pause-128.png</file>
     <file alias="images/media-pause-16.png">images/media-pause-16.png</file>
     <file alias="images/media-pause-32.png">images/media-pause-32.png</file>
@@ -89,7 +95,11 @@
     <file alias="images/media-stop-16.png">images/media-stop-16.png</file>
     <file alias="images/media-stop-32.png">images/media-stop-32.png</file>
     <file alias="images/media-volume-16.png">images/media-volume-16.png</file>
+    <file alias="images/media-volume-32.png">images/media-volume-32.png</file>
+    <file alias="images/media-volume-128.png">images/media-volume-128.png</file>
     <file alias="images/media-volume-muted-16.png">images/media-volume-muted-16.png</file>
+    <file alias="images/media-volume-muted-32.png">images/media-volume-muted-32.png</file>
+    <file alias="images/media-volume-muted-128.png">images/media-volume-muted-128.png</file>
     <file alias="images/networkdrive-128.png">images/networkdrive-128.png</file>
     <file alias="images/networkdrive-16.png">images/networkdrive-16.png</file>
     <file alias="images/networkdrive-32.png">images/networkdrive-32.png</file>
@@ -110,9 +120,6 @@
     <file alias="images/question-32.png">images/question-32.png</file>
     <file alias="images/refresh-24.png">images/refresh-24.png</file>
     <file alias="images/refresh-32.png">images/refresh-32.png</file>
-    <file alias="images/right-128.png">images/right-128.png</file>
-    <file alias="images/right-16.png">images/right-16.png</file>
-    <file alias="images/right-32.png">images/right-32.png</file>
     <file alias="images/standardbutton-apply-128.png">images/standardbutton-apply-128.png</file>
     <file alias="images/standardbutton-apply-16.png">images/standardbutton-apply-16.png</file>
     <file alias="images/standardbutton-apply-32.png">images/standardbutton-apply-32.png</file>
@@ -182,14 +189,11 @@
     <file alias="images/toolbar-ext-h-rtl-8.png">images/toolbar-ext-h-rtl-8.png</file>
     <file alias="images/toolbar-ext-v-10.png">images/toolbar-ext-v-10.png</file>
     <file alias="images/toolbar-ext-v-20.png">images/toolbar-ext-v-20.png</file>
-    <file alias="images/toolbar-ext-v-5.png">images/toolbar-ext-v-5.png</file>
     <file alias="images/toolbar-ext-v-80.png">images/toolbar-ext-v-80.png</file>
+    <file alias="images/toolbar-ext-v-5.png">images/toolbar-ext-v-5.png</file>
     <file alias="images/trash-128.png">images/trash-128.png</file>
     <file alias="images/trash-16.png">images/trash-16.png</file>
     <file alias="images/trash-32.png">images/trash-32.png</file>
-    <file alias="images/up-128.png">images/up-128.png</file>
-    <file alias="images/up-16.png">images/up-16.png</file>
-    <file alias="images/up-32.png">images/up-32.png</file>
     <file alias="images/viewdetailed-128.png">images/viewdetailed-128.png</file>
     <file alias="images/viewdetailed-16.png">images/viewdetailed-16.png</file>
     <file alias="images/viewdetailed-32.png">images/viewdetailed-32.png</file>
@@ -201,4 +205,3 @@
     <file alias="images/warning-32.png">images/warning-32.png</file>
   </qresource>
 </RCC>
-
