@@ -1,0 +1,1 @@
+../../../../../../upstream/qtbase/src/corelib/platform/wasm/qwasmsocket_p.h
