@@ -733,6 +733,12 @@ private/QtCore/private/h{qconfig_p}: private/QtCore/private/in{qconfig_p}
   # cxx{qconfig-install} target for more information.
   #
   QT_FEATURE_relocatable = ($install.relocatable ? 1 : -1)
+
+  # Whether QtCore is built for debugging, that is, without -DQT_NO_DEBUG
+  # (see below). This must match the plugin metadata debug flag, which is
+  # based on QT_NO_DEBUG (see upstream/qtbase/src/corelib/plugin/qplugin.h).
+  #
+  QT_FEATURE_debug = ($config.libQt6Core.debug ? 1 : -1)
 }
 
 # Public QtCore library configuration (mostly high-level features). Included

@@ -42,7 +42,14 @@
 #define QT_FEATURE_relocatable $QT_FEATURE_relocatable$
 
 // #define QT_FEATURE_reduce_exports 1 // Moved to public
-// #define QT_FEATURE_debug -1
+
+// "Build for debugging"
+//
+// Used by QFactoryLoader to prefer plugins built in the same (debug or
+// release) mode as QtCore. See h{qconfig_p} in the main buildfile for details.
+//
+#define QT_FEATURE_debug $QT_FEATURE_debug$
+
 // #define QT_FEATURE_developer_build -1 // Moved to public
 // #define QT_FEATURE_gc_binaries -1
 // #define QT_FEATURE_no_direct_extern_access -1 // Moved to public
