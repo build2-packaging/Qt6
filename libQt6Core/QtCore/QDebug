@@ -1,1 +1,1 @@
-#include "qdebug.h" // IWYU pragma: export
+#include <QtCore/qdebug.h> // IWYU pragma: export

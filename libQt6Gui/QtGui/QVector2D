@@ -1,1 +1,1 @@
-#include "qvectornd.h" // IWYU pragma: export
+#include <QtGui/qvectornd.h> // IWYU pragma: export

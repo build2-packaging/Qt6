@@ -1,1 +1,1 @@
-#include "qaction.h" // IWYU pragma: export
+#include <QtGui/qaction.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qtreewidgetitemiterator.h" // IWYU pragma: export
+#include <QtWidgets/qtreewidgetitemiterator.h> // IWYU pragma: export

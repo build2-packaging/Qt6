@@ -1,1 +1,1 @@
-#include "qtpreprocessorsupport.h" // IWYU pragma: export
+#include <QtCore/qtpreprocessorsupport.h> // IWYU pragma: export

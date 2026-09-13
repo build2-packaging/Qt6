@@ -1,1 +1,1 @@
-#include "qpointingdevice.h" // IWYU pragma: export
+#include <QtGui/qpointingdevice.h> // IWYU pragma: export

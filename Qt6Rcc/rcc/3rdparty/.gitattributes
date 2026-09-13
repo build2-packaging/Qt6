@@ -1,2 +1,3 @@
 rfc6234 symlink=dir
 sha1 symlink=dir
+siphash symlink=dir

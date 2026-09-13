@@ -1,1 +1,1 @@
-#include "qbitarray.h" // IWYU pragma: export
+#include <QtCore/qbitarray.h> // IWYU pragma: export

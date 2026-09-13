@@ -1,1 +1,1 @@
-#include "qmdiarea.h" // IWYU pragma: export
+#include <QtWidgets/qmdiarea.h> // IWYU pragma: export

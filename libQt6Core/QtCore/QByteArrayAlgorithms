@@ -1,1 +1,1 @@
-#include "qbytearrayalgorithms.h" // IWYU pragma: export
+#include <QtCore/qbytearrayalgorithms.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qundoview.h" // IWYU pragma: export
+#include <QtWidgets/qundoview.h> // IWYU pragma: export

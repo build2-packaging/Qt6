@@ -1,1 +1,1 @@
-#include "qmath.h" // IWYU pragma: export
+#include <QtCore/qmath.h> // IWYU pragma: export

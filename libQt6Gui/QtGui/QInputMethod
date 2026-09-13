@@ -1,1 +1,1 @@
-#include "qinputmethod.h" // IWYU pragma: export
+#include <QtGui/qinputmethod.h> // IWYU pragma: export

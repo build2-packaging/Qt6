@@ -1,1 +1,1 @@
-#include "qbytearraymatcher.h" // IWYU pragma: export
+#include <QtCore/qbytearraymatcher.h> // IWYU pragma: export

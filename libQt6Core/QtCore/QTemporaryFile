@@ -1,1 +1,1 @@
-#include "qtemporaryfile.h" // IWYU pragma: export
+#include <QtCore/qtemporaryfile.h> // IWYU pragma: export

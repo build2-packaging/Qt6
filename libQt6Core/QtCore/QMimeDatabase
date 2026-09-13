@@ -1,1 +1,1 @@
-#include "qmimedatabase.h" // IWYU pragma: export
+#include <QtCore/qmimedatabase.h> // IWYU pragma: export

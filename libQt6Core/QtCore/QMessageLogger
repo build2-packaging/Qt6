@@ -1,1 +1,1 @@
-#include "qlogging.h" // IWYU pragma: export
+#include <QtCore/qlogging.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qopenglfunctions.h" // IWYU pragma: export
+#include <QtGui/qopenglfunctions.h> // IWYU pragma: export

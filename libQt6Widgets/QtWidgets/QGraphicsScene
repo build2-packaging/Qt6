@@ -1,1 +1,1 @@
-#include "qgraphicsscene.h" // IWYU pragma: export
+#include <QtWidgets/qgraphicsscene.h> // IWYU pragma: export
