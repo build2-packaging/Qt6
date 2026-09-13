@@ -151,17 +151,17 @@ function symlink_dirs ()
 symlink_dirs upstream/qtbase/mkspecs          \
              upstream/qtbase/src/tools/shared \
              Qt6Moc/moc/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
+symlink_dirs upstream/qtbase/src/3rdparty/siphash \
              Qt6Moc/moc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Rcc/rcc/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
+symlink_dirs upstream/qtbase/src/3rdparty/siphash \
              Qt6Rcc/rcc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Uic/uic/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
+symlink_dirs upstream/qtbase/src/3rdparty/siphash \
              Qt6Uic/uic/3rdparty/
 
 # The testlib/ symlink is made necessary by the inclusion of
