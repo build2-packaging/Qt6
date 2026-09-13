@@ -274,6 +274,12 @@ NSString *QStringView::toNSString() const
 
 // ----------------------------------------------------------------------------
 
+#if !defined(QT_BOOTSTRAPPED)
+// Note that the QUuid conversions are not available in the bootstrapped build
+// (moc, rcc, and uic) because it does not include the QUuid implementation
+// (see upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+//
+
 /*!
     \brief Constructs a new QUuid containing a copy of the \a uuid CFUUID.
 
@@ -342,8 +348,16 @@ NSUUID *QUuid::toNSUUID() const
     return [[[NSUUID alloc] initWithUUIDBytes:u] autorelease];
 }
 
+#endif // !QT_BOOTSTRAPPED
+
 // ----------------------------------------------------------------------------
 
+
+#if !defined(QT_BOOTSTRAPPED)
+// Note that the QUrl conversions are not available in the bootstrapped build
+// (moc, rcc, and uic) because it does not include the QUrl implementation
+// (see upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+//
 
 /*!
     \brief Constructs a QUrl containing a copy of the CFURL \a url.
@@ -402,6 +416,8 @@ NSURL *QUrl::toNSURL() const
 {
     return [NSURL URLWithString:toString(FullyEncoded).toNSString()];
 }
+
+#endif // !QT_BOOTSTRAPPED
 
 // ----------------------------------------------------------------------------
 
