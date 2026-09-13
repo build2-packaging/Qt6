@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/text/qcolrpaintgraphrenderer_p.h

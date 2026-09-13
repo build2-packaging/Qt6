@@ -1,0 +1,1 @@
+../../../../../../upstream/qtbase/src/corelib/platform/android/qandroidtypes_p.h

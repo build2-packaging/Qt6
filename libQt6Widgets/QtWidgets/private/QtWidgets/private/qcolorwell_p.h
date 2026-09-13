@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/widgets/dialogs/qcolorwell_p.h

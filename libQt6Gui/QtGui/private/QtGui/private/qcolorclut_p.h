@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/painting/qcolorclut_p.h

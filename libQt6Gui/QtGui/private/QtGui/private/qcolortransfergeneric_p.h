@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/painting/qcolortransfergeneric_p.h

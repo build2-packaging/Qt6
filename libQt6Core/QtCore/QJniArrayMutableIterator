@@ -1,0 +1,1 @@
+#include <QtCore/qjniarray.h> // IWYU pragma: export
