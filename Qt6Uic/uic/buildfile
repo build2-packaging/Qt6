@@ -232,7 +232,16 @@ if $windows
     cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -lshell32 -luser32 -luuid
   }
   else
+  {
     cxx.libs     += ole32.lib advapi32.lib netapi32.lib shell32.lib user32.lib
+
+    # Work around https://github.com/llvm/llvm-project/issues/25679 (see
+    # upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+    #
+    if ($cxx.id == 'msvc-clang')
+      cxx.libs += \
+        clang_rt.builtins-($cxx.target.cpu == 'aarch64' ? aarch64 : x86_64).lib
+  }
 }
 else
 {
