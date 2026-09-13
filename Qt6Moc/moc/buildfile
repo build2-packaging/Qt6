@@ -292,13 +292,16 @@ obj{$moc_src}: cxx.poptions += $compiler_macros                 \
                                -DQT_USE_NODISCARD_FILE_OPEN
 
 
-# Disable exceptions on the moc objects.
+# Disable exceptions on all objects, including the QtCore ones, like upstream
+# (which disables them for all targets that do not request them explicitly,
+# including the bootstrap library; see qt_internal_set_exceptions_flags() in
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake).
 #
 switch $cxx.class
 {
   case 'gcc'
   {
-    obj{$moc_src}:
+    obj{$moc_src $all_core_src}:
     {
       cxx.poptions += -DQT_NO_EXCEPTIONS
       cxx.coptions += -fno-exceptions
@@ -306,7 +309,7 @@ switch $cxx.class
   }
   case 'msvc'
   {
-    obj{$moc_src}:
+    obj{$moc_src $all_core_src}:
     {
       cxx.poptions += -DQT_NO_EXCEPTIONS
       cxx.coptions += /EHs- /EHc-
