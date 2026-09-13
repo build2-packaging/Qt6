@@ -506,10 +506,11 @@ lib{Qt6Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
 # On Mac OS qfilesystemengine_unix.cpp is compiled as Objective-C++ (see
 # upstream/qtbase/src/corelib/CMakeLists.txt).
 #
-if $macos
-  lib{Qt6Core}: mm{io/qfilesystemengine_unix.cpp}
-else
-  lib{Qt6Core}: cxx{io/qfilesystemengine_unix}: include = $unix
+# Note that the dependency is declared unconditionally (with a computed target
+# type) to make sure the source file is always distributed.
+#
+lib{Qt6Core}: ($macos ? mm : cxx){io/qfilesystemengine_unix.cpp}: \
+  include = $unix
 
 # Note: qelfparser_p and qlibrary_unix depend on QT_FEATURE_library (from
 # qtcore-config.h.in).

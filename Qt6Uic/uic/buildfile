@@ -150,10 +150,11 @@ exe{qt6uic}: cxx{$win_core_src}:     include = $windows
 # On Apple platforms qfilesystemengine_unix.cpp is compiled as Objective-C++
 # (see upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
 #
-if $macos
-  exe{qt6uic}: mm{QtCore/io/qfilesystemengine_unix.cpp}
-else
-  exe{qt6uic}: cxx{QtCore/io/qfilesystemengine_unix}: include = $unix
+# Note that the dependency is declared unconditionally (with a computed target
+# type) to make sure the source file is always distributed.
+#
+exe{qt6uic}: ($macos ? mm : cxx){QtCore/io/qfilesystemengine_unix.cpp}: \
+  include = $unix
 
 # Ensure included C and C++ source files and other files are included in the
 # distribution.
