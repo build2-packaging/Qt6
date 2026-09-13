@@ -10,6 +10,7 @@ email: packaging@build2.org ; Mailing list.
 build-error-email: builds@build2.org
 builds: default
 builds: -( +macos &gcc ) ; See README-DEV.
+build-exclude: linux_ubuntu_26.04-gcc_15-bindist ; libxcb-randr/sync development headers missing on CI.
 depends: * build2 >= 0.18.0
 depends: * bpkg >= 0.18.0
 depends: * Qt6Moc == $
