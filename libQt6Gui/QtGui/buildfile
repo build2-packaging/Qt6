@@ -19,7 +19,10 @@ import priv_intf_libs = libQt6Core%lib{Qt6CorePrivate}
 #
 plugins_dir = [dir_path] ../QtGuiPlugins/
 
-include $plugins_dir
+# Note that the plugin buildfiles include this buildfile (for the libraries
+# and macros they share with lib{Qt6Gui}), which makes the cycle intentional.
+#
+include [allow_cycle] $plugins_dir
 
 src = accessible/qaccessible                    \
       accessible/qaccessiblebridge              \

@@ -12,7 +12,12 @@ import priv_intf_libs = libQt6Gui%lib{Qt6GuiPrivate}
 # For post hoc dependency (see below).
 #
 plugins_dir = [dir_path] ../QtWidgetsPlugins/
-include $plugins_dir
+
+# Note that the plugin buildfiles include this buildfile (for the libraries
+# and macros they share with lib{Qt6Widgets}), which makes the cycle
+# intentional.
+#
+include [allow_cycle] $plugins_dir
 
 # Headers to be moc'd and the outputs included.
 #
