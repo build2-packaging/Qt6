@@ -431,6 +431,12 @@ config.cxx.poptions=-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR, for example:
   sources include "private/qwidget_p.h"). Not reported upstream yet. See
   downstream/qtbase/src/widgets/dialogs/qdialog.cpp.
 
+- upstream/qtbase/src/corelib/thread/qthread_win.cpp uses QSpan without
+  including <QtCore/qspan.h>. This is hidden in the upstream build by the
+  QtCore precompiled header but fails with Clang (clang-cl), which requires the
+  complete type. Not reported upstream yet. See
+  downstream/qtbase/src/corelib/thread/qthread_win.cpp.
+
 Appendix A: Running the upstream build
 
 Upstream reference: https://doc.qt.io/qt-6/build-sources.html
