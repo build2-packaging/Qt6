@@ -1128,7 +1128,11 @@ int QUtf8::compareUtf8(QByteArrayView lhs, QByteArrayView rhs, Qt::CaseSensitivi
     return (end1 > src1) - (end2 > src2);
 }
 
-#ifndef QT_BOOTSTRAPPED
+// Note: the UTF-16 and UTF-32 codecs and encodingForData() are required by
+//       QXmlStreamReader which, unlike upstream, we compile into the
+//       bootstrapped Qt6Rcc and Qt6Uic (see qconfig-bootstrapped.h).
+//
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream)
 QByteArray QUtf16::convertFromUnicode(QStringView in, QStringConverter::State *state, DataEndianness endian)
 {
     bool writeBom = !(state->internalState & HeaderDone) && state->flags & QStringConverter::Flag::WriteBom;
@@ -1444,7 +1448,7 @@ QChar *QUtf32::convertToUnicode(QChar *out, QByteArrayView in, QStringConverter:
 
     return out;
 }
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED || QT_CONFIG(xmlstream)
 
 #if defined(Q_OS_WIN) && !defined(QT_BOOTSTRAPPED)
 int QLocal8Bit::checkUtf8()
@@ -1841,7 +1845,7 @@ void QStringConverter::State::reset() noexcept
     }
 }
 
-#ifndef QT_BOOTSTRAPPED
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream) // See above.
 static QChar *fromUtf16(QChar *out, QByteArrayView in, QStringConverter::State *state)
 {
     return QUtf16::convertToUnicode(out, in, state, DetectEndianness);
@@ -1901,7 +1905,7 @@ static char *toUtf32LE(char *out, QStringView in, QStringConverter::State *state
 {
     return QUtf32::convertFromUnicode(out, in, state, LittleEndianness);
 }
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED || QT_CONFIG(xmlstream)
 
 char *QLatin1::convertFromUnicode(char *out, QStringView in, QStringConverter::State *state) noexcept
 {
@@ -1943,7 +1947,7 @@ static char *toLocal8Bit(char *out, QStringView in, QStringConverter::State *sta
 static qsizetype fromUtf8Len(qsizetype l) { return l + 1; }
 static qsizetype toUtf8Len(qsizetype l) { return 3*(l + 1); }
 
-#ifndef QT_BOOTSTRAPPED
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream) // See above.
 static qsizetype fromUtf16Len(qsizetype l) { return l/2 + 2; }
 static qsizetype toUtf16Len(qsizetype l) { return 2*(l + 1); }
 
@@ -2083,7 +2087,7 @@ static qsizetype toLatin1Len(qsizetype l) { return l + 1; }
 const QStringConverter::Interface QStringConverter::encodingInterfaces[QStringConverter::LastEncoding + 1] =
 {
     { "UTF-8", QUtf8::convertToUnicode, fromUtf8Len, QUtf8::convertFromUnicode, toUtf8Len },
-#ifndef QT_BOOTSTRAPPED
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream) // See above.
     { "UTF-16", fromUtf16, fromUtf16Len, toUtf16, toUtf16Len },
     { "UTF-16LE", fromUtf16LE, fromUtf16Len, toUtf16LE, toUtf16Len },
     { "UTF-16BE", fromUtf16BE, fromUtf16Len, toUtf16BE, toUtf16Len },
@@ -2518,6 +2522,9 @@ static int partiallyParsedDataCount(QStringConverter::State *state)
     return q26::saturating_cast<int>(state->remainingChars);
 }
 } // namespace QtPrivate
+#endif // !QT_BOOTSTRAPPED
+
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream) // See above.
 
 /*!
    Returns the encoding for the content of \a data if it can be determined.
@@ -2567,6 +2574,9 @@ QStringConverter::encodingForData(QByteArrayView data, char16_t expectedFirstCha
     }
     return std::nullopt;
 }
+#endif // !QT_BOOTSTRAPPED || QT_CONFIG(xmlstream)
+
+#ifndef QT_BOOTSTRAPPED
 
 static QByteArray parseHtmlMetaForEncoding(QByteArrayView data)
 {

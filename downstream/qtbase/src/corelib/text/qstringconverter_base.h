@@ -101,7 +101,12 @@ public:
 
     enum Encoding {
         Utf8,
-#ifndef QT_BOOTSTRAPPED
+        // Note: the UTF-16 and UTF-32 codecs are required by
+        //       QXmlStreamReader which, unlike upstream, we compile into
+        //       the bootstrapped Qt6Rcc and Qt6Uic (see
+        //       qconfig-bootstrapped.h).
+        //
+#if !defined(QT_BOOTSTRAPPED) || QT_CONFIG(xmlstream)
         Utf16,
         Utf16LE,
         Utf16BE,
