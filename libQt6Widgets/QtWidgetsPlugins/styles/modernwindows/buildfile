@@ -68,9 +68,9 @@ if ($cxx.class == 'gcc')
   cxx.coptions += -fvisibility=hidden -fvisibility-inlines-hidden
 
 if ($cxx.target.system == 'mingw32')
-  ../lib{qmodernwindowsstyle}: cxx.libs += -lgdi32 -luxtheme
+  ../lib{qmodernwindowsstyle}: cxx.libs += -ldwmapi -lgdi32 -luxtheme
 else
-  ../lib{qmodernwindowsstyle}: cxx.libs += gdi32.lib uxtheme.lib
+  ../lib{qmodernwindowsstyle}: cxx.libs += dwmapi.lib gdi32.lib uxtheme.lib
 
 # Installation.
 #
