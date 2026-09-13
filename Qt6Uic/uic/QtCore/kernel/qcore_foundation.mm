@@ -1,1 +1,1 @@
-../../../../upstream/qtbase/src/corelib/kernel/qcore_foundation.mm
+../../../../downstream/qtbase/src/corelib/kernel/qcore_foundation.mm
