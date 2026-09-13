@@ -52,6 +52,10 @@ uic_src = customwidgetsinfo             \
 # - qbuffer (used by QXmlStreamWriter) and qendian (used by the UTF-16 and
 #   UTF-32 codecs which QXmlStreamReader requires).
 #
+# - qversionnumber (used by the C++ code generator). Note that, depending on
+#   the compiler and optimization level, the references to its out-of-line
+#   functions may be inlined away, hiding its absence.
+#
 core_src = QtCore/global/qalloc                         \
            QtCore/global/qassert                        \
            QtCore/global/qendian                        \
@@ -105,7 +109,8 @@ core_src = QtCore/global/qalloc                         \
            QtCore/tools/qcommandlineoption              \
            QtCore/tools/qcommandlineparser              \
            QtCore/tools/qhash                           \
-           QtCore/tools/qringbuffer
+           QtCore/tools/qringbuffer                     \
+           QtCore/tools/qversionnumber
 
 # The UNIX-specific QtCore source files required to build uic. Note that
 # this includes Mac OS.
