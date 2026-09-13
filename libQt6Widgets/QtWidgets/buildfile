@@ -163,6 +163,10 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
 moc_hdr = private/QtWidgets/private/qcolorwell_p \
           qrhiwidget
 
+# macOS headers to be moc'd and the outputs compiled.
+#
+macos_moc_hdr = private/QtWidgets/private/qmacgesturerecognizer_p
+
 # Source files to be moc'd and the outputs included.
 #
 moc_src_adhoc = dialogs/qcolordialog            \
@@ -307,6 +311,13 @@ for s: hxx{$moc_hdr_adhoc}
   n = $name($s)
   cxx{moc_$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
   lib{Qt6Widgets}: cxx{moc_$n}: include = adhoc
+}
+
+for s: hxx{$macos_moc_hdr}
+{
+  n = $name($s)
+  cxx{moc_$n}: $s libul{Qt6WidgetsMeta} hxx{$gen_hdr}
+  lib{Qt6Widgets}: cxx{moc_$n}: include = $macos
 }
 
 # Dependencies involving lib{Qt6Widgets}, moc-generated source files
