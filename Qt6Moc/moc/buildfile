@@ -255,6 +255,13 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cxx.poptions += "-I$src_root/moc/mkspecs/win32-clang-msvc"
 
     cxx.libs += ole32.lib advapi32.lib netapi32.lib shell32.lib user32.lib
+
+    # Work around https://github.com/llvm/llvm-project/issues/25679 (see
+    # upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+    #
+    if ($cxx.id == 'msvc-clang')
+      cxx.libs += \
+        clang_rt.builtins-($cxx.target.cpu == 'aarch64' ? aarch64 : x86_64).lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
