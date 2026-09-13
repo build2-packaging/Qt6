@@ -18,6 +18,7 @@ builds: default
 builds: -( +macos &gcc )  ; Not supported by upstream.
 builds: -freebsd          ; No X11 on CI.
 builds: -wasm             ; Not supported.
+build-exclude: linux_ubuntu_26.04-gcc_15-bindist ; libxcb-randr/sync development headers missing on CI.
 depends: * build2 >= 0.18.0
 depends: * bpkg >= 0.18.0
 depends: * Qt6Moc == $
