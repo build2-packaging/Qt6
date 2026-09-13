@@ -1,5 +1,6 @@
 // Copyright (C) 2021 Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com, author Marc Mutz <marc.mutz@kdab.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
+// Qt-Security score:significant reason:default
 
 #define QT_CORE_BUILD_REMOVED_API
 
@@ -11,15 +12,9 @@ QT_USE_NAMESPACE
 
 #include "qmetatype.h"
 
-// keep in sync with version in header
 int QMetaType::id() const
 {
-    if (d_ptr) {
-        if (int id = d_ptr->typeId.loadRelaxed())
-            return id;
-        return idHelper();
-    }
-    return 0;
+    return registerHelper();
 }
 
 #endif // QT_CORE_REMOVED_SINCE(6, 1)
@@ -138,11 +133,6 @@ QLocale::Language QLocale::codeToLanguage(QStringView languageCode) noexcept
 }
 
 #include "qoperatingsystemversion.h"
-
-QOperatingSystemVersion QOperatingSystemVersion::current()
-{
-    return QOperatingSystemVersionBase::current();
-}
 
 QString QOperatingSystemVersion::name() const
 {
@@ -327,7 +317,6 @@ void QSharedMemory::setNativeKey(const QString &key)
 // these implementations aren't as efficient as they used to be prior to
 // replacement, but there's no way to call the ambiguous overload
 QVariant::QVariant(const QUuid &uuid) : QVariant(QVariant::fromValue(uuid)) {}
-#ifndef QT_NO_GEOM_VARIANT
 #include "qline.h"
 #include "qpoint.h"
 #include "qrect.h"
@@ -340,7 +329,6 @@ QVariant::QVariant(const QLine &l) : QVariant(QVariant::fromValue(l)) {}
 QVariant::QVariant(const QLineF &l) : QVariant(QVariant::fromValue(l)) {}
 QVariant::QVariant(const QSize &s) : QVariant(QVariant::fromValue(s)) {}
 QVariant::QVariant(const QSizeF &s) : QVariant(QVariant::fromValue(s)) {}
-#endif
 
 #if QT_CONFIG(xmlstreamreader)
 
@@ -767,6 +755,7 @@ void QJniObject::callVoidMethodV(JNIEnv *env, jmethodID id, va_list args) const
 #endif // Q_OS_ANDROID
 
 #include "qlocale.h"
+#include "qlist.h"
 
 QStringList QLocale::uiLanguages() const
 {
@@ -932,3 +921,623 @@ QUrl QUrl::fromEncoded(const QByteArray &input, ParsingMode mode)
 // order sections alphabetically to reduce chances of merge conflicts
 
 #endif // QT_CORE_REMOVED_SINCE(6, 7)
+
+#if QT_CORE_REMOVED_SINCE(6, 8)
+
+#if QT_CONFIG(itemmodel)
+#include "qabstractitemmodel.h"
+
+bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const noexcept
+{
+    return is_lt(compareThreeWay(*this, other));
+}
+
+bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const noexcept
+{
+    return comparesEqual(*this, other);
+}
+
+bool QPersistentModelIndex::operator==(const QModelIndex &other) const noexcept
+{
+    return comparesEqual(*this, other);
+}
+
+bool QPersistentModelIndex::operator!=(const QModelIndex &other) const noexcept
+{
+    return !comparesEqual(*this, other);
+}
+
+#endif // QT_CONFIG(itemmodel)
+
+#include "qbitarray.h" // inlined API
+
+#include "qbytearray.h" // inlined API
+
+QT_BEGIN_NAMESPACE
+namespace QtPrivate {
+Q_CORE_EXPORT qsizetype lastIndexOf(QByteArrayView haystack, qsizetype from, char needle) noexcept
+{
+    return lastIndexOf(haystack, from, uchar(needle));
+}
+}
+QT_END_NAMESPACE
+
+#include "qcborarray.h" // inlined API
+
+#include "qcbormap.h" // inlined API
+
+#include "qcborvalue.h" // inlined API
+
+#include "qdatastream.h" // inlined API
+
+QDataStream &QDataStream::operator<<(bool i)
+{
+    return (*this << qint8(i));
+}
+
+#include "qdebug.h"
+
+Q_CORE_EXPORT void qt_QMetaEnum_flagDebugOperator(QDebug &debug, size_t sizeofT, int value)
+{
+    qt_QMetaEnum_flagDebugOperator(debug, sizeofT, uint(value));
+}
+
+#include "qdir.h" // inlined API
+
+bool QDir::operator==(const QDir &dir) const
+{
+    return comparesEqual(*this, dir);
+}
+
+#if QT_CONFIG(easingcurve)
+#include "qeasingcurve.h"
+
+bool QEasingCurve::operator==(const QEasingCurve &other) const
+{
+    return comparesEqual(*this, other);
+}
+#endif // QT_CONFIG(easingcurve)
+
+#include "qfileinfo.h" // inlined API
+
+bool QFileInfo::operator==(const QFileInfo &fileinfo) const
+{
+    return comparesEqual(*this, fileinfo);
+}
+
+#if QT_CONFIG(itemmodel)
+#include "qitemselectionmodel.h" // inlined API
+#endif // itemmodel
+
+#include "qjsonarray.h"
+
+bool QJsonArray::operator==(const QJsonArray &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+bool QJsonArray::operator!=(const QJsonArray &other) const
+{
+    return !comparesEqual(*this, other);
+}
+
+#include "qjsondocument.h"
+
+bool QJsonDocument::operator==(const QJsonDocument &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+#include "qjsonobject.h"
+
+bool QJsonObject::operator==(const QJsonObject &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+
+bool QJsonObject::operator!=(const QJsonObject &other) const
+{
+    return !comparesEqual(*this, other);
+}
+
+#include "qjsonvalue.h"
+
+bool QJsonValue::operator==(const QJsonValue &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+bool QJsonValue::operator!=(const QJsonValue &other) const
+{
+    return !comparesEqual(*this, other);
+}
+
+#include "qline.h" // inlined API
+
+#if QT_CONFIG(mimetype)
+#include "qmimetype.h"
+
+bool QMimeType::operator==(const QMimeType &other) const
+{
+    return comparesEqual(*this, other);
+}
+#endif // QT_CONFIG(mimetype)
+
+#include "qobject.h"
+#include "qnumeric.h"
+
+int QObject::startTimer(std::chrono::milliseconds time, Qt::TimerType timerType)
+{
+    using namespace std::chrono;
+    using ratio = std::ratio_divide<std::milli, std::nano>;
+    nanoseconds::rep r;
+    if (qMulOverflow<ratio::num>(time.count(), &r)) {
+        qWarning("QObject::startTimer(std::chrono::milliseconds): "
+                 "'time' arg overflowed when converted to nanoseconds.");
+        r = nanoseconds::max().count();
+    }
+    return startTimer(nanoseconds{r}, timerType);
+}
+
+#if QT_CONFIG(processenvironment)
+#include "qprocess.h" // inlined API
+
+bool QProcessEnvironment::operator==(const QProcessEnvironment &other) const
+{
+    return comparesEqual(*this, other);
+}
+#endif // QT_CONFIG(processenvironment)
+
+#if QT_CONFIG(regularexpression)
+#include "qregularexpression.h"
+
+bool QRegularExpressionMatch::hasCaptured(QStringView name) const
+{
+    return hasCaptured(QAnyStringView(name));
+}
+
+QString QRegularExpressionMatch::captured(QStringView name) const
+{
+    return captured(QAnyStringView(name));
+}
+
+QStringView QRegularExpressionMatch::capturedView(QStringView name) const
+{
+    return capturedView(QAnyStringView(name));
+}
+
+qsizetype QRegularExpressionMatch::capturedStart(QStringView name) const
+{
+    return capturedStart(QAnyStringView(name));
+}
+
+qsizetype QRegularExpressionMatch::capturedLength(QStringView name) const
+{
+    return capturedLength(QAnyStringView(name));
+}
+
+qsizetype QRegularExpressionMatch::capturedEnd(QStringView name) const
+{
+    return capturedEnd(QAnyStringView(name));
+}
+
+bool QRegularExpression::operator==(const QRegularExpression &other) const
+{
+    return comparesEqual(*this, other);
+}
+#endif // QT_CONFIG(regularexpression)
+
+#if QT_CONFIG(future)
+#include "qresultstore.h"
+
+bool QtPrivate::ResultIteratorBase::operator==(const QtPrivate::ResultIteratorBase &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+bool QtPrivate::ResultIteratorBase::operator!=(const QtPrivate::ResultIteratorBase &other) const
+{
+    return !comparesEqual(*this, other);
+}
+#endif // QT_CONFIG(future)
+
+#include "qstring.h" // inlined API
+
+#include "qstringconverter.h"
+
+QStringConverter::QStringConverter(const char *name, Flags f)
+    : QStringConverter(QAnyStringView{name}, f)
+{}
+
+auto QStringConverter::encodingForName(const char *name) noexcept -> std::optional<Encoding>
+{
+    return encodingForName(QAnyStringView{name});
+}
+
+#if QT_CONFIG(thread)
+#  include "qthreadpool.h" // inlined API
+#endif
+
+#include "qtimer.h" // inlined API
+                    // removed inline API (MSVC)
+
+void QTimer::singleShot(std::chrono::milliseconds interval, Qt::TimerType timerType,
+                        const QObject *receiver, const char *member)
+{
+    singleShot(from_msecs(interval), timerType, receiver, member);
+}
+
+void QTimer::singleShotImpl(std::chrono::milliseconds interval, Qt::TimerType timerType,
+                            const QObject *receiver, QtPrivate::QSlotObjectBase *slotObj)
+{
+    QtPrivate::SlotObjUniquePtr slot(slotObj); // don't leak if from_msecs throws
+    const auto ns = from_msecs(interval);
+    singleShotImpl(ns, timerType, receiver, slot.release());
+}
+
+#include "qurl.h"
+
+bool QUrl::operator<(const QUrl &url) const
+{
+    return is_lt(compareThreeWay(*this, url));
+}
+
+bool QUrl::operator==(const QUrl &url) const
+{
+    return comparesEqual(*this, url);
+}
+
+bool QUrl::operator!=(const QUrl &url) const
+{
+    return !comparesEqual(*this, url);
+}
+
+#include "qurlquery.h"
+
+bool QUrlQuery::operator==(const QUrlQuery &other) const
+{
+    return comparesEqual(*this, other);
+}
+
+#include "qbasictimer.h"
+
+void QBasicTimer::start(std::chrono::milliseconds duration, QObject *object)
+{
+    start(std::chrono::nanoseconds(duration), object);
+}
+
+void QBasicTimer::start(std::chrono::milliseconds duration, Qt::TimerType timerType, QObject *obj)
+{
+    start(std::chrono::nanoseconds(duration), timerType, obj);
+}
+
+#include "quuid.h"
+
+bool QUuid::operator<(const QUuid &other) const noexcept
+{
+    return is_lt(compareThreeWay(*this, other));
+}
+
+bool QUuid::operator>(const QUuid &other) const noexcept
+{
+    return is_gt(compareThreeWay(*this, other));
+}
+
+QUuid QUuid::createUuidV3(const QUuid &ns, const QByteArray &baseData) noexcept
+{
+    return createUuidV3(ns, qToByteArrayViewIgnoringNull(baseData));
+}
+
+QUuid QUuid::createUuidV5(const QUuid &ns, const QByteArray &baseData) noexcept
+{
+    return createUuidV5(ns, qToByteArrayViewIgnoringNull(baseData));
+}
+
+#if QT_CONFIG(xmlstream)
+#include "qxmlstream.h" // inlined API
+#endif // QT_CONFIG(xmlstream)
+
+// #include "qotherheader.h"
+// // implement removed functions from qotherheader.h
+// order sections alphabetically to reduce chances of merge conflicts
+
+#endif // QT_CORE_REMOVED_SINCE(6, 8)
+
+#if QT_CORE_REMOVED_SINCE(6, 9)
+
+#include "qchar.h" // inlined API
+
+
+#include "qexceptionhandling.h"
+
+QT_BEGIN_NAMESPACE
+Q_NORETURN void qTerminate() noexcept
+{
+    std::terminate();
+}
+QT_END_NAMESPACE
+
+
+#include "qmetatype.h"
+
+bool QMetaType::isRegistered() const
+{
+    return isRegistered(QT6_CALL_NEW_OVERLOAD);
+}
+
+bool QMetaType::isValid() const
+{
+    return isValid(QT6_CALL_NEW_OVERLOAD);
+}
+
+
+#include "qmetaobject.h"
+
+const char *QMetaEnum::valueToKey(int value) const
+{
+    return valueToKey(quint64(uint(value)));
+}
+
+QByteArray QMetaEnum::valueToKeys(int value) const
+{
+    return valueToKeys(quint64(uint(value)));
+}
+
+
+#include "qmutex.h"
+
+#if QT_CONFIG(thread)
+void QBasicMutex::destroyInternal(QMutexPrivate *d)
+{
+    destroyInternal(static_cast<void *>(d));
+}
+#endif
+
+
+#include "qobject.h"
+#include "private/qobject_p.h"
+
+#ifdef Q_COMPILER_MANGLES_RETURN_TYPE
+QMetaObject *QObjectData::dynamicMetaObject() const
+{
+    // ### keep in sync with the master version in qobject.cpp
+    return metaObject->toDynamicMetaObject(q_ptr);
+}
+#endif // Q_COMPILER_MANGLES_RETURN_TYPE
+
+
+#include "qstring.h"
+
+QString QString::arg(qlonglong a, int fieldWidth, int base, QChar fillChar) const
+{
+    return arg_impl(a, fieldWidth, base, fillChar);
+}
+
+QString QString::arg(qulonglong a, int fieldWidth, int base, QChar fillChar) const
+{
+    return arg_impl(a, fieldWidth, base, fillChar);
+}
+
+QString QString::arg(double a, int fieldWidth, char format, int precision, QChar fillChar) const
+{
+    return arg_impl(a, fieldWidth, format, precision, fillChar);
+}
+
+QString QString::arg(char a, int fieldWidth, QChar fillChar) const
+{
+    return arg_impl(QAnyStringView(a), fieldWidth, fillChar);
+}
+
+QString QString::arg(QChar a, int fieldWidth, QChar fillChar) const
+{
+    return arg_impl(QAnyStringView{a}, fieldWidth, fillChar);
+}
+
+QString QString::arg(const QString &a, int fieldWidth, QChar fillChar) const
+{
+    return arg_impl(qToAnyStringViewIgnoringNull(a), fieldWidth, fillChar);
+}
+
+QString QString::arg(QStringView a, int fieldWidth, QChar fillChar) const
+{
+    return arg_impl(QAnyStringView(a), fieldWidth, fillChar);
+}
+
+QString QString::arg(QLatin1StringView a, int fieldWidth, QChar fillChar) const
+{
+    return arg(QAnyStringView(a), fieldWidth, fillChar);
+}
+
+QString QtPrivate::argToQString(QStringView pattern, size_t n, const ArgBase **args)
+{
+    return argToQString(QAnyStringView{pattern}, n, args);
+}
+
+QString QtPrivate::argToQString(QLatin1StringView pattern, size_t n, const ArgBase **args)
+{
+    return argToQString(QAnyStringView{pattern}, n, args);
+}
+
+
+#include "quuid.h"
+
+bool QUuid::isNull() const noexcept
+{
+    return isNull(QT6_CALL_NEW_OVERLOAD);
+}
+
+QUuid::Variant QUuid::variant() const noexcept
+{
+    return variant(QT6_CALL_NEW_OVERLOAD);
+}
+
+QUuid::Version QUuid::version() const noexcept
+{
+    return version(QT6_CALL_NEW_OVERLOAD);
+}
+
+// #include "qotherheader.h"
+// // implement removed functions from qotherheader.h
+// order sections alphabetically to reduce chances of merge conflicts
+
+#endif // QT_CORE_REMOVED_SINCE(6, 9)
+
+#if QT_CORE_REMOVED_SINCE(6, 10)
+
+#include "qcborstreamwriter.h"      // Q_WEAK_OVERLOAD added
+
+#include "qcoreapplication.h"
+
+#if QT_CONFIG(permissions)
+void QCoreApplication::requestPermission(const QPermission &requestedPermission,
+    QtPrivate::QSlotObjectBase *slotObjRaw, const QObject *context)
+{
+    return requestPermissionImpl(requestedPermission, slotObjRaw, context);
+}
+#endif
+
+#include "qdir.h"
+
+bool QDir::mkdir(const QString &dirName) const
+{
+    return mkdir(dirName, std::nullopt);
+}
+
+bool QDir::mkdir(const QString &dirName, QFile::Permissions permissions) const
+{
+    return mkdir(dirName, std::optional{permissions});
+}
+
+bool QDir::mkpath(const QString &dirPath) const
+{
+    return mkpath(dirPath, std::nullopt);
+}
+
+#if QT_CONFIG(future)
+#include "qfuture.h" // for ContinuationWrapper
+#include "qfutureinterface.h"
+
+void QtPrivate::watchContinuationImpl(const QObject *context,
+                                      QtPrivate::QSlotObjectBase *slotObj,
+                                      QFutureInterfaceBase &fi)
+{
+    Q_ASSERT(context);
+    Q_ASSERT(slotObj);
+
+    auto slot = QtPrivate::SlotObjUniquePtr(slotObj);
+
+    // That is now a double-inderection, because the setContinuation() overload
+    // also uses QSlotObjectBase approach. But that's a solution for backwards
+    // compatibility, so should be fine.
+    // We pass a default-constructed QVariant() and an Unknown type, because
+    // that's effectively the same as passing a nullptr continuationData, and
+    // that's what the old code was doing.
+    fi.setContinuation(context, QtPrivate::ContinuationWrapper([slot = std::move(slot)]()
+    {
+        void *args[] = { nullptr }; // for `void` return value
+        slot->call(nullptr, args);
+    }), QVariant(), QFutureInterfaceBase::ContinuationType::Unknown);
+}
+
+void QFutureInterfaceBase::setContinuation(std::function<void(const QFutureInterfaceBase &)> func)
+{
+    setContinuation(std::move(func), nullptr);
+}
+
+void QFutureInterfaceBase::setContinuation(std::function<void(const QFutureInterfaceBase &)> func,
+                                           QFutureInterfaceBasePrivate *continuationFutureData)
+{
+    // Backwards compatibility - the continuation data was used for
+    // then-continuations
+    setContinuation(std::move(func), continuationFutureData, ContinuationType::Then);
+}
+#endif // QT_CONFIG(future)
+
+#include "qlockfile.h" // inlined API
+
+#include "qlogging.h"
+
+QNoDebug QMessageLogger::noDebug() const noexcept
+{
+    return QNoDebug();
+}
+
+#include "qmutex.h" // removed, previously-inline API
+
+#include "qobject.h"
+
+bool QObject::doSetProperty(const char *name, const QVariant *lvalue, QVariant *rvalue)
+{
+    return doSetProperty(name, *lvalue, rvalue);
+}
+
+#include "qstring.h" // inlined API
+
+#include "qvariant.h"   // inlined API
+
+// #include "qotherheader.h"
+// // implement removed functions from qotherheader.h
+// order sections alphabetically to reduce chances of merge conflicts
+
+#endif // QT_CORE_REMOVED_SINCE(6, 10)
+
+#if QT_CORE_REMOVED_SINCE(6, 11)
+
+#include "qbytearray.h"
+
+QByteArray QByteArray::percentDecoded(char percent) const
+{
+    return fromPercentEncoding(*this, percent);
+}
+
+#if QT_CONFIG(thread)
+// some of the previously inlined API became removed
+#include "qreadwritelock.h"
+
+void QReadWriteLock::lockForRead()
+{
+    tryLockForRead(QDeadlineTimer(QDeadlineTimer::Forever));
+}
+
+bool QReadWriteLock::tryLockForRead(QDeadlineTimer timeout)
+{
+    return QBasicReadWriteLock::tryLockForRead(timeout);
+}
+
+void QReadWriteLock::lockForWrite()
+{
+    tryLockForWrite(QDeadlineTimer(QDeadlineTimer::Forever));
+}
+
+bool QReadWriteLock::tryLockForWrite(QDeadlineTimer timeout)
+{
+    return QBasicReadWriteLock::tryLockForWrite(timeout);
+}
+
+void QReadWriteLock::unlock()
+{
+    QBasicReadWriteLock::unlock();
+}
+#endif // QT_CONFIG(thread)
+
+#include "qsavefile.h"
+
+QSaveFile::QSaveFile(const QString &name)
+    : QSaveFile(name, nullptr)
+{
+}
+
+#include "qtimer.h"
+
+void QTimer::singleShotImpl(int msec, Qt::TimerType timerType,
+                            const QObject *receiver, QtPrivate::QSlotObjectBase *slotObj)
+{
+    singleShotImpl(std::chrono::milliseconds{msec}, timerType, receiver, slotObj);
+}
+
+// #include "qotherheader.h"
+// // implement removed functions from qotherheader.h
+// order sections alphabetically to reduce chances of merge conflicts
+
+#endif // QT_CORE_REMOVED_SINCE(6, 11)

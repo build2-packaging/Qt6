@@ -87,7 +87,7 @@ int runUic(int argc, char *argv[])
     parser.addOption(noProtOption);
 
     QCommandLineOption noImplicitIncludesOption(QStringList{u"n"_s, u"no-implicit-includes"_s});
-    noImplicitIncludesOption.setDescription(u"Disable generation of #include-directives."_s);
+    noImplicitIncludesOption.setDescription(u"Disable generation of custom widget #include-directives."_s);
     parser.addOption(noImplicitIncludesOption);
 
     QCommandLineOption postfixOption(u"postfix"_s);
@@ -189,7 +189,7 @@ int runUic(int argc, char *argv[])
         if (parser.isSet(pythonPathOption))
             pythonPaths = parser.value(pythonPathOption);
         else if (qEnvironmentVariableIsSet(pythonPathVar))
-            pythonPaths = QString::fromUtf8(qgetenv(pythonPathVar));
+            pythonPaths = qEnvironmentVariable(pythonPathVar);
         driver.option().pythonRoot = pythonRoot(pythonPaths, inputFile);
     }
 
