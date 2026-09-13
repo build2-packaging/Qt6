@@ -44,13 +44,17 @@ public:
 
     bool exists() const;
 
-#ifndef QT_BOOTSTRAPPED
+    // Note: QDirListing, and therefore the directory entry listing, is also
+    //       available in the bootstrapped Qt6Rcc which, unlike upstream, is not
+    //       linked against QtCore (see Qt6Rcc/rcc/buildfile).
+    //
+#if !defined(QT_BOOTSTRAPPED) || defined(BUILD2_QT_BOOTSTRAP_DIRLISTING)
     static QDirListing::IteratorFlags toDirListingFlags(QDir::Filters filters);
     static bool checkNonDirListingFlags(const QDirListing::DirEntry &dirEntry,
                                         QDir::Filters filters);
 
     void initFileLists(const QDir &dir) const;
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED || BUILD2_QT_BOOTSTRAP_DIRLISTING
 
     static void sortFileList(QDir::SortFlags, const QFileInfoList &, QStringList *, QFileInfoList *);
 

@@ -354,7 +354,11 @@ inline void QDirPrivate::sortFileList(QDir::SortFlags sort, const QFileInfoList 
     }
 }
 
-#ifndef QT_BOOTSTRAPPED
+// Note: QDirListing, and therefore the directory entry listing, is also
+//       available in the bootstrapped Qt6Rcc which, unlike upstream, is not
+//       linked against QtCore (see Qt6Rcc/rcc/buildfile).
+//
+#if !defined(QT_BOOTSTRAPPED) || defined(BUILD2_QT_BOOTSTRAP_DIRLISTING)
 /*! \internal
 
     Returns \c true if the permissions flags set in \a filters match the
@@ -466,7 +470,7 @@ inline void QDirPrivate::initFileLists(const QDir &dir) const
         fileCache.fileListsInitialized = true;
     }
 }
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED || BUILD2_QT_BOOTSTRAP_DIRLISTING
 
 inline void QDirPrivate::clearCache(MetaDataClearing mode)
 {
@@ -1405,7 +1409,7 @@ QDir::SortFlags QDir::sorting() const
     after the directories, again in reverse order.
 */
 
-#ifndef QT_BOOTSTRAPPED
+#if !defined(QT_BOOTSTRAPPED) || defined(BUILD2_QT_BOOTSTRAP_DIRLISTING)
 /*!
     Sets the sort order used by entryList() and entryInfoList().
 
@@ -1592,7 +1596,7 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, Filters filter
     d->sortFileList(sort, l, nullptr, &ret);
     return ret;
 }
-#endif // !QT_BOOTSTRAPPED
+#endif // !QT_BOOTSTRAPPED || BUILD2_QT_BOOTSTRAP_DIRLISTING
 
 /*!
     Creates a sub-directory called \a dirName with the given \a permissions.
