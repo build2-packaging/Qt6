@@ -405,13 +405,16 @@ win_src = global/qoperatingsystemversion_win    \
 #
 # Note: qmachparser depends on QT_FEATURE_library (from qtcore-config.h.in).
 #
+# Note also that thread/qmutex_mac.cpp is not compiled separately because it
+# is included by thread/qmutex.cpp (see HEADER_FILE_ONLY in
+# upstream/qtbase/src/corelib/CMakeLists.txt).
+#
 macos_src = io/qsettings_mac            \
             io/qstorageinfo_mac         \
             kernel/qcfsocketnotifier    \
             kernel/qcoreapplication_mac \
             kernel/qpermissions         \
-            plugin/qmachparser          \
-            thread/qmutex_mac
+            plugin/qmachparser
 
 macos_mm = global/qoperatingsystemversion_darwin        \
            io/qfilesystemengine_mac                     \
