@@ -22,7 +22,6 @@ src = main                                              \
       qwindowskeymapper                                 \
       qwindowsmenu                                      \
       qwindowsmimeregistry                              \
-      qwindowsmousehandler                              \
       qwindowsnativeinterface                           \
       qwindowsole                                       \
       qwindowsopengltester                              \
@@ -34,6 +33,8 @@ src = main                                              \
       qwindowstabletsupport                             \
       qwindowstheme                                     \
       qwindowswindow                                    \
+      qwindowswindowclassdescription                    \
+      qwindowswindowclassregistry                       \
       uiautomation/qwindowsuiaaccessibility             \
       uiautomation/qwindowsuiabaseprovider              \
       uiautomation/qwindowsuiaexpandcollapseprovider    \
@@ -51,6 +52,7 @@ src = main                                              \
       uiautomation/qwindowsuiatextrangeprovider         \
       uiautomation/qwindowsuiatoggleprovider            \
       uiautomation/qwindowsuiautils                     \
+      uiautomation/qwindowsuiautomation                 \
       uiautomation/qwindowsuiavalueprovider             \
       uiautomation/qwindowsuiawindowprovider
 
@@ -152,10 +154,15 @@ switch $cxx.target.class, $cxx.target.system
                                   -lsetupapi            \
                                   -lshlwapi             \
                                   -luuid                \
+                                  -luxtheme             \
                                   -lwinmm               \
                                   -lwinspool            \
                                   -lwtsapi32
   }
+  # Note that upstream links uiautomationcore only with MSVC and clang-cl
+  # because its MinGW import library is incomplete (it is loaded dynamically
+  # instead; see upstream/qtbase/src/plugins/platforms/windows/CMakeLists.txt).
+  #
   case 'windows'
   {
     ../lib{qwindows}: cxx.libs += comdlg32.lib          \
@@ -169,6 +176,8 @@ switch $cxx.target.class, $cxx.target.system
                                   shcore.lib            \
                                   setupapi.lib          \
                                   shlwapi.lib           \
+                                  uiautomationcore.lib  \
+                                  uxtheme.lib           \
                                   winmm.lib             \
                                   winspool.lib          \
                                   wtsapi32.lib

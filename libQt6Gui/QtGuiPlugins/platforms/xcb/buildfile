@@ -149,6 +149,9 @@ obj{$src $moc_gen_obj} moc{$moc_src_adhoc} cxx{$moc_gen_src}:   \
 
 objs{$src}: cxx.poptions += $objs_macros
 
+# Note that xcb-util is required by xcb-image (see
+# upstream/qtbase/src/plugins/platforms/xcb/CMakeLists.txt).
+#
 ../lib{Qt6XcbQpa}: cxx.libs += -pthread                 \
                                -lICE                    \
                                -lSM                     \
@@ -165,6 +168,7 @@ objs{$src}: cxx.poptions += $objs_macros
                                -lxcb-shape              \
                                -lxcb-shm                \
                                -lxcb-sync               \
+                               -lxcb-util               \
                                -lxcb-xfixes             \
                                -lxcb-xinput             \
                                -lxcb-xkb                \
