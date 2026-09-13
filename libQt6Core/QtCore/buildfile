@@ -1184,6 +1184,11 @@ elif $macos
                                      -framework IOKit                  \
                                      -framework UniformTypeIdentifiers
 
+# Qt headers require /permissive- with MSVC (see build/common.build).
+#
+if ($cxx.id == 'msvc')
+  lib{Qt6Core}: cxx.export.coptions += /permissive-
+
 liba{Qt6Core}: cxx.export.poptions += -DQT_STATIC
 libs{Qt6Core}: cxx.export.poptions += -DQT_SHARED
 
