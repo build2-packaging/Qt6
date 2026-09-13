@@ -29,10 +29,10 @@ src = animation/qabstractanimation              \
       compat/removed_api                        \
       global/archdetect                         \
       global/q23utility                         \
+      global/qalloc                             \
       global/qassert                            \
       global/qcompare                           \
       global/qendian                            \
-      global/qexceptionhandling                 \
       global/qfloat16                           \
       global/qglobal                            \
       global/qhooks                             \
@@ -45,7 +45,6 @@ src = animation/qabstractanimation              \
       global/qsimd                              \
       global/qsysinfo                           \
       global/qtenvironmentvariables             \
-      global/qtversionchecks                    \
       global/qtypes                             \
       io/qabstractfileengine                    \
       io/qbuffer                                \
@@ -53,6 +52,7 @@ src = animation/qabstractanimation              \
       io/qdebug                                 \
       io/qdir                                   \
       io/qdiriterator                           \
+      io/qdirlisting                            \
       io/qfile                                  \
       io/qfiledevice                            \
       io/qfileinfo                              \
@@ -64,12 +64,15 @@ src = animation/qabstractanimation              \
       io/qfsfileengine                          \
       io/qfsfileengine_iterator                 \
       io/qiodevice                              \
+      io/qiooperation                           \
       io/qipaddress                             \
       io/qlockfile                              \
       io/qloggingcategory                       \
       io/qloggingregistry                       \
       io/qnoncontiguousbytedevice               \
       io/qprocess                               \
+      io/qrandomaccessasyncfile                 \
+      io/qrandomaccessasyncfile_threadpool      \
       io/qresource                              \
       io/qresource_iterator                     \
       io/qsavefile                              \
@@ -91,6 +94,7 @@ src = animation/qabstractanimation              \
       itemmodels/qconcatenatetablesproxymodel   \
       itemmodels/qidentityproxymodel            \
       itemmodels/qitemselectionmodel            \
+      itemmodels/qrangemodel                    \
       itemmodels/qsortfilterproxymodel          \
       itemmodels/qstringlistmodel               \
       itemmodels/qtransposeproxymodel           \
@@ -98,6 +102,7 @@ src = animation/qabstractanimation              \
       kernel/qabstractnativeeventfilter         \
       kernel/qassociativeiterable               \
       kernel/qbasictimer                        \
+      kernel/qchronotimer                       \
       kernel/qcoreapplication                   \
       kernel/qcoreevent                         \
       kernel/qdeadlinetimer                     \
@@ -105,9 +110,11 @@ src = animation/qabstractanimation              \
       kernel/qeventloop                         \
       kernel/qiterable                          \
       kernel/qmath                              \
+      kernel/qmetaassociation                   \
       kernel/qmetacontainer                     \
       kernel/qmetaobject                        \
       kernel/qmetaobjectbuilder                 \
+      kernel/qmetasequence                      \
       kernel/qmetatype                          \
       kernel/qmimedata                          \
       kernel/qobject                            \
@@ -115,6 +122,7 @@ src = animation/qabstractanimation              \
       kernel/qproperty                          \
       kernel/qsequentialiterable                \
       kernel/qsignalmapper                      \
+      kernel/qsingleshottimer                   \
       kernel/qsocketnotifier                    \
       kernel/qsystemerror                       \
       kernel/qtestsupport_core                  \
@@ -171,9 +179,11 @@ src = animation/qabstractanimation              \
       text/qunicodetools                        \
       text/qvsnprintf                           \
       thread/qatomic                            \
+      thread/qatomicwait                        \
       thread/qexception                         \
       thread/qfutureinterface                   \
       thread/qfuturewatcher                     \
+      thread/qlatch                             \
       thread/qmutex                             \
       thread/qreadwritelock                     \
       thread/qresultstore                       \
@@ -216,21 +226,23 @@ src = animation/qabstractanimation              \
       tools/qsize                               \
       tools/qtimeline                           \
       tools/qtyperevision                       \
+      tools/quniquehandle_types                 \
       tools/qversionnumber
 
 # Headers to be moc'd and the outputs compiled.
 #
-moc_hdr = private/QtCore/private/qsingleshottimer_p \
-          qnamespace
+moc_hdr = private/QtCore/private/qiooperation_p   \
+          qdatastream                               \
+          qdirlisting
 
 # Headers to be moc'ed and the outputs included.
 #
 moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
-                private/QtCore/private/qfactoryloader_p                 \
                 private/QtCore/private/qfilesystemwatcher_p             \
                 private/QtCore/private/qfilesystemwatcher_polling_p     \
                 private/QtCore/private/qnoncontiguousbytedevice_p       \
-                private/QtCore/private/qtextstream_p                    \
+                private/QtCore/private/qrandomaccessasyncfile_p         \
+                private/QtCore/private/qsingleshottimer_p               \
                 qabstractanimation                                      \
                 qabstracteventdispatcher                                \
                 qabstractitemmodel                                      \
@@ -241,6 +253,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qcborcommon                                             \
                 qcborstreamreader                                       \
                 qcborvalue                                              \
+                qchronotimer                                            \
                 qconcatenatetablesproxymodel                            \
                 qcoreapplication                                        \
                 qcoreevent                                              \
@@ -259,6 +272,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qlocale                                                 \
                 qmimedata                                               \
                 qmimetype                                               \
+                qnamespace                                              \
                 qobject                                                 \
                 qobjectcleanuphandler                                   \
                 qparallelanimationgroup                                 \
@@ -266,6 +280,7 @@ moc_hdr_adhoc = private/QtCore/private/qabstractanimation_p             \
                 qpluginloader                                           \
                 qprocess                                                \
                 qpropertyanimation                                      \
+                qrangemodel                                             \
                 qsavefile                                               \
                 qsequentialanimationgroup                               \
                 qsettings                                               \
@@ -318,7 +333,8 @@ bsd_moc_hdr_adhoc = private/QtCore/private/qfilesystemwatcher_kqueue_p
 
 # Source files to be moc'ed and the outputs included.
 #
-moc_src_adhoc = thread/qfutureinterface \
+moc_src_adhoc = itemmodels/qabstractitemmodel \
+                thread/qfutureinterface       \
                 thread/qthreadpool
 
 win_moc_src_adhoc = io/qfilesystemwatcher_win
@@ -327,8 +343,9 @@ moc_mm_adhoc = kernel/qeventdispatcher_cf
 
 # UNIX source files.
 #
-unix_src = io/qfilesystemengine_unix    \
-           io/qfilesystemiterator_unix  \
+# Note: io/qfilesystemengine_unix is handled separately (see below).
+#
+unix_src = io/qfilesystemiterator_unix  \
            io/qfsfileengine_unix        \
            io/qlockfile_unix            \
            io/qprocess_unix             \
@@ -373,6 +390,7 @@ win_src = global/qoperatingsystemversion_win    \
           kernel/qwinregistry                   \
           plugin/qcoffpeparser                  \
           plugin/qlibrary_win                   \
+          platform/windows/quniquehandle_types_windows \
           plugin/qsystemlibrary                 \
           text/qlocale_win                      \
           thread/qthread_win                    \
@@ -388,18 +406,21 @@ macos_src = io/qsettings_mac            \
             kernel/qcfsocketnotifier    \
             kernel/qcoreapplication_mac \
             kernel/qpermissions         \
-            plugin/qmachparser
+            plugin/qmachparser          \
+            thread/qmutex_mac
 
 macos_mm = global/qoperatingsystemversion_darwin        \
            io/qfilesystemengine_mac                     \
            io/qfilesystemwatcher_fsevents               \
            io/qprocess_darwin                           \
+           io/qrandomaccessasyncfile_darwin             \
            io/qstandardpaths_mac                        \
            kernel/qcore_foundation                      \
            kernel/qcore_mac                             \
            kernel/qeventdispatcher_cf                   \
            kernel/qpermissions_darwin                   \
            platform/darwin/qdarwinpermissionplugin      \
+           platform/darwin/qdarwinsecurityscopedfileengine \
            text/qlocale_mac                             \
            time/qtimezoneprivate_mac
 
@@ -407,7 +428,7 @@ macos_mm = global/qoperatingsystemversion_darwin        \
 #
 gen_hdr = qconfig       private/QtCore/private/qconfig_p       \
           qtcore-config private/QtCore/private/qtcore-config_p \
-          qtcoreexports
+          qtcoreexports qtdeprecationdefinitions
 
 # Force headers that are included by C source files to be C headers otherwise
 # they are most likely to be detected as C++ headers due to being included
@@ -450,7 +471,8 @@ gen_src = qmimeprovider_database        \
 
 # Headers, included source files, and other files.
 #
-lib{Qt6Core}: cxx{** -{$src $gen_src}} global/cxx{qconfig}      \
+lib{Qt6Core}: cxx{** -{$src $gen_src io/qfilesystemengine_unix}} \
+              global/cxx{qconfig}                               \
               ../3rdparty/{h    }{** -md5/md5}                  \
               ../3rdparty/{hxx  }{    md5/md5}                  \
               ../3rdparty/{c cxx}{**}                           \
@@ -481,14 +503,25 @@ lib{Qt6Core}: cxx{$win_src}:                     include = $windows
 lib{Qt6Core}: cxx{$macos_src} mm{$macos_mm}:     include = $macos
 lib{Qt6Core}: cxx{io/qfilesystemwatcher_kqueue}: include = $bsd
 
+# On Mac OS qfilesystemengine_unix.cpp is compiled as Objective-C++ (see
+# upstream/qtbase/src/corelib/CMakeLists.txt).
+#
+if $macos
+  lib{Qt6Core}: mm{io/qfilesystemengine_unix.cpp}
+else
+  lib{Qt6Core}: cxx{io/qfilesystemengine_unix}: include = $unix
+
 # Note: qelfparser_p and qlibrary_unix depend on QT_FEATURE_library (from
 # qtcore-config.h.in).
 #
 lib{Qt6Core}: cxx{io/qstandardpaths_unix        \
                   plugin/qelfparser_p           \
                   text/qlocale_unix             \
-                  time/qtimezoneprivate_icu     \
                   time/qtimezoneprivate_tz}: include = ($unix && !$macos)
+
+# Note: depends on QT_FEATURE_timezone_locale (from qtcore-config_p.h.in).
+#
+lib{Qt6Core}: cxx{time/qtimezonelocale}: include = (!$macos)
 
 lib{Qt6Core}: cxx{io/qstorageinfo_unix}:  include = ($unix && !$macos && !$linux)
 lib{Qt6Core}: cxx{io/qstorageinfo_linux}: include = $linux
@@ -592,6 +625,9 @@ for s: mm{$moc_mm_adhoc}
 # moc{foo} depends on cxx{moc_foo} because moc{foo} is generated from cxx{foo}
 # which includes cxx{moc_foo}.
 #
+moc{qabstractitemmodel}: cxx{itemmodels/qabstractitemmodel} hxx{$moc_predefs} \
+                         cxx{moc_qabstractitemmodel}
+
 moc{qfutureinterface}: cxx{thread/qfutureinterface} hxx{$moc_predefs}
 
 moc{qthreadpool}: cxx{thread/qthreadpool} hxx{$moc_predefs} \
@@ -696,6 +732,24 @@ h{qtcoreexports}: in{qtcoreexports}
 h{qconfig} private/QtCore/private/h{qconfig_p}  \
 global/cxx{qconfig-install qconfig-develop}:    \
   in.symbol = '$'
+
+# Deprecation cut-off macros. Generated by qt_internal_library_deprecation_level()
+# in upstream/qtbase/src/corelib/CMakeLists.txt.
+#
+# QT_DISABLE_DEPRECATED_UP_TO: the version before which deprecated APIs are
+# not compiled into the library. On Windows all functions, including the
+# inline ones, need to be exported, which is why the value is lower there.
+#
+# QT_WARN_DEPRECATED_UP_TO: the upper bound of the emitted deprecation
+# warnings.
+#
+h{qtdeprecationdefinitions}: in{qtdeprecationdefinitions}
+{
+  in.symbol = '@'
+
+  QT_DISABLE_DEPRECATED_UP_TO = ($windows ? 0x040800 : 0x050000)
+  QT_WARN_DEPRECATED_UP_TO    = 0x070000
+}
 
 # Extract the copyright string from upstream/qtbase/.cmake.conf.
 #
@@ -932,7 +986,8 @@ cc.poptions += $lib_macros                      \
                -DQT_NO_CONTEXTLESS_CONNECT      \
                -DQT_NO_QPAIR                    \
                -DQT_NO_USING_NAMESPACE          \
-               -DQT_TYPESAFE_FLAGS
+               -DQT_TYPESAFE_FLAGS              \
+               -DQT_USE_NODISCARD_FILE_OPEN
 
 if! $config.libQt6Core.debug
   cc.poptions += -DQT_NO_DEBUG
@@ -958,6 +1013,9 @@ else
     cc.poptions += -D_DARWIN_C_SOURCE
 
   lib{Qt6Core}: cxx.libs += -pthread
+
+  if! $macos
+    lib{Qt6Core}: cxx.libs += -lm
 
   if $linux
     lib{Qt6Core}: cxx.libs += -ldl
@@ -1000,11 +1058,19 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     cc.poptions += "-I$src_root/QtCore/mkspecs/macx-clang"
 
     lib{Qt6Core}: cxx.libs += -framework AppKit                 \
+                              -framework ApplicationServices    \
+                              -framework CoreFoundation         \
                               -framework CoreServices           \
                               -framework DiskArbitration        \
                               -framework Foundation             \
                               -framework IOKit                  \
-                              -framework Security
+                              -framework Security               \
+                              -framework UniformTypeIdentifiers
+
+    # Required by QObjCWeakPointer (see
+    # upstream/qtbase/src/corelib/CMakeLists.txt).
+    #
+    obj{kernel/qcore_mac}: cxx.coptions += -fobjc-weak
   }
   case 'bsd', 'clang', 'freebsd'
     cc.poptions += "-I$src_root/QtCore/mkspecs/freebsd-clang"
@@ -1023,9 +1089,14 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
                               authz.lib                 \
                               mpr.lib                   \
                               netapi32.lib              \
+                              ntdll.lib                 \
                               ole32.lib                 \
+                              runtimeobject.lib         \
+                              shell32.lib               \
                               synchronization.lib       \
+                              user32.lib                \
                               userenv.lib               \
+                              uuid.lib                  \
                               version.lib               \
                               winmm.lib                 \
                               ws2_32.lib
@@ -1034,13 +1105,25 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   {
     cc.poptions += "-I$src_root/QtCore/mkspecs/win32-clang-msvc"
 
+    # Work around https://github.com/llvm/llvm-project/issues/25679 (see
+    # upstream/qtbase/src/corelib/CMakeLists.txt).
+    #
+    if ($cxx.id == 'msvc-clang')
+      lib{Qt6Core}: cxx.libs += \
+        clang_rt.builtins-($cxx.target.cpu == 'aarch64' ? aarch64 : x86_64).lib
+
     lib{Qt6Core}: cxx.libs += advapi32.lib              \
                               authz.lib                 \
                               mpr.lib                   \
                               netapi32.lib              \
+                              ntdll.lib                 \
                               ole32.lib                 \
+                              runtimeobject.lib         \
+                              shell32.lib               \
                               synchronization.lib       \
+                              user32.lib                \
                               userenv.lib               \
+                              uuid.lib                  \
                               version.lib               \
                               winmm.lib                 \
                               ws2_32.lib
@@ -1055,8 +1138,12 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
                               -lauthz           \
                               -lmpr             \
                               -lnetapi32        \
+                              -lntdll           \
                               -lole32           \
+                              -lruntimeobject   \
+                              -lshell32         \
                               -lsynchronization \
+                              -luser32          \
                               -luserenv         \
                               -luuid            \
                               -lversion         \
@@ -1077,11 +1164,6 @@ lib{Qt6Core}:
   cxx.export.libs = $intf_libs
 }
 
-# QT_NO_VERSION_TAGGING is automatically defined for static builds (see
-# qversiontagging.h) so define it only for shared builds.
-#
-libs{Qt6Core}: cxx.export.poptions += -DQT_NO_VERSION_TAGGING
-
 if $windows
 {
   if ($cxx.target.system == 'mingw32')
@@ -1090,8 +1172,9 @@ if $windows
     lib{Qt6Core}: cxx.export.libs += mpr.lib userenv.lib
 }
 elif $macos
-    lib{Qt6Core}: cxx.export.libs += -framework DiskArbitration \
-                                     -framework IOKit
+    lib{Qt6Core}: cxx.export.libs += -framework DiskArbitration        \
+                                     -framework IOKit                  \
+                                     -framework UniformTypeIdentifiers
 
 liba{Qt6Core}: cxx.export.poptions += -DQT_STATIC
 libs{Qt6Core}: cxx.export.poptions += -DQT_SHARED
@@ -1115,7 +1198,8 @@ else
 #
 {h hxx}{../3rdparty/* private/* testlib/*}: install = false
 {hxx h}{*}:               install = include/qt6/QtCore/
-h{qconfig qtcore-config}: install = include_arch/qt6/QtCore/
+h{qconfig qtcore-config qtdeprecationdefinitions}: \
+  install = include_arch/qt6/QtCore/
 
 lib{Qt6Core}: cxx.pkgconfig.include = include/qt6 include/qt6/QtCore
 
