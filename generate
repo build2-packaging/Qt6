@@ -151,17 +151,17 @@ function symlink_dirs ()
 symlink_dirs upstream/qtbase/mkspecs          \
              upstream/qtbase/src/tools/shared \
              Qt6Moc/moc/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
              Qt6Moc/moc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Rcc/rcc/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
              Qt6Rcc/rcc/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              Qt6Uic/uic/
-symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1} \
+symlink_dirs upstream/qtbase/src/3rdparty/{rfc6234,sha1,siphash} \
              Qt6Uic/uic/3rdparty/
 
 # The testlib/ symlink is made necessary by the inclusion of
@@ -173,13 +173,14 @@ symlink_dirs upstream/qtbase/mkspecs     \
              upstream/qtbase/src/testlib \
              libQt6Core/QtCore/
 
-symlink_dirs upstream/qtbase/src/3rdparty/{easing,forkfd}             \
-             upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3} \
+symlink_dirs upstream/qtbase/src/3rdparty/{easing,forkfd}                     \
+             upstream/qtbase/src/3rdparty/{md4,md5,rfc6234,sha1,sha3,siphash} \
              libQt6Core/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs \
              libQt6Gui/
 symlink_dirs upstream/qtbase/src/3rdparty/{icc,wintab,D3D12MemoryAllocator} \
+             upstream/qtbase/src/3rdparty/emoji-segmenter                   \
              libQt6Gui/3rdparty/
 
 symlink_dirs upstream/qtbase/mkspecs libQt6Widgets/
