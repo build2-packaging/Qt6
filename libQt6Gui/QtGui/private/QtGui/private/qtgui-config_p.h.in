@@ -14,6 +14,14 @@
 //
 #define QT_FEATURE_raster_fp 1
 
+// "Multi-threaded image and painting helpers".
+//
+#if QT_CONFIG(thread)
+#  define QT_FEATURE_qtgui_threadpool 1
+#else
+#  define QT_FEATURE_qtgui_threadpool -1
+#endif
+
 // Disable because it's used only for graphics debugging and adds a
 // dependency.
 //
@@ -52,20 +60,16 @@
     defined(__FreeBSD__) || \
     defined(__OpenBSD_)  || \
     defined(__NetBSD__)
-#  define QT_FEATURE_xrender 1
 #  define QT_FEATURE_xcb_xlib 1
 #  define QT_FEATURE_xcb_sm 1
 #  define QT_FEATURE_system_xcb_xinput 1
-#  define QT_FEATURE_xkbcommon 1
 #  define QT_FEATURE_xkbcommon_x11 1
 #  define QT_FEATURE_xlib 1
 #  define QT_FEATURE_drm_atomic 1
 #else
-#  define QT_FEATURE_xrender -1
 #  define QT_FEATURE_xcb_xlib -1
 #  define QT_FEATURE_xcb_sm -1
 #  define QT_FEATURE_system_xcb_xinput -1
-#  define QT_FEATURE_xkbcommon -1
 #  define QT_FEATURE_xkbcommon_x11 -1
 #  define QT_FEATURE_xlib -1
 #  define QT_FEATURE_drm_atomic -1
@@ -92,6 +96,7 @@
 #define QT_FEATURE_directwrite3 -1
 #define QT_FEATURE_direct2d -1
 #define QT_FEATURE_direct2d1_1 -1
+#define QT_FEATURE_directwritecolrv1 -1
 
 // Disable EGL/EGLFS.
 //
@@ -106,13 +111,10 @@
 #define QT_FEATURE_eglfs_viv_wl -1
 #define QT_FEATURE_eglfs_openwfd -1
 #define QT_FEATURE_eglfs_x11 -1
+// #define QT_FEATURE_egl_extension_platform_wayland -1
 
 #define QT_FEATURE_xcb_glx -1
 #define QT_FEATURE_xcb_egl_plugin -1
-
-// "XCB Native painting (experimental)". Always disable.
-//
-#define QT_FEATURE_xcb_native_painting -1
 
 // Disable Vulkan.
 //
@@ -150,3 +152,29 @@
 #  define QT_FEATURE_libinput_axis_api -1
 #  define QT_FEATURE_libinput_hires_wheel_support -1
 #endif
+
+// "Run opengl tests". OpenGL is disabled (see qtgui-config.h.in).
+//
+#define QT_FEATURE_run_opengl_tests -1
+
+// VxWorks only.
+//
+#define QT_FEATURE_vxworksevdev -1
+
+// Wayland client and compositor (server) features. Wayland is disabled (see
+// qtgui-config.h.in).
+//
+// #define QT_FEATURE_wayland_client -1
+// #define QT_FEATURE_wayland_server -1
+// #define QT_FEATURE_wayland_egl -1
+// #define QT_FEATURE_wayland_brcm -1
+// #define QT_FEATURE_wayland_drm_egl_server_buffer -1
+// #define QT_FEATURE_wayland_libhybris_egl_server_buffer -1
+// #define QT_FEATURE_wayland_dmabuf_server_buffer -1
+// #define QT_FEATURE_wayland_shm_emulation_server_buffer -1
+// #define QT_FEATURE_wayland_vulkan_server_buffer -1
+// #define QT_FEATURE_wayland_datadevice -1
+// #define QT_FEATURE_wayland_client_primary_selection -1
+// #define QT_FEATURE_wayland_client_fullscreen_shell_v1 -1
+// #define QT_FEATURE_wayland_client_wl_shell -1
+// #define QT_FEATURE_wayland_client_xdg_shell -1

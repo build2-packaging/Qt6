@@ -162,6 +162,11 @@
 //
 #define QT_FEATURE_timezone 1
 
+// "std::chrono::tzdb QTZ backend". Disabled by default upstream (due to
+// deficiencies in libstdc++'s implementation; see QTBUG-127598).
+//
+#define QT_FEATURE_timezone_tzdb -1
+
 // "Supports translations using QObject::tr()."
 //
 #define QT_FEATURE_translation 1
@@ -200,6 +205,10 @@
 #if !QT_CONFIG(glib)
 #  define QT_NO_GLIB 1
 #endif
+
+// "JeMalloc". Disabled by default upstream and not packaged for build2.
+//
+#define QT_FEATURE_jemalloc -1
 
 // This library provides routines to convert IEEE single and double floats to
 // and from string representations. Qt bundles their own copy under 3rdparty/
