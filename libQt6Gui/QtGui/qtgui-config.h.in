@@ -337,7 +337,7 @@
 
 #if defined(__GLIBC__)   || \
     defined(__FreeBSD__) || \
-    defined(__OpenBSD_)  || \
+    defined(__OpenBSD__) || \
     defined(__NetBSD__)
 #define QT_FEATURE_xcb 1
 #define QT_FEATURE_xcb_glx_plugin -1
