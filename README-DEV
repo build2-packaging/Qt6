@@ -413,6 +413,16 @@ headers (for example, for QChar and QBitArray in qchar.h and qbitarray.h). They
 are issued by the upstream build as well (unless hidden by its precompiled
 headers) and are harmless.
 
+Clang 22 fails to compile libharfbuzz 4.2.0 (a libQt6Gui dependency) because
+harfbuzz promotes -Wcast-function-type to an error with a #pragma (see hb.hh)
+which with Clang 22 also covers the new -Wcast-function-type-strict
+diagnostic. This is not a Qt issue. Until an updated libharfbuzz package is
+available, it can be worked around by configuring libharfbuzz with
+config.cxx.poptions=-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR, for example:
+
+  $ bpkg build '?libharfbuzz' \
+      +{ config.cxx.poptions=-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR }
+
 4. Upstream bugs
 
 - upstream/qtbase/src/widgets/dialogs/qdialog.cpp includes
