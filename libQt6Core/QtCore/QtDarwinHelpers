@@ -1,1 +1,1 @@
-#include "qdarwinhelpers.h" // IWYU pragma: export
+#include <QtCore/qdarwinhelpers.h> // IWYU pragma: export

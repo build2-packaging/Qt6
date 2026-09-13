@@ -1,1 +1,1 @@
-#include "qbytearraylist.h" // IWYU pragma: export
+#include <QtCore/qlist.h> // IWYU pragma: export

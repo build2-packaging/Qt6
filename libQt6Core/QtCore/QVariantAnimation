@@ -1,1 +1,1 @@
-#include "qvariantanimation.h" // IWYU pragma: export
+#include <QtCore/qvariantanimation.h> // IWYU pragma: export

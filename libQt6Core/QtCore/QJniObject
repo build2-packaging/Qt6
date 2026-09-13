@@ -1,1 +1,1 @@
-#include "qjniobject.h" // IWYU pragma: export
+#include <QtCore/qjniobject.h> // IWYU pragma: export

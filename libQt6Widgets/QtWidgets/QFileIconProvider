@@ -1,1 +1,1 @@
-#include "qfileiconprovider.h" // IWYU pragma: export
+#include <QtWidgets/qfileiconprovider.h> // IWYU pragma: export

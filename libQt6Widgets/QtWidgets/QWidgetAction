@@ -1,1 +1,1 @@
-#include "qwidgetaction.h" // IWYU pragma: export
+#include <QtWidgets/qwidgetaction.h> // IWYU pragma: export

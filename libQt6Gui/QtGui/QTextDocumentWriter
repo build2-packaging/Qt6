@@ -1,1 +1,1 @@
-#include "qtextdocumentwriter.h" // IWYU pragma: export
+#include <QtGui/qtextdocumentwriter.h> // IWYU pragma: export

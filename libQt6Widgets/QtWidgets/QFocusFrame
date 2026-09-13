@@ -1,1 +1,1 @@
-#include "qfocusframe.h" // IWYU pragma: export
+#include <QtWidgets/qfocusframe.h> // IWYU pragma: export

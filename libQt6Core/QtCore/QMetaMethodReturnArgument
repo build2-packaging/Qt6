@@ -1,1 +1,1 @@
-#include "qobjectdefs.h" // IWYU pragma: export
+#include <QtCore/qobjectdefs.h> // IWYU pragma: export

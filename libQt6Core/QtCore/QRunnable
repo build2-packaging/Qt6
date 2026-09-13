@@ -1,1 +1,1 @@
-#include "qrunnable.h" // IWYU pragma: export
+#include <QtCore/qrunnable.h> // IWYU pragma: export

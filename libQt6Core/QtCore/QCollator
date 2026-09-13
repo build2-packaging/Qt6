@@ -1,1 +1,1 @@
-#include "qcollator.h" // IWYU pragma: export
+#include <QtCore/qcollator.h> // IWYU pragma: export

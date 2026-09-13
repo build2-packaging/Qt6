@@ -1,1 +1,1 @@
-#include "qsessionmanager.h" // IWYU pragma: export
+#include <QtGui/qsessionmanager.h> // IWYU pragma: export

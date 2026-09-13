@@ -1,1 +1,1 @@
-#include "qshortcut.h" // IWYU pragma: export
+#include <QtGui/qshortcut.h> // IWYU pragma: export

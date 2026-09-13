@@ -1,1 +1,1 @@
-#include "qmetacontainer.h" // IWYU pragma: export
+#include <QtCore/qmetasequence.h> // IWYU pragma: export

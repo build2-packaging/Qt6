@@ -1,1 +1,1 @@
-#include "qstyle.h" // IWYU pragma: export
+#include <QtWidgets/qstyle.h> // IWYU pragma: export

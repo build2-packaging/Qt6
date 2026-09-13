@@ -1,1 +1,1 @@
-#include "qfilesystemwatcher.h" // IWYU pragma: export
+#include <QtCore/qfilesystemwatcher.h> // IWYU pragma: export

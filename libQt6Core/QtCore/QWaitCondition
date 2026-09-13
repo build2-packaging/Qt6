@@ -1,1 +1,1 @@
-#include "qwaitcondition.h" // IWYU pragma: export
+#include <QtCore/qwaitcondition.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qdeadlinetimer.h" // IWYU pragma: export
+#include <QtCore/qdeadlinetimer.h> // IWYU pragma: export

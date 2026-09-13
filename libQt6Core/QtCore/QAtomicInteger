@@ -1,1 +1,1 @@
-#include "qatomic.h" // IWYU pragma: export
+#include <QtCore/qatomic.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qeventpoint.h" // IWYU pragma: export
+#include <QtGui/qeventpoint.h> // IWYU pragma: export

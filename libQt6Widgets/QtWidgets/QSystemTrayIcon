@@ -1,1 +1,1 @@
-#include "qsystemtrayicon.h" // IWYU pragma: export
+#include <QtWidgets/qsystemtrayicon.h> // IWYU pragma: export

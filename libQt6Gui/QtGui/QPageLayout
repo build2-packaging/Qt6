@@ -1,1 +1,1 @@
-#include "qpagelayout.h" // IWYU pragma: export
+#include <QtGui/qpagelayout.h> // IWYU pragma: export

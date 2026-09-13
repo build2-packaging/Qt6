@@ -1,1 +1,1 @@
-#include "qpixmapcache.h" // IWYU pragma: export
+#include <QtGui/qpixmapcache.h> // IWYU pragma: export

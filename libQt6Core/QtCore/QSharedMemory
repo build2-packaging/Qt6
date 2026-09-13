@@ -1,1 +1,1 @@
-#include "qsharedmemory.h" // IWYU pragma: export
+#include <QtCore/qsharedmemory.h> // IWYU pragma: export

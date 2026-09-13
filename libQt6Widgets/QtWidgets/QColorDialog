@@ -1,1 +1,1 @@
-#include "qcolordialog.h" // IWYU pragma: export
+#include <QtWidgets/qcolordialog.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qiterator.h" // IWYU pragma: export
+#include <QtCore/qiterator.h> // IWYU pragma: export

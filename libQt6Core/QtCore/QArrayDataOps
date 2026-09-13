@@ -1,1 +1,1 @@
-#include "qarraydataops.h" // IWYU pragma: export
+#include <QtCore/qarraydataops.h> // IWYU pragma: export

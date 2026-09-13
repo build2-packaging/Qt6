@@ -1,1 +1,1 @@
-#include "qabstracteventdispatcher.h" // IWYU pragma: export
+#include <QtCore/qabstracteventdispatcher.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qset.h" // IWYU pragma: export
+#include <QtCore/qset.h> // IWYU pragma: export

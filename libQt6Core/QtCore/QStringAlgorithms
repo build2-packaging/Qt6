@@ -1,1 +1,1 @@
-#include "qstringalgorithms.h" // IWYU pragma: export
+#include <QtCore/qstringalgorithms.h> // IWYU pragma: export

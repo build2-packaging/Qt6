@@ -1,1 +1,1 @@
-#include "qglyphrun.h" // IWYU pragma: export
+#include <QtGui/qglyphrun.h> // IWYU pragma: export

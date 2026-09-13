@@ -1,1 +1,1 @@
-#include "qquaternion.h" // IWYU pragma: export
+#include <QtGui/qquaternion.h> // IWYU pragma: export

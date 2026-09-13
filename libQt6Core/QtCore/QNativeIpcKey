@@ -1,1 +1,1 @@
-#include "qtipccommon.h" // IWYU pragma: export
+#include <QtCore/qtipccommon.h> // IWYU pragma: export

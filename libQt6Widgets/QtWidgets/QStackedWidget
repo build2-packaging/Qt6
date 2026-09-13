@@ -1,1 +1,1 @@
-#include "qstackedwidget.h" // IWYU pragma: export
+#include <QtWidgets/qstackedwidget.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qbrush.h" // IWYU pragma: export
+#include <QtGui/qbrush.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qdatetime.h" // IWYU pragma: export
+#include <QtCore/qdatetime.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qatomicscopedvaluerollback.h" // IWYU pragma: export
+#include <QtCore/qatomicscopedvaluerollback.h> // IWYU pragma: export
