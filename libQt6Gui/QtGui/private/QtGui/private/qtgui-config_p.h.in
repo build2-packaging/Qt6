@@ -58,7 +58,7 @@
 
 #if defined(__GLIBC__)   || \
     defined(__FreeBSD__) || \
-    defined(__OpenBSD_)  || \
+    defined(__OpenBSD__) || \
     defined(__NetBSD__)
 #  define QT_FEATURE_xcb_xlib 1
 #  define QT_FEATURE_xcb_sm 1
