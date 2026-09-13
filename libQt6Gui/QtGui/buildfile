@@ -459,6 +459,13 @@ gen_src = $regex.apply($moc_hdr $moc_hdr_adhoc                          \
 #
 lib{Qt6Gui}: cxx{** -{$src $gen_src kernel/qguiapplication-*}}: include = adhoc
 
+# The emoji segmenter state machine is included by text/qtextengine.cpp (and
+# is otherwise not part of the distribution because 3rdparty/ is outside of
+# QtGui/).
+#
+lib{Qt6Gui}: ../3rdparty/emoji-segmenter/c{emoji_presentation_scanner}: \
+  include = adhoc
+
 # Platform-specific source files.
 #
 lib{Qt6Gui}: cxx{$unix_src}:  include = $unix
