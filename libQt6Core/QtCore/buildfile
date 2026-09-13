@@ -317,6 +317,10 @@ win_moc_hdr_adhoc = private/QtCore/private/qeventdispatcher_win_p     \
                     private/QtCore/private/qwindowspipewriter_p       \
                     qwineventnotifier
 
+# Windows headers to be moc'd and the outputs compiled.
+#
+win_moc_hdr = private/QtCore/private/qwinregistry_p
+
 # macOS headers to be moc'd and the outputs compiled.
 #
 macos_moc_hdr = private/QtCore/private/qfilesystemwatcher_fsevents_p
@@ -582,6 +586,9 @@ for s: hxx{$linux_moc_hdr_adhoc}
 for s: hxx{$win_moc_hdr_adhoc}
   lib{Qt6Core}: cxx{moc_$name($s)}: include = ($windows ? adhoc : false)
 
+for s: hxx{$win_moc_hdr}
+  lib{Qt6Core}: cxx{moc_$name($s)}: include = $windows
+
 for s: hxx{$macos_moc_hdr}
   lib{Qt6Core}: cxx{moc_$name($s)}: include = $macos
 
@@ -594,7 +601,7 @@ for s: hxx{$bsd_moc_hdr_adhoc}
 for s: hxx{$moc_hdr $moc_hdr_adhoc              \
            $unix_moc_hdr_adhoc                  \
            $linux_moc_hdr_adhoc                 \
-           $win_moc_hdr_adhoc                   \
+           $win_moc_hdr $win_moc_hdr_adhoc      \
            $macos_moc_hdr $macos_moc_hdr_adhoc  \
            $bsd_moc_hdr_adhoc}
   cxx{moc_$name($s)}: $s
