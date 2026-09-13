@@ -268,11 +268,12 @@ sed -nE \
   h
 
   # Extract the feature name from the input line; skip it if it does not
-  # begin with 'qt_feature(foo':
+  # begin with 'qt_feature(foo', 'qt_feature_alias(foo', or
+  # 'qt_feature_deprecated(foo':
   #
   #   'qt_feature(\"foo\" PUBLIC' -> 'foo'
   #
-  s%^qt_feature\(\"(.+)\".*%\1%
+  s%^qt_feature(_alias|_deprecated)?\(\"(.+)\".*%\2%
   t l0 # Jump to label :l0 if a replacement was done.
   d    # Start next cycle (skip current input line).
   :l0
@@ -282,13 +283,13 @@ sed -nE \
   #
   x # Swap contents of pattern space and hold space.
 
-  # Remove the 'qt_feature(foo' prefix and any subsequent whitespace from the
+  # Remove the 'qt_feature*(foo' prefix and any subsequent whitespace from the
   # (original) input line, leaving only the visibility spec; skip the input
   # line if the prefix was not found.
   #
   #   'qt_feature(\"foo\" PUBLIC PRIVATE' -> 'PUBLIC PRIVATE'
   #
-  s%(^qt_feature\(\".+\"\s*)%%
+  s%(^qt_feature(_alias|_deprecated)?\(\".+\"\s*)%%
   t l1 # Jump to label :l1 if a replacement was done.
   d    # Start next cycle (skip current input line).
   :l1
