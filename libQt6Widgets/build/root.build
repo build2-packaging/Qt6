@@ -1,6 +1,16 @@
 using in
 
-cxx.std = latest
+# Compile as C++17 with GNU extensions (-std=gnu++17 with GCC and Clang), like
+# upstream (see qt_set_language_standards() in
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake; the c++20 and later
+# features in upstream/qtbase/configure.cmake are not autodetected). In
+# particular, Qt must be compiled in a mode that enables 128-bit integers if
+# the compiler supports them (see
+# upstream/qtbase/src/corelib/global/qtypes.cpp).
+#
+using cxx.guess
+
+cxx.std = ($cxx.class == 'gcc' ? 'gnu++17' : '17')
 
 using cxx
 
