@@ -45,6 +45,7 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
                 private/QtWidgets/private/qtoolbarextension_p           \
                 private/QtWidgets/private/qtoolbarlayout_p              \
                 private/QtWidgets/private/qtoolbarseparator_p           \
+                private/QtWidgets/private/qtooltip_p                    \
                 private/QtWidgets/private/qtreewidget_p                 \
                 private/QtWidgets/private/qwidget_p                     \
                 private/QtWidgets/private/qwidgetanimator_p             \
@@ -154,7 +155,8 @@ moc_hdr_adhoc = private/QtWidgets/private/qabstractscrollarea_p         \
 
 # Headers to be moc'd and the outputs compiled.
 #
-moc_hdr = qrhiwidget
+moc_hdr = private/QtWidgets/private/qcolorwell_p \
+          qrhiwidget
 
 # Source files to be moc'd and the outputs included.
 #
@@ -316,8 +318,7 @@ for s: hxx{$moc_hdr_adhoc}
 for s: $moc_src_adhoc
   lib{Qt6Widgets}: moc{$name($s)}: include = adhoc
 
-for s: cxx{kernel/qtooltip              \
-           kernel/qwhatsthis            \
+for s: cxx{kernel/qwhatsthis            \
            util/qsystemtrayicon_x11     \
            widgets/qeffects}
 {
@@ -354,6 +355,7 @@ for s: cxx{itemviews/qlistwidget \
 }
 
 for s: cxx{itemviews/qitemeditorfactory \
+           kernel/qtooltip              \
            kernel/qwidgetrepaintmanager \
            widgets/qmainwindowlayout}
 {
@@ -446,7 +448,9 @@ cxx.poptions =+                                                         \
 cxx.poptions += $lib_macros                     \
                 -DQT_BUILD_WIDGETS_LIB          \
                 -DQT_NO_CONTEXTLESS_CONNECT     \
-                -DQT_NO_USING_NAMESPACE
+                -DQT_NO_URL_CAST_FROM_STRING    \
+                -DQT_NO_USING_NAMESPACE         \
+                -DQT_USE_NODISCARD_FILE_OPEN
 
 objs{*}: cxx.poptions += $objs_macros
 
