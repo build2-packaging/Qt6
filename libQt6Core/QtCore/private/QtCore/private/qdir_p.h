@@ -1,1 +1,1 @@
-../../../../../upstream/qtbase/src/corelib/io/qdir_p.h
+../../../../../downstream/qtbase/src/corelib/io/qdir_p.h
