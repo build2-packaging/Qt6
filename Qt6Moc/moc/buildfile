@@ -36,23 +36,19 @@ moc_src = collectjson  \
           token
 
 # The QtCore source files required to build the moc executable. (These all go
-# into the bootstrap library in the upstream build.)
+# into the bootstrap library in the upstream build; see
+# upstream/qtbase/src/tools/bootstrap/CMakeLists.txt.)
 #
-core_src = QtCore/global/qassert                        \
+# Note that qendian is required in addition because the UTF-16 and UTF-32
+# codecs are enabled for all the Qt compilers (see
+# downstream/qtbase/src/corelib/text/qstringconverter.cpp).
+#
+core_src = QtCore/global/qalloc                         \
+           QtCore/global/qassert                        \
            QtCore/global/qendian                        \
-           QtCore/global/qfloat16                       \
-           QtCore/global/qglobal                        \
-           QtCore/global/qlogging                       \
-           QtCore/global/qmalloc                        \
-           QtCore/global/qnumeric                       \
-           QtCore/global/qoperatingsystemversion        \
-           QtCore/global/qrandom                        \
            QtCore/global/qtenvironmentvariables         \
            QtCore/io/qabstractfileengine                \
-           QtCore/io/qbuffer                            \
-           QtCore/io/qdebug                             \
            QtCore/io/qdir                               \
-           QtCore/io/qdiriterator                       \
            QtCore/io/qfile                              \
            QtCore/io/qfiledevice                        \
            QtCore/io/qfileinfo                          \
@@ -61,28 +57,12 @@ core_src = QtCore/global/qassert                        \
            QtCore/io/qfsfileengine                      \
            QtCore/io/qfsfileengine_iterator             \
            QtCore/io/qiodevice                          \
-           QtCore/io/qipaddress                         \
-           QtCore/io/qloggingcategory                   \
-           QtCore/io/qloggingregistry                   \
-           QtCore/io/qresource                          \
-           QtCore/io/qsavefile                          \
-           QtCore/io/qstandardpaths                     \
-           QtCore/io/qtemporaryfile                     \
-           QtCore/io/qurl                               \
-           QtCore/io/qurlidna                           \
-           QtCore/io/qurlquery                          \
-           QtCore/io/qurlrecode                         \
            QtCore/kernel/qcoreapplication               \
-           QtCore/kernel/qiterable                      \
-           QtCore/kernel/qmetacontainer                 \
            QtCore/kernel/qmetatype                      \
            QtCore/kernel/qsystemerror                   \
-           QtCore/kernel/qvariant                       \
-           QtCore/plugin/quuid                          \
            QtCore/serialization/qcborcommon             \
            QtCore/serialization/qcborstreamwriter       \
            QtCore/serialization/qcborvalue              \
-           QtCore/serialization/qdatastream             \
            QtCore/serialization/qjsonarray              \
            QtCore/serialization/qjsoncbor               \
            QtCore/serialization/qjsondocument           \
@@ -102,7 +82,6 @@ core_src = QtCore/global/qassert                        \
            QtCore/text/qstringbuilder                   \
            QtCore/text/qstringconverter                 \
            QtCore/text/qstringlist                      \
-           QtCore/text/qvsnprintf                       \
            QtCore/time/qcalendar                        \
            QtCore/time/qdatetime                        \
            QtCore/time/qgregoriancalendar               \
@@ -112,72 +91,63 @@ core_src = QtCore/global/qassert                        \
            QtCore/tools/qarraydata                      \
            QtCore/tools/qcommandlineoption              \
            QtCore/tools/qcommandlineparser              \
-           QtCore/tools/qcryptographichash              \
            QtCore/tools/qhash                           \
-           QtCore/tools/qringbuffer                     \
-           QtCore/tools/qversionnumber
+           QtCore/tools/qringbuffer
 
 # The UNIX-specific QtCore source files required to build moc. Note that
 # this includes Mac OS.
 #
-unix_core_src = QtCore/io/qfilesystemengine_unix   \
-                QtCore/io/qfilesystemiterator_unix \
+# Note that qfilesystemengine_unix is handled separately (see below).
+#
+unix_core_src = QtCore/io/qfilesystemiterator_unix \
                 QtCore/io/qfsfileengine_unix       \
                 QtCore/kernel/qcore_unix
 
 # The Windows-specific QtCore source files required to build moc.
 #
-win_core_src = QtCore/global/qoperatingsystemversion_win        \
-               QtCore/io/qfilesystemengine_win                  \
-               QtCore/io/qfilesystemiterator_win                \
-               QtCore/io/qfsfileengine_win                      \
-               QtCore/io/qstandardpaths_win                     \
-               QtCore/kernel/qcoreapplication_win               \
-               QtCore/kernel/qfunctions_win                     \
-               QtCore/kernel/qwinregistry                       \
-               QtCore/plugin/qsystemlibrary
-
-# The Mac OS-specific C++ QtCore source files required to build moc.
-#
-macos_core_src = QtCore/kernel/qcoreapplication_mac
+win_core_src = QtCore/io/qfilesystemengine_win          \
+               QtCore/io/qfilesystemiterator_win        \
+               QtCore/io/qfsfileengine_win              \
+               QtCore/kernel/qfunctions_win
 
 # The Mac OS-specific Objective-C++ QtCore source files required to build
 # moc.
 #
-macos_core_src_mm = QtCore/global/qoperatingsystemversion_darwin \
-                    QtCore/io/qfilesystemengine_mac              \
-                    QtCore/io/qstandardpaths_mac                 \
-                    QtCore/kernel/qcore_foundation               \
+macos_core_src_mm = QtCore/kernel/qcore_foundation \
                     QtCore/kernel/qcore_mac
 
-all_core_src = $core_src $unix_core_src $win_core_src \
-               $macos_core_src $macos_core_src_mm
+all_core_src = $core_src $unix_core_src QtCore/io/qfilesystemengine_unix \
+               $win_core_src $macos_core_src_mm
 
-gen_hdr = QtCore/qtcoreexports QtCore/qconfig
+gen_hdr = QtCore/qtcoreexports QtCore/qconfig QtCore/qtdeprecationdefinitions
 
 exe{qt6moc}: hxx{** -{$gen_hdr} +QtCore/Q*.} h{$gen_hdr}        \
              cxx{$core_src $moc_src}                            \
              testscript
 
-exe{qt6moc}: cxx{$unix_core_src}:                include = $unix
-exe{qt6moc}: cxx{QtCore/io/qstandardpaths_unix}: include = ($unix && ! $macos)
-exe{qt6moc}: cxx{$macos_core_src}:               include = $macos
-exe{qt6moc}: mm{$macos_core_src_mm}:             include = $macos
-exe{qt6moc}: cxx{$win_core_src}:                 include = $windows
+exe{qt6moc}: cxx{$unix_core_src}:    include = $unix
+exe{qt6moc}: mm{$macos_core_src_mm}: include = $macos
+exe{qt6moc}: cxx{$win_core_src}:     include = $windows
 
-all_core_src += QtCore/io/qstandardpaths_unix
+# On Apple platforms qfilesystemengine_unix.cpp is compiled as Objective-C++
+# (see upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+#
+if $macos
+  exe{qt6moc}: mm{QtCore/io/qfilesystemengine_unix.cpp}
+else
+  exe{qt6moc}: cxx{QtCore/io/qfilesystemengine_unix}: include = $unix
 
 # Ensure included C and C++ source files and other files are included in the
 # distribution.
 #
-exe{qt6moc}: cxx{keywords               \
-                 ppkeywords             \
-                 3rdparty/sha1/sha1}    \
-             cxx{** -{$moc_src          \
-                      $core_src         \
-                      $unix_core_src    \
-                      $win_core_src     \
-                      $macos_core_src}} \
+exe{qt6moc}: cxx{keywords                               \
+                 ppkeywords                             \
+                 3rdparty/siphash/siphash}              \
+             cxx{** -{$moc_src                          \
+                      $core_src                         \
+                      $unix_core_src                    \
+                      QtCore/io/qfilesystemengine_unix  \
+                      $win_core_src}}                   \
              file{cmake.conf}: include = adhoc
 
 # Generated headers and source files.
@@ -216,6 +186,15 @@ QtCore/h{qtcoreexports}: QtCore/in{qtcoreexports}
   module_define_infix    = CORE
 }
 
+# Deprecation cut-off macros. See libQt6Core/QtCore/buildfile for details.
+#
+QtCore/h{qtdeprecationdefinitions}: QtCore/in{qtdeprecationdefinitions}
+{
+  in.symbol = '@'
+  QT_DISABLE_DEPRECATED_UP_TO = ($windows ? 0x040800 : 0x050000)
+  QT_WARN_DEPRECATED_UP_TO    = 0x070000
+}
+
 exe{qt6moc}: $libs
 
 # Header search directories.
@@ -252,11 +231,12 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   case 'macos', 'clang-apple'
   {
     cxx.poptions += "-I$src_root/moc/mkspecs/macx-clang"
-    cxx.libs     += -framework AppKit       \
-                    -framework CoreServices \
-                    -framework Foundation   \
-                    -framework IOKit        \
-                    -framework Security
+    cxx.libs     += -framework AppKit                   \
+                    -framework CoreServices             \
+                    -framework Foundation               \
+                    -framework IOKit                    \
+                    -framework Security                 \
+                    -framework UniformTypeIdentifiers
   }
   case 'bsd', 'clang', 'freebsd'
     cxx.poptions += "-I$src_root/moc/mkspecs/freebsd-clang"
@@ -268,21 +248,27 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
   {
     cxx.poptions += "-I$src_root/moc/mkspecs/win32-msvc"
 
-    cxx.libs += ole32.lib advapi32.lib netapi32.lib
+    cxx.libs += ole32.lib advapi32.lib netapi32.lib shell32.lib user32.lib
   }
   case 'windows', 'msvc-clang' | 'clang'
   {
     cxx.poptions += "-I$src_root/moc/mkspecs/win32-clang-msvc"
 
-    cxx.libs += ole32.lib advapi32.lib netapi32.lib
+    cxx.libs += ole32.lib advapi32.lib netapi32.lib shell32.lib user32.lib
   }
   case 'windows', 'gcc', 'mingw32'
   {
     cxx.poptions += "-I$src_root/moc/mkspecs/win32-g++"
     cxx.coptions += -fno-keep-inline-dllexport
-    cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -luuid
+    cxx.libs     += -lole32 -ladvapi32 -lnetapi32 -lshell32 -luser32 -luuid
   }
 }
+
+# Required by QObjCWeakPointer (see
+# upstream/qtbase/src/tools/bootstrap/CMakeLists.txt).
+#
+if $macos
+  obj{QtCore/kernel/qcore_mac}: cxx.coptions += -fobjc-weak
 
 cxx.poptions += -DQT_NO_CAST_FROM_ASCII
 
@@ -294,7 +280,9 @@ obj{$all_core_src}: cxx.poptions += $bootstrap_macros
 obj{$moc_src}: cxx.poptions += $compiler_macros                 \
                                -DQT_MOC                         \
                                -DQT_NO_CAST_FROM_BYTEARRAY      \
-                               -DQT_NO_QPAIR
+                               -DQT_NO_QPAIR                    \
+                               -DQT_NO_URL_CAST_FROM_STRING     \
+                               -DQT_USE_NODISCARD_FILE_OPEN
 
 
 # Disable exceptions on the moc objects.
