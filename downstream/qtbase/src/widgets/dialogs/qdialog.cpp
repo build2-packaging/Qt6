@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
 // Qt-Security score:significant reason:default
 
-#include "kernel/qwidget_p.h"
+#include "private/qwidget_p.h"
 #include <QtWidgets/qtwidgetsglobal.h>
 #include <utility>
 #if QT_CONFIG(colordialog)
