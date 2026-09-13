@@ -117,3 +117,17 @@ objs_macros =
 
 if ($cxx.id == 'msvc')
    objs_macros += -D_WINDLL
+
+# Qt requires the /permissive- option with MSVC (but not with clang-cl), both
+# for building Qt and for its consumers (see the static_assert in
+# upstream/qtbase/src/corelib/global/qcompilerdetection.h and
+# qt_set_msvc_cplusplus_options() in
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake). The option is also
+# exported to consumers from lib{Qt6Core}.
+#
+# Note that build2 already passes /Zc:__cplusplus (the other option set by
+# upstream) and that /permissive- used to be implied by /std:c++latest, which
+# is no longer used (see build/root.build).
+#
+if ($cxx.id == 'msvc')
+  cxx.coptions += /permissive-
