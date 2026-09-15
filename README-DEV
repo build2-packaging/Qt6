@@ -44,6 +44,14 @@ This list should be relatively stable but probably better be updated
 periodically. Searching upstream/qtbase/cmake/ for some of the macros we
 define in libQt6Core/build/common.build should help identify them.
 
+Note that we do not define the hardening macros that the upstream build adds
+by default on Linux (_FORTIFY_SOURCE=2 and _GLIBCXX_ASSERTIONS, along with
+compile options such as -fstack-protector-strong and
+-ftrivial-auto-var-init=pattern; see the hardening features in
+upstream/qtbase/configure.cmake). Such hardening is a toolchain/distribution
+policy which is better left to the build configuration (for example,
+config.cc.poptions and config.cc.coptions).
+
 1.3 Configuration system
 
 A module's features are defined in qtbase/src/<module>/configure.cmake as
@@ -369,6 +377,18 @@ build instructions.)
   instead. In addition to the fact that we're compiling the same sources three
   times, upstream is trending towards using more and more QtCore functionality
   so this might not remain practical for long.
+
+- Since 6.8 upstream no longer compiles the UTF-16 and UTF-32 codecs
+  (qstringconverter) and QDir's directory entry listing (qdir) into the
+  bootstrap library because rcc and uic are now linked against the proper
+  QtCore. Because Qt6Rcc and Qt6Uic still get a reduced set of QtCore sources
+  (see above), we re-enable them with downstream patches (see
+  downstream/qtbase/src/corelib/text/qstringconverter{_base.h,.cpp} and
+  downstream/qtbase/src/corelib/io/qdir{.cpp,_p.h}) and compile the additional
+  QtCore sources they require (qbuffer, qdirlisting, qendian, qversionnumber;
+  see the tools' buildfiles for details). Note that missing out-of-line
+  functions may be hidden by inlining so also build the tools with -O0 when
+  changing these source lists.
   
 3. Platform/compiler support issues
 
@@ -382,9 +402,40 @@ looks like licensing reasons (see comment 16).
 libQt6Gui and libQt6Widgets are not supported on FreeBSD because those CI VMs
 do not have the X Window System installed.
 
+Qt is compiled as C++17 and C11 with GNU extensions (-std=gnu++17 and
+-std=gnu11 with GCC and Clang), like upstream. In particular, upstream requires
+128-bit integer support if the compiler provides it, which libstdc++ disables
+in strict mode (see upstream/qtbase/src/corelib/global/qtypes.cpp). See the
+packages' build/root.build.
+
+GCC 16 issues a large number of -Wsfinae-incomplete warnings for upstream
+headers (for example, for QChar and QBitArray in qchar.h and qbitarray.h). They
+are issued by the upstream build as well (unless hidden by its precompiled
+headers) and are harmless.
+
+Clang 22 fails to compile libharfbuzz 4.2.0 (a libQt6Gui dependency) because
+harfbuzz promotes -Wcast-function-type to an error with a #pragma (see hb.hh)
+which with Clang 22 also covers the new -Wcast-function-type-strict
+diagnostic. This is not a Qt issue. Until an updated libharfbuzz package is
+available, it can be worked around by configuring libharfbuzz with
+config.cxx.poptions=-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR, for example:
+
+  $ bpkg build '?libharfbuzz' \
+      +{ config.cxx.poptions=-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR }
+
 4. Upstream bugs
 
-None, currently.
+- upstream/qtbase/src/widgets/dialogs/qdialog.cpp includes
+  "kernel/qwidget_p.h", a path relative to the module source directory which
+  only works with the upstream build's header search directories (all other
+  sources include "private/qwidget_p.h"). Not reported upstream yet. See
+  downstream/qtbase/src/widgets/dialogs/qdialog.cpp.
+
+- upstream/qtbase/src/corelib/thread/qthread_win.cpp uses QSpan without
+  including <QtCore/qspan.h>. This is hidden in the upstream build by the
+  QtCore precompiled header but fails with Clang (clang-cl), which requires the
+  complete type. Not reported upstream yet. See
+  downstream/qtbase/src/corelib/thread/qthread_win.cpp.
 
 Appendix A: Running the upstream build
 

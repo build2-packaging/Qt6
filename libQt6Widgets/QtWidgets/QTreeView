@@ -1,1 +1,1 @@
-#include "qtreeview.h" // IWYU pragma: export
+#include <QtWidgets/qtreeview.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qtversionchecks.h" // IWYU pragma: export
+#include <QtCore/qtversionchecks.h> // IWYU pragma: export

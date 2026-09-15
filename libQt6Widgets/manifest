@@ -1,6 +1,6 @@
 : 1
 name: libQt6Widgets
-version: 6.7.3
+version: 6.11.2-a.0.z
 project: Qt6
 summary: Qt6 GUI widgets library
 license: LGPL-3.0-only
@@ -18,8 +18,9 @@ builds: default
 builds: -( +macos &gcc )  ; Not supported by upstream.
 builds: -freebsd          ; No X11 on CI.
 builds: -wasm             ; Not supported.
-depends: * build2 >= 0.16.0
-depends: * bpkg >= 0.16.0
+build-exclude: linux_ubuntu_26.04-gcc_15-bindist ; libxcb-randr/sync development headers missing on CI.
+depends: * build2 >= 0.18.0
+depends: * bpkg >= 0.18.0
 depends: * Qt6Moc == $
 depends: * Qt6Rcc == $
 depends: * Qt6Uic == $

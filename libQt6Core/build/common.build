@@ -4,26 +4,19 @@ windows = ($cxx.target.class  == 'windows')
 # despite it still being defined in some places upstream.
 #
 
-# Macros defined on all targets (libraries, executables, plugins). Note that
-# this variable is only a building block for the more target-specific macros
-# variables below (so it should only be referenced in this file).
+# Macros defined on all targets (libraries, executables, plugins), including
+# the bootstrap library. Note that this variable is only a building block for
+# the more target-specific macros variables below (so it should only be
+# referenced in this file).
 #
 common_macros = -DQT_EXPLICIT_QFILE_CONSTRUCTION_FROM_PATH      \
-                -DQT_NO_AS_CONST                                \
                 -DQT_NO_FOREACH                                 \
                 -DQT_NO_JAVA_STYLE_ITERATORS                    \
                 -DQT_NO_NARROWING_CONVERSIONS_IN_CONNECT        \
+                -DQT_NO_QASCONST                                \
                 -DQT_NO_QEXCHANGE                               \
+                -DQT_NO_QSNPRINTF                               \
                 -DQT_USE_QSTRINGBUILDER
-
-# Upstream defines QT_{WARN,DISABLE}_DEPRECATED_UP_TO and QT_LEAN_HEADERS=1
-# everywhere except the bootstrap library. However these particular macros
-# seem safe to define on the bootstrap library (especially if no compilation
-# errors result) so define them there too for the sake of simplicity.
-#
-common_macros += -DQT_LEAN_HEADERS=1                    \
-                 -DQT_WARN_DEPRECATED_UP_TO=0x070000    \
-                 -DQT_DISABLE_DEPRECATED_UP_TO=($windows ? 0x040800 : 0x050000)
 
 if $windows
 {
@@ -56,10 +49,28 @@ else
   common_macros += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
 }
 
+# Macros defined on all targets except the bootstrap library. Note that this
+# variable is only a building block for the more target-specific macros
+# variables below (so it should only be referenced in this file).
+#
+# QT_LEAN_HEADERS and QT_NO_SINGLE_ARGUMENT_QHASH_OVERLOAD come from
+# QT_EXTRA_INTERNAL_TARGET_DEFINES in upstream/qtbase/.cmake.conf and
+# QT_NO_STD_FORMAT_SUPPORT is a global definition scoped to modules, plugins,
+# and tools.
+#
+# Note that upstream no longer defines QT_{WARN,DISABLE}_DEPRECATED_UP_TO on
+# the command line. Instead they are defined in the generated
+# QtCore/qtdeprecationdefinitions.h header (see libQt6Core/QtCore/buildfile).
+#
+internal_macros = -DQT_LEAN_HEADERS=1                         \
+                  -DQT_NO_SINGLE_ARGUMENT_QHASH_OVERLOAD=1    \
+                  -DQT_NO_STD_FORMAT_SUPPORT
+
 # Macros for all libraries except the bootstrap one. This includes libraries
 # such as the XCB plugin's private implementation library.
 #
 lib_macros = $common_macros             \
+             $internal_macros           \
              -DQT_ASCII_CAST_WARNINGS   \
              -DQT_BUILDING_QT           \
              -DQT_MOC_COMPAT            \
@@ -82,6 +93,7 @@ if $windows
 # private module config headers, unlike upstream; see README-DEV).
 #
 compiler_macros = $common_macros        \
+                  $internal_macros      \
                   -DQT_BOOTSTRAPPED     \
                   -DQT_NO_CAST_TO_ASCII
 
@@ -89,13 +101,15 @@ compiler_macros = $common_macros        \
 #
 # See note above about the QT_VERSION_* macros.
 #
-bootstrap_macros = $compiler_macros     \
+bootstrap_macros = $common_macros       \
+                   -DQT_BOOTSTRAPPED    \
+                   -DQT_NO_CAST_TO_ASCII \
                    -DQT_TYPESAFE_FLAGS
 
 # Macros for all plugins. (Note that this does not include the XCB plugin's
 # private implementation library.)
 #
-plugin_macros = $common_macros -DQT_PLUGIN
+plugin_macros = $common_macros $internal_macros -DQT_PLUGIN
 
 # Macros for shared library object files.
 #
@@ -103,3 +117,17 @@ objs_macros =
 
 if ($cxx.id == 'msvc')
    objs_macros += -D_WINDLL
+
+# Qt requires the /permissive- option with MSVC (but not with clang-cl), both
+# for building Qt and for its consumers (see the static_assert in
+# upstream/qtbase/src/corelib/global/qcompilerdetection.h and
+# qt_set_msvc_cplusplus_options() in
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake). The option is also
+# exported to consumers from lib{Qt6Core}.
+#
+# Note that build2 already passes /Zc:__cplusplus (the other option set by
+# upstream) and that /permissive- used to be implied by /std:c++latest, which
+# is no longer used (see build/root.build).
+#
+if ($cxx.id == 'msvc')
+  cxx.coptions += /permissive-

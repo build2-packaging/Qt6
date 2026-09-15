@@ -1,1 +1,1 @@
-#include "qscopeguard.h" // IWYU pragma: export
+#include <QtCore/qscopeguard.h> // IWYU pragma: export

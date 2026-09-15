@@ -1,1 +1,1 @@
-#include "qmessagebox.h" // IWYU pragma: export
+#include <QtWidgets/qmessagebox.h> // IWYU pragma: export

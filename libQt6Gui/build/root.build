@@ -1,8 +1,26 @@
 using in
 
+# Compile C source files as C11 with extensions, like upstream
+# (CMAKE_C_STANDARD 11 with CMake's default CMAKE_C_EXTENSIONS, see
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake).
+#
+using c.guess
+
+c.std = ($c.class == 'gcc' ? 'gnu11' : '11')
+
 using c
 
-cxx.std = latest
+# Compile as C++17 with GNU extensions (-std=gnu++17 with GCC and Clang), like
+# upstream (see qt_set_language_standards() in
+# upstream/qtbase/cmake/QtFlagHandlingHelpers.cmake; the c++20 and later
+# features in upstream/qtbase/configure.cmake are not autodetected). In
+# particular, Qt must be compiled in a mode that enables 128-bit integers if
+# the compiler supports them (see
+# upstream/qtbase/src/corelib/global/qtypes.cpp).
+#
+using cxx.guess
+
+cxx.std = ($cxx.class == 'gcc' ? 'gnu++17' : '17')
 
 using cxx
 

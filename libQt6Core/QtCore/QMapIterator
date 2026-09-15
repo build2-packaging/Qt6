@@ -1,1 +1,1 @@
-#include "qmap.h" // IWYU pragma: export
+#include <QtCore/qmap.h> // IWYU pragma: export

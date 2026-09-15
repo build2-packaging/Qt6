@@ -1,1 +1,1 @@
-#include "qdatastream.h" // IWYU pragma: export
+#include <QtCore/qdatastream.h> // IWYU pragma: export

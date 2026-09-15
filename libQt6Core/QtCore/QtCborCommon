@@ -1,1 +1,1 @@
-#include "qcborcommon.h" // IWYU pragma: export
+#include <QtCore/qcborcommon.h> // IWYU pragma: export

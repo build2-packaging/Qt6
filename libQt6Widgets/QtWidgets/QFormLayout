@@ -1,1 +1,1 @@
-#include "qformlayout.h" // IWYU pragma: export
+#include <QtWidgets/qformlayout.h> // IWYU pragma: export

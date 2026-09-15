@@ -1,0 +1,1 @@
+../../upstream/qtbase/src/corelib/itemmodels/qrangemodel_impl.h

@@ -37,6 +37,22 @@
 #define QT_FEATURE_thread 1
 #define QT_FEATURE_future 1
 
+// "Build QtGuiTest namespace" (the GUI testing support API used by QtTest).
+//
+// Enabled by default upstream and affects the libQt6Gui ABI.
+//
+#define QT_FEATURE_test_gui 1
+#if QT_CONFIG(test_gui)
+#  define QT_GUI_TEST 1
+#endif
+
+// "Run Squish based tests". Only used by the upstream build.
+//
+// #define QT_FEATURE_test_squish -1
+// #if QT_CONFIG(test_squish)
+// #  define QT_SQUISH_TEST 0
+// #endif
+
 // "Disables code that is not allowed in platform app stores"
 //
 #define QT_FEATURE_appstore_compliant -1
@@ -48,6 +64,8 @@
 //
 // #define QT_COORD_TYPE
 // #define QT_COORD_TYPE_STRING
+// #define QT_COORD_TYPE_IS_DOUBLE 1
+// #define QT_COORD_TYPE_IS_FLOAT 1
 // #define QT_EMCC_VERSION
 
 // Zstandard support (system only, not bundled with Qt).
@@ -103,24 +121,32 @@
 // Shared vs. static build.
 //
 // Upstream enables QT_FEATURE_shared by default on most platforms and
-// disables QT_FEATURE_static if QT_FEATURE_shared is enabled. So upstream
-// never builds both shared and static libraries.
+// QT_FEATURE_static is an internal (not written to the module config headers)
+// alias for !QT_FEATURE_shared. So upstream never builds both shared and
+// static libraries.
 //
-// Neither are currently used and the actual code checks the QT_SHARED and
-// QT_STATIC macros which we set in the buildfile.
+// The shared feature is not currently used and the actual code checks the
+// QT_SHARED and QT_STATIC macros which we set in the buildfile.
 //
-// Note: Leave all shared and static features and macros commented-out so that
-//       we'll get a build failure the moment upstream code actually starts
+// Note: Leave the shared feature and its macro commented-out so that we'll
+//       get a build failure the moment upstream code actually starts
 //       referencing these.
 //
 // #define QT_FEATURE_shared 1
-//
 // #if !QT_CONFIG(shared)
-// #  define QT_FEATURE_static 1
 // #  define QT_STATIC 1 // Never uncomment this line!
-// #else
-// #  define QT_FEATURE_static -1
 // #endif
+
+// "Version tagging": tags binaries using Qt with the version of Qt they were
+// built against. Upstream this relies on a linker version script (except on
+// Apple platforms and Windows) which we do not use and so, just like before
+// this feature was introduced (see QT_NO_VERSION_TAGGING in libQt6Core's
+// export options), always disable it.
+//
+#define QT_FEATURE_version_tagging -1
+#if !QT_CONFIG(version_tagging)
+#  define QT_NO_VERSION_TAGGING 1
+#endif
 
 // "Build Apple Frameworks".
 //
@@ -173,6 +199,7 @@
 // #define QT_FEATURE_cxx20 1
 // #define QT_FEATURE_cxx2a 1
 // #define QT_FEATURE_cxx2b 1
+// #define QT_FEATURE_cxx2c 1
 
 // Upstream always defines this to 64 on all of our supported platforms.
 //
@@ -204,6 +231,14 @@
 #define QT_FEATURE_wasm_exceptions -1
 #if QT_CONFIG(wasm_exceptions)
 #  define QT_WASM_EXCEPTIONS 1
+#endif
+
+// "WebAssembly JavaScript Promise Integration (JSPI)". Requires
+// QT_FEATURE_wasm_exceptions.
+//
+#define QT_FEATURE_wasm_jspi -1
+#if QT_CONFIG(wasm_jspi)
+#  define QT_WASM_JSPI 1
 #endif
 
 // The QT_COMPILER_SUPPORTS_* macros cover support for various instruction
@@ -393,6 +428,23 @@
 // #  define QT_COMPILER_SUPPORTS_MIPS_DSPR2 1
 // #endif
 
+// #define QT_FEATURE_arm_sve -1 // Moved from private
+// #if QT_CONFIG(arm_sve)
+// #  define QT_COMPILER_SUPPORTS_SVE 1
+// #endif
+
+// LoongArch SIMD extensions.
+//
+// #define QT_FEATURE_lsx -1 // Moved from private
+// #if QT_CONFIG(lsx)
+// #  define QT_COMPILER_SUPPORTS_LSX 1
+// #endif
+
+// #define QT_FEATURE_lasx -1 // Moved from private
+// #if QT_CONFIG(lasx)
+// #  define QT_COMPILER_SUPPORTS_LASX 1
+// #endif
+
 // @@ TODO Handle like the various SSE, AVX features.
 //
 
@@ -439,6 +491,7 @@
 //
 // #define QT_FEATURE_arm_crypto -1 // Moved from private
 // #if QT_CONFIG(arm_crypto)
+// #  define QT_COMPILER_SUPPORTS_CRYPTO 1
 // #  define QT_COMPILER_SUPPORTS_AES 1
 // #endif
 

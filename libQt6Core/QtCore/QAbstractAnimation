@@ -1,1 +1,1 @@
-#include "qabstractanimation.h" // IWYU pragma: export
+#include <QtCore/qabstractanimation.h> // IWYU pragma: export

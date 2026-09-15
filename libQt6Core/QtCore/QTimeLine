@@ -1,1 +1,1 @@
-#include "qtimeline.h" // IWYU pragma: export
+#include <QtCore/qtimeline.h> // IWYU pragma: export

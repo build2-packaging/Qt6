@@ -1,1 +1,1 @@
-#include "qgenericplugin.h" // IWYU pragma: export
+#include <QtGui/qgenericplugin.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-#include "qscreen.h" // IWYU pragma: export
+#include <QtGui/qscreen.h> // IWYU pragma: export

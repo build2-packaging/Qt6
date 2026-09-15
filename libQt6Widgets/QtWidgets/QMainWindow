@@ -1,1 +1,1 @@
-#include "qmainwindow.h" // IWYU pragma: export
+#include <QtWidgets/qmainwindow.h> // IWYU pragma: export

@@ -1,1 +1,1 @@
-../../../upstream/qtbase/src/corelib/text/qstringconverter_base.h
+../../../downstream/qtbase/src/corelib/text/qstringconverter_base.h

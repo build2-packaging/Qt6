@@ -19,12 +19,16 @@ import priv_intf_libs = libQt6Core%lib{Qt6CorePrivate}
 #
 plugins_dir = [dir_path] ../QtGuiPlugins/
 
-include $plugins_dir
+# Note that the plugin buildfiles include this buildfile (for the libraries
+# and macros they share with lib{Qt6Gui}), which makes the cycle intentional.
+#
+include [allow_cycle] $plugins_dir
 
 src = accessible/qaccessible                    \
       accessible/qaccessiblebridge              \
       accessible/qaccessiblebridgeutils         \
       accessible/qaccessiblecache               \
+      accessible/qaccessiblehelper              \
       accessible/qaccessibleobject              \
       accessible/qaccessibleplugin              \
       accessible/qplatformaccessibility         \
@@ -34,6 +38,7 @@ src = accessible/qaccessible                    \
       image/qabstractfileiconprovider           \
       image/qbitmap                             \
       image/qbmphandler                         \
+      image/qfonticonengine                     \
       image/qicon                               \
       image/qiconengine                         \
       image/qiconengineplugin                   \
@@ -60,6 +65,7 @@ src = accessible/qaccessible                    \
       itemmodels/qfileinfogatherer              \
       itemmodels/qfilesystemmodel               \
       itemmodels/qstandarditemmodel             \
+      kernel/qaccessibilityhints                \
       kernel/qaction                            \
       kernel/qactiongroup                       \
       kernel/qclipboard                         \
@@ -143,6 +149,7 @@ src = accessible/qaccessible                    \
       painting/qdrawhelper                      \
       painting/qemulationpaintengine            \
       painting/qicc                             \
+      painting/qimageeffects                    \
       painting/qimagescale                      \
       painting/qmemrotate                       \
       painting/qoutlinemapper                   \
@@ -157,9 +164,11 @@ src = accessible/qaccessible                    \
       painting/qpaintengineex                   \
       painting/qpainter                         \
       painting/qpainterpath                     \
+      painting/qpainterstateguard               \
       painting/qpathclipper                     \
       painting/qpathsimplifier                  \
       painting/qpdf                             \
+      painting/qpdfoutputintent                 \
       painting/qpdfwriter                       \
       painting/qpen                             \
       painting/qpixellayout                     \
@@ -179,6 +188,7 @@ src = accessible/qaccessible                    \
       text/freetype/qfontengine_ft              \
       text/freetype/qfreetypefontdatabase       \
       text/qabstracttextdocumentlayout          \
+      text/qcolrpaintgraphrenderer              \
       text/qcssparser                           \
       text/qdistancefield                       \
       text/qfont                                \
@@ -187,6 +197,7 @@ src = accessible/qaccessible                    \
       text/qfontengineglyphcache                \
       text/qfontmetrics                         \
       text/qfontsubset                          \
+      text/qfontvariableaxis                    \
       text/qfragmentmap                         \
       text/qglyphrun                            \
       text/qharfbuzzng                          \
@@ -232,12 +243,13 @@ unix_src = platform/unix/qunixeventdispatcher   \
            platform/unix/qgenericunixeventdispatcher
 
 win_src = ../3rdparty/D3D12MemoryAllocator/D3D12MemAlloc        \
-          accessible/windows/apisupport/qwindowsuiawrapper      \
           image/qpixmap_win                                     \
           platform/windows/qwindowsguieventdispatcher           \
           platform/windows/qwindowsmimeconverter                \
           platform/windows/qwindowsnativeinterface              \
           platform/windows/qwindowsthemecache                   \
+          rhi/qdxgihdrinfo                                      \
+          rhi/qdxgivsyncservice                                 \
           rhi/qrhid3d11                                         \
           rhi/qrhid3d12                                         \
           rhi/qrhid3dhelpers                                    \
@@ -253,14 +265,22 @@ macos_src = painting/qrasterbackingstore        \
 macos_mm = accessible/qaccessiblecache_mac      \
            image/qimage_darwin                  \
            painting/qcoregraphics               \
-           platform/darwin/qapplekeymapper      \
+           platform/darwin/qapplefileiconengine \
            platform/darwin/qappleiconengine     \
+           platform/darwin/qapplekeymapper      \
            platform/darwin/qmacmimeregistry     \
+           platform/darwin/qmetallayer          \
            platform/darwin/qutimimeconverter    \
            platform/macos/qcocoanativeinterface \
            rhi/qrhimetal                        \
            text/coretext/qcoretextfontdatabase  \
            text/coretext/qfontengine_coretext
+
+# Headers to be moc'd and the outputs compiled.
+#
+moc_hdr = qfontvariableaxis        \
+          qicon                    \
+          qpa/qplatformscreen
 
 # Headers to be moc'd and the outputs included.
 #
@@ -277,7 +297,9 @@ moc_hdr_adhoc = private/QtGui/private/qaccessiblecache_p        \
                 private/QtGui/private/qtextdocumentlayout_p     \
                 private/QtGui/private/qtextimagehandler_p       \
                 private/QtGui/qpa/qplatforminputcontextplugin_p \
+                qabstractfileiconprovider                       \
                 qabstracttextdocumentlayout                     \
+                qaccessibilityhints                             \
                 qaccessible_base                                \
                 qaccessiblebridge                               \
                 qaccessibleplugin                               \
@@ -318,6 +340,7 @@ moc_hdr_adhoc = private/QtGui/private/qaccessiblecache_p        \
                 qpainter                                        \
                 qpalette                                        \
                 qpdfwriter                                      \
+                qpixelformat                                    \
                 qpointingdevice                                 \
                 qrasterwindow                                   \
                 qscreen                                         \
@@ -355,8 +378,7 @@ qrc = painting/qpdf     \
 
 # Resources.
 #
-rc = painting/file{qpdfa_metadata.xml}                          \
-     painting/shaders/file{backingstorecompose.vert.qsb         \
+rc = painting/shaders/file{backingstorecompose.vert.qsb         \
                            backingstorecompose.frag.qsb}        \
      ../3rdparty/icc/file{sRGB2014.icc}
 
@@ -427,8 +449,8 @@ lib{Qt6Gui}: kernel/cxx{qguiapplication-develop}: for_install = false
 # moc_foo.cpp) and by rcc from resource collection files (foo.qrc ->
 # qrc_foo.cpp).
 #
-gen_src = $regex.apply($moc_hdr_adhoc                                   \
-                       $unix_moc_hdr macos_moc_hdr win_moc_hdr_adhoc,   \
+gen_src = $regex.apply($moc_hdr $moc_hdr_adhoc                          \
+                       $unix_moc_hdr $macos_moc_hdr $win_moc_hdr_adhoc, \
                        '(.+/)?(.+)', 'moc_\2')                          \
           $regex.apply($qrc,                                            \
                        '(.+/)?(.+)', 'qrc_\2')
@@ -437,6 +459,13 @@ gen_src = $regex.apply($moc_hdr_adhoc                                   \
 #
 lib{Qt6Gui}: cxx{** -{$src $gen_src kernel/qguiapplication-*}}: include = adhoc
 
+# The emoji segmenter state machine is included by text/qtextengine.cpp (and
+# is otherwise not part of the distribution because 3rdparty/ is outside of
+# QtGui/).
+#
+lib{Qt6Gui}: ../3rdparty/emoji-segmenter/c{emoji_presentation_scanner}: \
+  include = adhoc
+
 # Platform-specific source files.
 #
 lib{Qt6Gui}: cxx{$unix_src}:  include = $unix
@@ -444,8 +473,9 @@ lib{Qt6Gui}: cxx{$win_src}:   include = $windows
 lib{Qt6Gui}: cxx{$macos_src}: include = $macos
 lib{Qt6Gui}: mm{$macos_mm}:   include = $macos
 
-lib{Qt6Gui}: cxx{platform/unix/qgenericunixservices     \
-                 platform/unix/qgenericunixthemes       \
+lib{Qt6Gui}: cxx{platform/unix/qdesktopunixservices     \
+                 platform/unix/qgenericunixtheme        \
+                 platform/unix/qgnometheme              \
                  platform/unix/qtx11extras              \
                  platform/unix/qxkbcommon               \
                  platform/unix/qxkbcommon_3rdparty      \
@@ -462,13 +492,17 @@ lib{Qt6Gui}: cxx{platform/unix/qgenericunixservices     \
 # The dependencies of moc-generated source files on the headers they were
 # generated from (for example, `moc foo.h` produces moc_foo.cpp).
 #
-for s: hxx{$moc_hdr_adhoc $unix_moc_hdr $macos_moc_hdr $win_moc_hdr_adhoc}
+for s: hxx{$moc_hdr $moc_hdr_adhoc $unix_moc_hdr $macos_moc_hdr \
+           $win_moc_hdr_adhoc}
   cxx{moc_$name($s)}: $s libul{Qt6GuiMeta} hxx{$gen_hdr}
 
 # The dependencies of lib{Qt6Gui} on source files generated by moc from
 # headers. Note that some of these source files are compiled and some are
 # included.
 #
+for s: hxx{$moc_hdr}
+  lib{Qt6Gui}: cxx{moc_$name($s)}
+
 for s: hxx{$moc_hdr_adhoc}
   lib{Qt6Gui}: cxx{moc_$name($s)}: include = adhoc
 
@@ -493,16 +527,15 @@ for s: cxx{$moc_src_adhoc}
   moc{$n}: $s libul{Qt6GuiMeta} hxx{$gen_hdr}
 }
 
-# Note that qgenericunixservices.moc will be an empty file because
-# qgenericunixservices.cpp's moc stuff is disabled if QT_FEATURE_DBUS is
-# disabled (which we currently do). However qgenericunixservices.moc gets
-# included unconditionally (unlike qgenericunixthemes.moc, which is also empty
-# for the same reason) so we have to create this file.
+# Note that qdesktopunixservices.moc will be an empty file because
+# qdesktopunixservices.cpp's moc stuff is disabled if QT_FEATURE_dbus is
+# disabled (which we currently do). However qdesktopunixservices.moc gets
+# included unconditionally so we have to create this file.
 #
-lib{Qt6Gui}: moc{qgenericunixservices}: \
+lib{Qt6Gui}: moc{qdesktopunixservices}: \
   include = ($unix && !$macos ? adhoc : false)
 
-moc{qgenericunixservices}: cxx{platform/unix/qgenericunixservices} \
+moc{qdesktopunixservices}: cxx{platform/unix/qdesktopunixservices} \
                            libul{Qt6GuiMeta} hxx{$gen_hdr}
 
 # Dependencies involving source files generated by rcc from Qt resource
@@ -577,7 +610,9 @@ cc.poptions =+                                                                  
 cc.poptions += $lib_macros                      \
                -DQT_BUILD_GUI_LIB               \
                -DQT_NO_CONTEXTLESS_CONNECT      \
-               -DQT_NO_USING_NAMESPACE
+               -DQT_NO_URL_CAST_FROM_STRING     \
+               -DQT_NO_USING_NAMESPACE          \
+               -DQT_USE_NODISCARD_FILE_OPEN
 
 # Add platform-specific libraries.
 #
@@ -617,7 +652,8 @@ switch $cxx.target.class, $cxx.target.system
                              -framework CoreFoundation  \
                              -framework CoreGraphics    \
                              -framework CoreText        \
-                             -framework Foundation
+                             -framework Foundation      \
+                             -framework QuartzCore
   }
   case 'windows', 'mingw32'
   {

@@ -1,1 +1,1 @@
-#include "qvarlengtharray.h" // IWYU pragma: export
+#include <QtCore/qvarlengtharray.h> // IWYU pragma: export

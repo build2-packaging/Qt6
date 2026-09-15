@@ -1,0 +1,1 @@
+../../../../../upstream/qtbase/src/gui/painting/qdrawingprimitive_lsx_p.h

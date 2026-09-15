@@ -1,1 +1,1 @@
-#include "qvulkanwindow.h" // IWYU pragma: export
+#include <QtGui/qvulkanwindow.h> // IWYU pragma: export

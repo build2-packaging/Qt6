@@ -1,1 +1,1 @@
-#include "qundogroup.h" // IWYU pragma: export
+#include <QtGui/qundogroup.h> // IWYU pragma: export

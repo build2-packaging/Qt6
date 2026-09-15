@@ -42,18 +42,45 @@
 #define QT_FEATURE_relocatable $QT_FEATURE_relocatable$
 
 // #define QT_FEATURE_reduce_exports 1 // Moved to public
-// #define QT_FEATURE_debug -1
+
+// "Build for debugging"
+//
+// Used by QFactoryLoader to prefer plugins built in the same (debug or
+// release) mode as QtCore. See h{qconfig_p} in the main buildfile for details.
+//
+#define QT_FEATURE_debug $QT_FEATURE_debug$
+
 // #define QT_FEATURE_developer_build -1 // Moved to public
 // #define QT_FEATURE_gc_binaries -1
 // #define QT_FEATURE_no_direct_extern_access -1 // Moved to public
 // #define QT_FEATURE_private_tests -1
-// #define QT_FEATURE_stack_protector_strong -1
+// #define QT_FEATURE_doc_snippets -1
+// #define QT_FEATURE_force_bundled_libs -1
+// #define QT_FEATURE_force_system_libs -1
 // #define QT_FEATURE_stdlib_libcpp -1
 // #define QT_FEATURE_use_bfd_linker -1
 // #define QT_FEATURE_use_gold_linker -1
 // #define QT_FEATURE_use_lld_linker -1
 // #define QT_FEATURE_use_mold_linker -1
 // #define QT_FEATURE_elf_private_full_version -1
+// #define QT_FEATURE_android_16kb_pages -1
+
+// Hardening features. They only control the compiler and linker options used
+// by the upstream build.
+//
+// #define QT_FEATURE_glibc_fortify_source -1
+// #define QT_FEATURE_stack_protector -1
+// #define QT_FEATURE_stack_clash_protection -1
+// #define QT_FEATURE_libstdcpp_assertions -1
+// #define QT_FEATURE_libcpp_hardening -1
+// #define QT_FEATURE_relro_now_linker -1
+
+// "Using -ftrivial-auto-var-init=pattern". Unlike the other hardening
+// features this one is referenced by the source code (in order to opt out of
+// the pattern initialization in a performance-sensitive function) so it must
+// be defined. Disable because we don't use this compiler option.
+//
+#define QT_FEATURE_trivial_auto_var_init_pattern -1
 
 #undef qconfig_p_HAVE_DLOPEN
 #ifdef qconfig_p_HAVE_DLOPEN
@@ -69,9 +96,8 @@
 #  define QT_FEATURE_posix_fallocate -1
 #endif
 
-// #define QT_FEATURE_alloca_h 1
-// #define QT_FEATURE_alloca 1
-// #define QT_FEATURE_alloca_malloc_h -1
+// #define QT_FEATURE_localtime_r 1
+// #define QT_FEATURE_localtime_s -1
 
 // "Support for Intel Control-flow Enforcement Technology".
 //
@@ -113,3 +139,6 @@
 // #define QT_FEATURE_arm_crc32 -1 // Moved to public
 // #define QT_FEATURE_f16c 1 // Moved to public
 // #define QT_FEATURE_arm_crypto -1 // Moved to public
+// #define QT_FEATURE_arm_sve -1 // Moved to public
+// #define QT_FEATURE_lsx -1 // Moved to public
+// #define QT_FEATURE_lasx -1 // Moved to public
