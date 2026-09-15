@@ -1096,13 +1096,19 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
     # @@ synchronization.lib is only for Windows >= 8; on older versions no
     #    library should be added.
     #
+    # Note that upstream also links runtimeobject.lib but it is only required
+    # by the cpp_winrt feature which we disable (see
+    # upstream/qtbase/src/corelib/CMakeLists.txt and qtcore-config.h.in). We
+    # omit it because build2 does not recognize it as a Windows system library
+    # and so linking a static consumer against the installed Qt6Core fails
+    # looking for its (non-existent) static variant.
+    #
     lib{Qt6Core}: cxx.libs += advapi32.lib              \
                               authz.lib                 \
                               mpr.lib                   \
                               netapi32.lib              \
                               ntdll.lib                 \
                               ole32.lib                 \
-                              runtimeobject.lib         \
                               shell32.lib               \
                               synchronization.lib       \
                               user32.lib                \
@@ -1123,13 +1129,14 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
       lib{Qt6Core}: cxx.libs += \
         clang_rt.builtins-($cxx.target.cpu == 'aarch64' ? aarch64 : x86_64).lib
 
+    # Note: no runtimeobject (see the msvc case above).
+    #
     lib{Qt6Core}: cxx.libs += advapi32.lib              \
                               authz.lib                 \
                               mpr.lib                   \
                               netapi32.lib              \
                               ntdll.lib                 \
                               ole32.lib                 \
-                              runtimeobject.lib         \
                               shell32.lib               \
                               synchronization.lib       \
                               user32.lib                \
@@ -1145,13 +1152,14 @@ switch $cxx.target.class, $cxx.id, $cxx.target.system
 
     cxx.coptions += -fno-keep-inline-dllexport
 
+    # Note: no runtimeobject (see the msvc case above).
+    #
     lib{Qt6Core}: cxx.libs += -ladvapi32        \
                               -lauthz           \
                               -lmpr             \
                               -lnetapi32        \
                               -lntdll           \
                               -lole32           \
-                              -lruntimeobject   \
                               -lshell32         \
                               -lsynchronization \
                               -luser32          \
